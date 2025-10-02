@@ -7,6 +7,7 @@ import { BranchProvider } from './contexts/BranchContext';
 import { BarberProvider } from './contexts/BarberContext';
 import { ServiceProvider } from './contexts/ServiceContext';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
+import { Layout } from './components/layout/Layout';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
@@ -35,7 +36,9 @@ function App() {
                       path="/dashboard"
                       element={
                         <ProtectedRoute>
-                          <Dashboard />
+                          <Layout>
+                            <Dashboard />
+                          </Layout>
                         </ProtectedRoute>
                       }
                     />
@@ -45,7 +48,9 @@ function App() {
                       path="/franchises"
                       element={
                         <ProtectedRoute>
-                          <FranchisesPage />
+                          <Layout>
+                            <FranchisesPage />
+                          </Layout>
                         </ProtectedRoute>
                       }
                     />
@@ -53,7 +58,9 @@ function App() {
                       path="/franchises/new"
                       element={
                         <ProtectedRoute>
-                          <FranchiseFormPage />
+                          <Layout>
+                            <FranchiseFormPage />
+                          </Layout>
                         </ProtectedRoute>
                       }
                     />
@@ -61,7 +68,9 @@ function App() {
                       path="/franchises/:id/edit"
                       element={
                         <ProtectedRoute>
-                          <FranchiseFormPage />
+                          <Layout>
+                            <FranchiseFormPage />
+                          </Layout>
                         </ProtectedRoute>
                       }
                     />
@@ -71,7 +80,9 @@ function App() {
                       path="/branches"
                       element={
                         <ProtectedRoute>
-                          <BranchesPage />
+                          <Layout>
+                            <BranchesPage />
+                          </Layout>
                         </ProtectedRoute>
                       }
                     />
@@ -79,7 +90,9 @@ function App() {
                       path="/branches/new"
                       element={
                         <ProtectedRoute>
-                          <BranchFormPage />
+                          <Layout>
+                            <BranchFormPage />
+                          </Layout>
                         </ProtectedRoute>
                       }
                     />
@@ -87,7 +100,9 @@ function App() {
                       path="/branches/:id/edit"
                       element={
                         <ProtectedRoute>
-                          <BranchFormPage />
+                          <Layout>
+                            <BranchFormPage />
+                          </Layout>
                         </ProtectedRoute>
                       }
                     />
@@ -97,7 +112,9 @@ function App() {
                       path="/barbers"
                       element={
                         <ProtectedRoute>
-                          <BarbersPage />
+                          <Layout>
+                            <BarbersPage />
+                          </Layout>
                         </ProtectedRoute>
                       }
                     />
@@ -105,7 +122,9 @@ function App() {
                       path="/barbers/new"
                       element={
                         <ProtectedRoute>
-                          <BarberFormPage />
+                          <Layout>
+                            <BarberFormPage />
+                          </Layout>
                         </ProtectedRoute>
                       }
                     />
@@ -113,7 +132,9 @@ function App() {
                       path="/barbers/:id/edit"
                       element={
                         <ProtectedRoute>
-                          <BarberFormPage />
+                          <Layout>
+                            <BarberFormPage />
+                          </Layout>
                         </ProtectedRoute>
                       }
                     />
@@ -123,7 +144,9 @@ function App() {
                       path="/services"
                       element={
                         <ProtectedRoute>
-                          <ServicesPage />
+                          <Layout>
+                            <ServicesPage />
+                          </Layout>
                         </ProtectedRoute>
                       }
                     />
@@ -131,7 +154,9 @@ function App() {
                       path="/services/new"
                       element={
                         <ProtectedRoute>
-                          <ServiceFormPage />
+                          <Layout>
+                            <ServiceFormPage />
+                          </Layout>
                         </ProtectedRoute>
                       }
                     />
@@ -139,7 +164,9 @@ function App() {
                       path="/services/:id/edit"
                       element={
                         <ProtectedRoute>
-                          <ServiceFormPage />
+                          <Layout>
+                            <ServiceFormPage />
+                          </Layout>
                         </ProtectedRoute>
                       }
                     />
