@@ -111,6 +111,117 @@ export const BranchSchema = z.object({
 });
 
 // ========================================
+// Barber Schemas
+// ========================================
+
+export const BarberDayScheduleSchema = z.object({
+  isWorking: z.boolean(),
+  workStart: z.string().regex(/^\d{2}:\d{2}$/).optional(),
+  workEnd: z.string().regex(/^\d{2}:\d{2}$/).optional(),
+  breakStart: z.string().regex(/^\d{2}:\d{2}$/).optional(),
+  breakEnd: z.string().regex(/^\d{2}:\d{2}$/).optional(),
+});
+
+export const BarberScheduleSchema = z.object({
+  monday: BarberDayScheduleSchema,
+  tuesday: BarberDayScheduleSchema,
+  wednesday: BarberDayScheduleSchema,
+  thursday: BarberDayScheduleSchema,
+  friday: BarberDayScheduleSchema,
+  saturday: BarberDayScheduleSchema,
+  sunday: BarberDayScheduleSchema,
+});
+
+export const BarberSchema = z.object({
+  barberId: z.string().min(1),
+  userId: z.string().min(1),
+  franchiseId: z.string().min(1),
+  branchId: z.string().min(1),
+  displayName: z.string().min(1),
+  photoURL: z.string().url().nullable(),
+  specialties: z.array(z.string()),
+  bio: z.string().max(500).optional(),
+  schedule: BarberScheduleSchema,
+  isActive: z.boolean(),
+  isAvailable: z.boolean(),
+  createdAt: z.any(),
+  updatedAt: z.any(),
+});
+
+// ========================================
+// Service Schemas
+// ========================================
+
+export const ServiceSchema = z.object({
+  serviceId: z.string().min(1),
+  franchiseId: z.string().min(1),
+  name: z.string().min(1).max(100),
+  description: z.string().max(500).optional(),
+  duration: z.number().min(5).max(480), // 5 min to 8 hours
+  price: z.number().min(0), // cents
+  category: z.string().min(1),
+  isActive: z.boolean(),
+  createdAt: z.any(),
+  updatedAt: z.any(),
+});
+
+// ========================================
+// Input Validation Schemas (for forms)
+// ========================================
+
+export const CreateFranchiseInputSchema = FranchiseSchema.omit({
+  franchiseId: true,
+  createdAt: true,
+  updatedAt: true,
+  stripeAccountId: true,
+  stripeSubscriptionId: true,
+}).extend({
+  ownerUserId: z.string().min(1),
+});
+
+export const UpdateFranchiseInputSchema = CreateFranchiseInputSchema.partial();
+
+export const CreateBranchInputSchema = BranchSchema.omit({
+  branchId: true,
+  createdAt: true,
+  updatedAt: true,
+}).extend({
+  franchiseId: z.string().min(1),
+});
+
+export const UpdateBranchInputSchema = CreateBranchInputSchema.partial().omit({
+  franchiseId: true,
+});
+
+export const CreateBarberInputSchema = BarberSchema.omit({
+  barberId: true,
+  createdAt: true,
+  updatedAt: true,
+}).extend({
+  userId: z.string().min(1),
+  franchiseId: z.string().min(1),
+  branchId: z.string().min(1),
+});
+
+export const UpdateBarberInputSchema = CreateBarberInputSchema.partial().omit({
+  userId: true,
+  franchiseId: true,
+  branchId: true,
+});
+
+export const CreateServiceInputSchema = ServiceSchema.omit({
+  serviceId: true,
+  createdAt: true,
+  updatedAt: true,
+}).extend({
+  franchiseId: z.string().min(1),
+});
+
+export const UpdateServiceInputSchema = CreateServiceInputSchema.partial().omit({
+  franchiseId: true,
+});
+
+// ========================================
 // Validation Helper Functions
 // ========================================
 
@@ -160,4 +271,64 @@ export function parseBranch(data: unknown) {
     console.error('Invalid branch data:', error);
     return null;
   }
+}
+
+/**
+ * Valida y parsea datos de barbero
+ */
+export function parseBarber(data: unknown) {
+  try {
+    return BarberSchema.parse(data);
+  } catch (error) {
+    console.error('Invalid barber data:', error);
+    return null;
+  }
+}
+
+/**
+ * Valida y parsea datos de servicio
+ */
+export function parseService(data: unknown) {
+  try {
+    return ServiceSchema.parse(data);
+  } catch (error) {
+    console.error('Invalid service data:', error);
+    return null;
+  }
+}
+
+// ========================================
+// Input Validation Functions (for forms)
+// ========================================
+
+export function validateCreateFranchise(data: unknown) {
+  return CreateFranchiseInputSchema.safeParse(data);
+}
+
+export function validateUpdateFranchise(data: unknown) {
+  return UpdateFranchiseInputSchema.safeParse(data);
+}
+
+export function validateCreateBranch(data: unknown) {
+  return CreateBranchInputSchema.safeParse(data);
+}
+
+export function validateUpdateBranch(data: unknown) {
+  return UpdateBranchInputSchema.safeParse(data);
+}
+
+export function validateCreateBarber(data: unknown) {
+  return CreateBarberInputSchema.safeParse(data);
+}
+
+export function validateUpdateBarber(data: unknown) {
+  return UpdateBarberInputSchema.safeParse(data);
+}
+
+export function validateCreateService(data: unknown) {
+  return CreateServiceInputSchema.safeParse(data);
+}
+
+export function validateUpdateService(data: unknown) {
+  return UpdateServiceInputSchema.safeParse(data);
 }
