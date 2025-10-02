@@ -58,3 +58,6 @@ serviceAccountKey.json
 # Temporary files
 tmp/
 temp/
+
+# MCP Settings (contains secrets)
+.claude/mcp_settings.json
