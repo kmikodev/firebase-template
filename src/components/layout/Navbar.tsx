@@ -31,7 +31,9 @@ export function Navbar() {
 
   const visibleLinks = navLinks.filter(link => {
     if (!link.roles) return true;
-    return customClaims && link.roles.includes(customClaims.role);
+    // Si no hay customClaims (usuario nuevo/guest), mostrar todos los links
+    if (!customClaims) return true;
+    return link.roles.includes(customClaims.role);
   });
 
   if (!user) return null;
