@@ -24,8 +24,10 @@ export default function ClientQueue() {
     timeRemainingFormatted,
     takeTicket,
     markArrival,
+    cancelTicket,
     taking,
     marking,
+    cancelling,
     error
   } = useQueue({ branchId: selectedBranchId });
 
@@ -61,6 +63,20 @@ export default function ClientQueue() {
       await markArrival({ queueId: myTicket.queueId });
     } catch (err) {
       console.error('Failed to mark arrival:', err);
+    }
+  };
+
+  const handleCancelTicket = async () => {
+    if (!myTicket) return;
+
+    if (!window.confirm('¿Estás seguro de que quieres cancelar tu turno?')) {
+      return;
+    }
+
+    try {
+      await cancelTicket({ queueId: myTicket.queueId });
+    } catch (err) {
+      console.error('Failed to cancel ticket:', err);
     }
   };
 
@@ -174,13 +190,22 @@ export default function ClientQueue() {
 
             {/* Actions */}
             {myTicket.status === 'waiting' && (
-              <button
-                onClick={handleMarkArrival}
-                disabled={marking}
-                className="w-full bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed font-semibold transition"
-              >
-                {marking ? 'Marcando...' : '✓ Marcar Llegada a Sucursal'}
-              </button>
+              <div className="space-y-3">
+                <button
+                  onClick={handleMarkArrival}
+                  disabled={marking}
+                  className="w-full bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed font-semibold transition"
+                >
+                  {marking ? 'Marcando...' : '✓ Marcar Llegada a Sucursal'}
+                </button>
+                <button
+                  onClick={handleCancelTicket}
+                  disabled={cancelling}
+                  className="w-full bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed font-semibold transition"
+                >
+                  {cancelling ? 'Cancelando...' : '✕ Cancelar Turno'}
+                </button>
+              </div>
             )}
 
             {myTicket.status === 'notified' && (

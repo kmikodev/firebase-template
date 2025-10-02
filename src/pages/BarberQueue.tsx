@@ -18,7 +18,11 @@ export default function BarberQueue() {
     queueTickets,
     queueLoading,
     advanceQueue,
+    // completeTicket,  // TODO: Add UI for completing tickets
+    // cancelTicket,    // TODO: Add UI for cancelling tickets
     advancing,
+    // completing,
+    // cancelling,
     error
   } = useQueue({ branchId: selectedBranchId });
 

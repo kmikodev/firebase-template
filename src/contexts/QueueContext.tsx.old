@@ -1,0 +1,330 @@
+/**
+ * Queue Context - Global state management for queue operations
+ */
+import { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import { toast } from 'sonner';
+// import { queueService } from '@/services/queueService';
+import type { QueueTicket, QueueStatus } from '@/types';
+
+interface QueueContextType {
+  tickets: QueueTicket[];
+  loading: boolean;
+  currentTicket: QueueTicket | null;
+
+  listTickets: () => Promise<void>;
+  listTicketsByBranch: (branchId: string) => Promise<void>;
+  listTicketsByUser: (userId: string) => Promise<void>;
+  listActiveTicketsByBranch: (branchId: string) => Promise<void>;
+  getTicket: (queueId: string) => Promise<QueueTicket | null>;
+  createTicket: (data: Omit<QueueTicket, 'queueId' | 'createdAt' | 'updatedAt'>) => Promise<string>;
+  updateTicket: (queueId: string, data: Partial<QueueTicket>) => Promise<void>;
+  updateTicketStatus: (queueId: string, status: QueueStatus, additionalData?: Partial<QueueTicket>) => Promise<void>;
+  deleteTicket: (queueId: string) => Promise<void>;
+
+  // Queue-specific actions
+  takeTicket: (branchId: string, userId: string, serviceId?: string, barberId?: string) => Promise<string>;
+  callTicket: (queueId: string) => Promise<void>;
+  markArrival: (queueId: string) => Promise<void>;
+  completeTicket: (queueId: string) => Promise<void>;
+  cancelTicket: (queueId: string, reason?: string) => Promise<void>;
+  advanceQueue: (branchId: string) => Promise<void>;
+}
+
+const QueueContext = createContext<QueueContextType | undefined>(undefined);
+
+export function QueueProvider({ children }: { children: ReactNode }) {
+  const [tickets, setTickets] = useState<QueueTicket[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [currentTicket, setCurrentTicket] = useState<QueueTicket | null>(null);
+
+  const listTickets = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await queueService.list();
+      setTickets(data);
+    } catch (error: any) {
+      toast.error('Failed to load tickets');
+      console.error('Error loading tickets:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const listTicketsByBranch = useCallback(async (branchId: string) => {
+    setLoading(true);
+    try {
+      const data = await queueService.listByBranch(branchId);
+      setTickets(data);
+    } catch (error: any) {
+      toast.error('Failed to load branch tickets');
+      console.error('Error loading branch tickets:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const listTicketsByUser = useCallback(async (userId: string) => {
+    setLoading(true);
+    try {
+      const data = await queueService.listByUser(userId);
+      setTickets(data);
+    } catch (error: any) {
+      toast.error('Failed to load user tickets');
+      console.error('Error loading user tickets:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const listActiveTicketsByBranch = useCallback(async (branchId: string) => {
+    setLoading(true);
+    try {
+      const data = await queueService.listActiveByBranch(branchId);
+      setTickets(data);
+    } catch (error: any) {
+      toast.error('Failed to load active tickets');
+      console.error('Error loading active tickets:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const getTicket = useCallback(async (queueId: string) => {
+    setLoading(true);
+    try {
+      const ticket = await queueService.getById(queueId);
+      setCurrentTicket(ticket);
+      return ticket;
+    } catch (error: any) {
+      toast.error('Failed to load ticket');
+      console.error('Error loading ticket:', error);
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const createTicket = useCallback(async (data: Omit<QueueTicket, 'queueId' | 'createdAt' | 'updatedAt'>) => {
+    setLoading(true);
+    try {
+      const queueId = await queueService.create(data);
+      toast.success('Ticket created successfully');
+      return queueId;
+    } catch (error: any) {
+      toast.error('Failed to create ticket');
+      console.error('Error creating ticket:', error);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const updateTicket = useCallback(async (queueId: string, data: Partial<QueueTicket>) => {
+    setLoading(true);
+    try {
+      await queueService.update(queueId, data);
+      toast.success('Ticket updated successfully');
+
+      // Refresh tickets list
+      if (tickets.length > 0) {
+        const updatedTickets = tickets.map(t =>
+          t.queueId === queueId ? { ...t, ...data } : t
+        );
+        setTickets(updatedTickets);
+      }
+    } catch (error: any) {
+      toast.error('Failed to update ticket');
+      console.error('Error updating ticket:', error);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  }, [tickets]);
+
+  const updateTicketStatus = useCallback(async (queueId: string, status: QueueStatus, additionalData?: Partial<QueueTicket>) => {
+    setLoading(true);
+    try {
+      await queueService.updateStatus(queueId, status, additionalData);
+      toast.success(`Ticket ${status} successfully`);
+
+      // Refresh tickets list
+      if (tickets.length > 0) {
+        const updatedTickets = tickets.map(t =>
+          t.queueId === queueId ? { ...t, status, ...additionalData } : t
+        );
+        setTickets(updatedTickets);
+      }
+    } catch (error: any) {
+      toast.error(`Failed to update ticket to ${status}`);
+      console.error('Error updating ticket status:', error);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  }, [tickets]);
+
+  const deleteTicket = useCallback(async (queueId: string) => {
+    setLoading(true);
+    try {
+      await queueService.delete(queueId);
+      toast.success('Ticket deleted successfully');
+
+      // Remove from local state
+      setTickets(tickets.filter(t => t.queueId !== queueId));
+    } catch (error: any) {
+      toast.error('Failed to delete ticket');
+      console.error('Error deleting ticket:', error);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  }, [tickets]);
+
+  // Queue-specific actions
+
+  const takeTicket = useCallback(async (branchId: string, userId: string, serviceId?: string, barberId?: string) => {
+    setLoading(true);
+    try {
+      // Get next position
+      const position = await queueService.getNextPosition(branchId);
+
+      // Generate ticket number
+      const ticketNumber = queueService.generateTicketNumber(branchId, position);
+
+      // Calculate estimated wait time
+      const estimatedWaitTime = await queueService.calculateEstimatedWaitTime(branchId, position);
+
+      // Create ticket
+      const queueId = await queueService.create({
+        franchiseId: '', // Will be populated by Cloud Functions or from branch data
+        branchId,
+        userId,
+        position,
+        ticketNumber,
+        status: 'waiting',
+        serviceId,
+        barberId,
+        estimatedWaitTime,
+      });
+
+      toast.success(`Ticket #${ticketNumber} created! Position: ${position}`);
+      return queueId;
+    } catch (error: any) {
+      toast.error('Failed to take ticket');
+      console.error('Error taking ticket:', error);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const callTicket = useCallback(async (queueId: string) => {
+    await updateTicketStatus(queueId, 'notified');
+  }, [updateTicketStatus]);
+
+  const markArrival = useCallback(async (queueId: string) => {
+    await updateTicketStatus(queueId, 'arrived');
+  }, [updateTicketStatus]);
+
+  const completeTicket = useCallback(async (queueId: string) => {
+    setLoading(true);
+    try {
+      await updateTicketStatus(queueId, 'completed');
+
+      // Get ticket to know the branch
+      const ticket = tickets.find(t => t.queueId === queueId);
+      if (ticket) {
+        // Reorder remaining tickets
+        await queueService.reorderPositions(ticket.branchId);
+
+        // Refresh the list
+        await listTicketsByBranch(ticket.branchId);
+      }
+    } catch (error: any) {
+      console.error('Error completing ticket:', error);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  }, [updateTicketStatus, tickets, listTicketsByBranch]);
+
+  const cancelTicket = useCallback(async (queueId: string, reason?: string) => {
+    setLoading(true);
+    try {
+      await updateTicketStatus(queueId, 'cancelled', { cancelReason: reason });
+
+      // Get ticket to know the branch
+      const ticket = tickets.find(t => t.queueId === queueId);
+      if (ticket) {
+        // Reorder remaining tickets
+        await queueService.reorderPositions(ticket.branchId);
+
+        // Refresh the list
+        await listTicketsByBranch(ticket.branchId);
+      }
+    } catch (error: any) {
+      console.error('Error cancelling ticket:', error);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  }, [updateTicketStatus, tickets, listTicketsByBranch]);
+
+  const advanceQueue = useCallback(async (branchId: string) => {
+    setLoading(true);
+    try {
+      const activeTickets = await queueService.listActiveByBranch(branchId);
+
+      if (activeTickets.length === 0) {
+        toast.info('No tickets in queue');
+        return;
+      }
+
+      // Find the next ticket to call
+      const nextTicket = activeTickets.find((t: QueueTicket) => t.status === 'waiting');
+
+      if (nextTicket) {
+        await callTicket(nextTicket.queueId);
+        toast.success(`Called ticket #${nextTicket.ticketNumber}`);
+      } else {
+        toast.info('No waiting tickets to call');
+      }
+    } catch (error: any) {
+      toast.error('Failed to advance queue');
+      console.error('Error advancing queue:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [callTicket]);
+
+  const value: QueueContextType = {
+    tickets,
+    loading,
+    currentTicket,
+    listTickets,
+    listTicketsByBranch,
+    listTicketsByUser,
+    listActiveTicketsByBranch,
+    getTicket,
+    createTicket,
+    updateTicket,
+    updateTicketStatus,
+    deleteTicket,
+    takeTicket,
+    callTicket,
+    markArrival,
+    completeTicket,
+    cancelTicket,
+    advanceQueue,
+  };
+
+  return <QueueContext.Provider value={value}>{children}</QueueContext.Provider>;
+}
+
+export function useQueue() {
+  const context = useContext(QueueContext);
+  if (context === undefined) {
+    throw new Error('useQueue must be used within a QueueProvider');
+  }
+  return context;
+}

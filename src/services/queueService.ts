@@ -58,12 +58,33 @@ export interface MarkArrivalResponse {
   message: string;
 }
 
+export interface CompleteTicketRequest {
+  queueId: string;
+}
+
+export interface CompleteTicketResponse {
+  success: boolean;
+  message: string;
+}
+
+export interface CancelTicketRequest {
+  queueId: string;
+  reason?: string;
+}
+
+export interface CancelTicketResponse {
+  success: boolean;
+  message: string;
+}
+
 /**
  * Cloud Functions callable references
  */
 const takeTicketFn = httpsCallable<TakeTicketRequest, TakeTicketResponse>(functions, 'takeTicket');
 const advanceQueueFn = httpsCallable<AdvanceQueueRequest, AdvanceQueueResponse>(functions, 'advanceQueue');
 const markArrivalFn = httpsCallable<MarkArrivalRequest, MarkArrivalResponse>(functions, 'markArrival');
+const completeTicketFn = httpsCallable<CompleteTicketRequest, CompleteTicketResponse>(functions, 'completeTicket');
+const cancelTicketFn = httpsCallable<CancelTicketRequest, CancelTicketResponse>(functions, 'cancelTicket');
 
 /**
  * Take a queue ticket
@@ -101,6 +122,32 @@ export async function markArrival(data: MarkArrivalRequest): Promise<MarkArrival
   } catch (error: any) {
     console.error('Error marking arrival:', error);
     throw new Error(error.message || 'Failed to mark arrival');
+  }
+}
+
+/**
+ * Complete ticket - Mark service as complete
+ */
+export async function completeTicket(data: CompleteTicketRequest): Promise<CompleteTicketResponse> {
+  try {
+    const result: HttpsCallableResult<CompleteTicketResponse> = await completeTicketFn(data);
+    return result.data;
+  } catch (error: any) {
+    console.error('Error completing ticket:', error);
+    throw new Error(error.message || 'Failed to complete ticket');
+  }
+}
+
+/**
+ * Cancel ticket - Cancel a queue ticket
+ */
+export async function cancelTicket(data: CancelTicketRequest): Promise<CancelTicketResponse> {
+  try {
+    const result: HttpsCallableResult<CancelTicketResponse> = await cancelTicketFn(data);
+    return result.data;
+  } catch (error: any) {
+    console.error('Error cancelling ticket:', error);
+    throw new Error(error.message || 'Failed to cancel ticket');
   }
 }
 

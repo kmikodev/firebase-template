@@ -345,3 +345,185 @@ export const markArrival = onCall({
     );
   }
 });
+
+/**
+ * Complete ticket - Mark service as complete
+ *
+ * Called by barbers/admins when service is finished
+ *
+ * @param data.queueId - Queue ticket ID
+ * @returns Success status
+ */
+export const completeTicket = onCall({
+  region: config.region,
+}, async (request) => {
+  // Check authentication
+  if (!request.auth) {
+    throw new HttpsError(
+      'unauthenticated',
+      'User must be authenticated'
+    );
+  }
+
+  const { queueId } = request.data;
+  const userId = request.auth.uid;
+
+  if (!queueId) {
+    throw new HttpsError(
+      'invalid-argument',
+      'queueId is required'
+    );
+  }
+
+  try {
+    const ticketDoc = await db.collection('queues').doc(queueId).get();
+
+    if (!ticketDoc.exists) {
+      throw new HttpsError(
+        'not-found',
+        'Ticket not found'
+      );
+    }
+
+    const ticket = ticketDoc.data();
+
+    // Check if user is barber/admin (has role permission)
+    // For now, allow ticket owner or any authenticated user (for testing)
+    // TODO: Add proper role check
+
+    // Can complete from 'in_service' or 'arrived' status
+    if (ticket?.status !== 'in_service' && ticket?.status !== 'arrived') {
+      throw new HttpsError(
+        'failed-precondition',
+        `Cannot complete ticket from status: ${ticket?.status}`
+      );
+    }
+
+    // Update to 'completed' status
+    await ticketDoc.ref.update({
+      status: 'completed',
+      completedAt: admin.firestore.FieldValue.serverTimestamp(),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    logger.info('Ticket completed successfully', {
+      queueId,
+      completedBy: userId,
+    });
+
+    return {
+      success: true,
+      message: 'Servicio completado',
+    };
+  } catch (error) {
+    logger.error('Error completing ticket:', error);
+
+    if (error instanceof HttpsError) {
+      throw error;
+    }
+
+    throw new HttpsError(
+      'internal',
+      'Failed to complete ticket'
+    );
+  }
+});
+
+/**
+ * Cancel ticket - Cancel a queue ticket
+ *
+ * Can be called by:
+ * - Client (cancel their own ticket)
+ * - Barber/Admin (cancel any ticket with reason)
+ *
+ * @param data.queueId - Queue ticket ID
+ * @param data.reason - Cancellation reason (optional)
+ * @returns Success status
+ */
+export const cancelTicket = onCall({
+  region: config.region,
+}, async (request) => {
+  // Check authentication
+  if (!request.auth) {
+    throw new HttpsError(
+      'unauthenticated',
+      'User must be authenticated'
+    );
+  }
+
+  const { queueId, reason } = request.data;
+  const userId = request.auth.uid;
+
+  if (!queueId) {
+    throw new HttpsError(
+      'invalid-argument',
+      'queueId is required'
+    );
+  }
+
+  try {
+    const ticketDoc = await db.collection('queues').doc(queueId).get();
+
+    if (!ticketDoc.exists) {
+      throw new HttpsError(
+        'not-found',
+        'Ticket not found'
+      );
+    }
+
+    const ticket = ticketDoc.data();
+
+    // Verify ownership or admin rights
+    // For now, allow ticket owner or any authenticated user (for testing)
+    // TODO: Add proper role check for admin/barber
+    const isOwner = ticket?.userId === userId;
+
+    if (!isOwner) {
+      // TODO: Check if user is admin/barber
+      logger.info('Non-owner cancelling ticket', {
+        queueId,
+        cancelledBy: userId,
+        owner: ticket?.userId,
+      });
+    }
+
+    // Can only cancel active tickets
+    const cancelableStatuses = ['waiting', 'notified', 'arrived', 'in_service'];
+    if (!cancelableStatuses.includes(ticket?.status)) {
+      throw new HttpsError(
+        'failed-precondition',
+        `Cannot cancel ticket with status: ${ticket?.status}`
+      );
+    }
+
+    // Update to 'cancelled' status
+    await ticketDoc.ref.update({
+      status: 'cancelled',
+      cancelReason: reason || (isOwner ? 'Cancelado por el cliente' : 'Cancelado por admin'),
+      cancelledAt: admin.firestore.FieldValue.serverTimestamp(),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    logger.info('Ticket cancelled successfully', {
+      queueId,
+      cancelledBy: userId,
+      reason,
+    });
+
+    return {
+      success: true,
+      message: 'Turno cancelado',
+    };
+  } catch (error) {
+    logger.error('Error cancelling ticket:', error);
+
+    if (error instanceof HttpsError) {
+      throw error;
+    }
+
+    throw new HttpsError(
+      'internal',
+      'Failed to cancel ticket'
+    );
+  }
+});

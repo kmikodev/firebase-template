@@ -9,6 +9,8 @@ import {
   takeTicket as takeTicketFn,
   advanceQueue as advanceQueueFn,
   markArrival as markArrivalFn,
+  completeTicket as completeTicketFn,
+  cancelTicket as cancelTicketFn,
   getUserActiveTicket,
   subscribeToQueueByBranch,
   subscribeToTicket,
@@ -16,7 +18,9 @@ import {
   formatTimeRemaining,
   TakeTicketRequest,
   AdvanceQueueRequest,
-  MarkArrivalRequest
+  MarkArrivalRequest,
+  CompleteTicketRequest,
+  CancelTicketRequest
 } from '../services/queueService';
 
 interface UseQueueOptions {
@@ -45,11 +49,15 @@ interface UseQueueReturn {
   takeTicket: (data: TakeTicketRequest) => Promise<void>;
   advanceQueue: (data: AdvanceQueueRequest) => Promise<void>;
   markArrival: (data: MarkArrivalRequest) => Promise<void>;
+  completeTicket: (data: CompleteTicketRequest) => Promise<void>;
+  cancelTicket: (data: CancelTicketRequest) => Promise<void>;
 
   // Loading states
   taking: boolean;
   advancing: boolean;
   marking: boolean;
+  completing: boolean;
+  cancelling: boolean;
 
   // Error state
   error: string | null;
@@ -77,6 +85,8 @@ export function useQueue(options: UseQueueOptions = {}): UseQueueReturn {
   const [taking, setTaking] = useState(false);
   const [advancing, setAdvancing] = useState(false);
   const [marking, setMarking] = useState(false);
+  const [completing, setCompleting] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
 
   const [error, setError] = useState<string | null>(null);
 
@@ -229,6 +239,38 @@ export function useQueue(options: UseQueueOptions = {}): UseQueueReturn {
     }
   }, []);
 
+  const completeTicket = useCallback(async (data: CompleteTicketRequest) => {
+    setCompleting(true);
+    setError(null);
+
+    try {
+      const result = await completeTicketFn(data);
+      console.log('Ticket completed successfully:', result);
+    } catch (err: any) {
+      console.error('Error completing ticket:', err);
+      setError(err.message || 'Failed to complete ticket');
+      throw err;
+    } finally {
+      setCompleting(false);
+    }
+  }, []);
+
+  const cancelTicket = useCallback(async (data: CancelTicketRequest) => {
+    setCancelling(true);
+    setError(null);
+
+    try {
+      const result = await cancelTicketFn(data);
+      console.log('Ticket cancelled successfully:', result);
+    } catch (err: any) {
+      console.error('Error cancelling ticket:', err);
+      setError(err.message || 'Failed to cancel ticket');
+      throw err;
+    } finally {
+      setCancelling(false);
+    }
+  }, []);
+
   return {
     // Current user's ticket
     myTicket,
@@ -250,11 +292,15 @@ export function useQueue(options: UseQueueOptions = {}): UseQueueReturn {
     takeTicket,
     advanceQueue,
     markArrival,
+    completeTicket,
+    cancelTicket,
 
     // Loading states
     taking,
     advancing,
     marking,
+    completing,
+    cancelling,
 
     // Error
     error,

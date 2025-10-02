@@ -28,7 +28,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.checkExpiredTimers = exports.markArrival = exports.takeTicket = exports.advanceQueue = exports.onQueueUpdate = exports.onQueueCreate = exports.setSuperAdminHTTP = exports.setSuperAdmin = exports.updateUserRole = void 0;
+exports.checkExpiredTimers = exports.cancelTicket = exports.completeTicket = exports.markArrival = exports.takeTicket = exports.advanceQueue = exports.onQueueUpdate = exports.onQueueCreate = exports.setSuperAdminHTTP = exports.setSuperAdmin = exports.updateUserRole = void 0;
 const admin = __importStar(require("firebase-admin"));
 // Inicializar Firebase Admin
 admin.initializeApp();
@@ -52,6 +52,8 @@ const callable_1 = require("./queue/callable");
 Object.defineProperty(exports, "advanceQueue", { enumerable: true, get: function () { return callable_1.advanceQueue; } });
 Object.defineProperty(exports, "takeTicket", { enumerable: true, get: function () { return callable_1.takeTicket; } });
 Object.defineProperty(exports, "markArrival", { enumerable: true, get: function () { return callable_1.markArrival; } });
+Object.defineProperty(exports, "completeTicket", { enumerable: true, get: function () { return callable_1.completeTicket; } });
+Object.defineProperty(exports, "cancelTicket", { enumerable: true, get: function () { return callable_1.cancelTicket; } });
 // ========================================
 // Notifications Functions (se agregarán en Milestone 5)
 // ========================================

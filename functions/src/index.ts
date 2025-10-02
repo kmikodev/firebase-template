@@ -29,7 +29,7 @@ export {
 
 import { onQueueCreate, onQueueUpdate } from './queue/triggers';
 import { checkExpiredTimers } from './queue/scheduled';
-import { advanceQueue, takeTicket, markArrival } from './queue/callable';
+import { advanceQueue, takeTicket, markArrival, completeTicket, cancelTicket } from './queue/callable';
 
 export {
   // Queue triggers
@@ -40,6 +40,8 @@ export {
   advanceQueue,
   takeTicket,
   markArrival,
+  completeTicket,
+  cancelTicket,
 
   // Scheduled
   checkExpiredTimers,
