@@ -5,6 +5,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useBranch } from '@/contexts/BranchContext';
 import { BranchCard } from '@/components/branches/BranchCard';
+import { BranchListView } from '@/components/branches/BranchListView';
 import { LoadingState } from '@/components/shared/LoadingState';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog';
@@ -13,6 +14,8 @@ import { FilterBar, FilterConfig } from '@/components/shared/FilterBar';
 import { Pagination } from '@/components/shared/Pagination';
 import { Breadcrumbs } from '@/components/shared/Breadcrumbs';
 import { SortSelector, SortOption } from '@/components/shared/SortSelector';
+import { ViewToggle, ViewMode } from '@/components/shared/ViewToggle';
+import { ExportButton } from '@/components/shared/ExportButton';
 import { Button } from '@/components/ui/Button';
 
 const ITEMS_PER_PAGE = 9;
@@ -26,6 +29,7 @@ export default function BranchesPage() {
   const [activeFilters, setActiveFilters] = useState<Record<string, string>>({});
   const [sortBy, setSortBy] = useState('name');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+  const [viewMode, setViewMode] = useState<ViewMode>('grid');
 
   useEffect(() => {
     refreshBranches();
@@ -132,9 +136,13 @@ export default function BranchesPage() {
             {filteredBranches?.length || 0} total {filteredBranches?.length === 1 ? 'branch' : 'branches'}
           </p>
         </div>
-        <Button onClick={() => navigate('/branches/new?franchiseId=TEMP')}>
-          + New Branch
-        </Button>
+        <div className="flex items-center gap-3">
+          <ExportButton data={filteredBranches || []} filename="branches" />
+          <ViewToggle view={viewMode} onChange={setViewMode} />
+          <Button onClick={() => navigate('/branches/new?franchiseId=TEMP')}>
+            + New Branch
+          </Button>
+        </div>
       </div>
 
       {/* Search Bar */}
@@ -175,16 +183,27 @@ export default function BranchesPage() {
         />
       ) : (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-            {paginatedBranches.map((branch) => (
-              <BranchCard
-                key={branch.branchId}
-                branch={branch}
+          {/* Grid or List View */}
+          {viewMode === 'grid' ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+              {paginatedBranches.map((branch) => (
+                <BranchCard
+                  key={branch.branchId}
+                  branch={branch}
+                  onEdit={(id) => navigate(`/branches/${id}/edit`)}
+                  onDelete={setDeleteId}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="mb-6">
+              <BranchListView
+                branches={paginatedBranches}
                 onEdit={(id) => navigate(`/branches/${id}/edit`)}
                 onDelete={setDeleteId}
               />
-            ))}
-          </div>
+            </div>
+          )}
 
           {/* Pagination */}
           <Pagination

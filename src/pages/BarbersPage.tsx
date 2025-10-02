@@ -5,6 +5,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useBarber } from '@/contexts/BarberContext';
 import { BarberCard } from '@/components/barbers/BarberCard';
+import { BarberListView } from '@/components/barbers/BarberListView';
 import { LoadingState } from '@/components/shared/LoadingState';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog';
@@ -13,6 +14,8 @@ import { FilterBar, FilterConfig } from '@/components/shared/FilterBar';
 import { Pagination } from '@/components/shared/Pagination';
 import { Breadcrumbs } from '@/components/shared/Breadcrumbs';
 import { SortSelector, SortOption } from '@/components/shared/SortSelector';
+import { ViewToggle, ViewMode } from '@/components/shared/ViewToggle';
+import { ExportButton } from '@/components/shared/ExportButton';
 import { Button } from '@/components/ui/Button';
 
 const ITEMS_PER_PAGE = 9;
@@ -26,6 +29,7 @@ export default function BarbersPage() {
   const [activeFilters, setActiveFilters] = useState<Record<string, string>>({});
   const [sortBy, setSortBy] = useState('displayName');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+  const [viewMode, setViewMode] = useState<ViewMode>('grid');
 
   useEffect(() => {
     listBarbers();
@@ -145,9 +149,13 @@ export default function BarbersPage() {
             {filteredBarbers?.length || 0} total {filteredBarbers?.length === 1 ? 'barber' : 'barbers'}
           </p>
         </div>
-        <Button onClick={() => navigate('/barbers/new?franchiseId=TEMP&branchId=TEMP')}>
-          + New Barber
-        </Button>
+        <div className="flex items-center gap-3">
+          <ExportButton data={filteredBarbers || []} filename="barbers" />
+          <ViewToggle view={viewMode} onChange={setViewMode} />
+          <Button onClick={() => navigate('/barbers/new?franchiseId=TEMP&branchId=TEMP')}>
+            + New Barber
+          </Button>
+        </div>
       </div>
 
       {/* Search Bar */}
@@ -188,17 +196,29 @@ export default function BarbersPage() {
         />
       ) : (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-            {paginatedBarbers.map((barber) => (
-              <BarberCard
-                key={barber.barberId}
-                barber={barber}
+          {/* Grid or List View */}
+          {viewMode === 'grid' ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+              {paginatedBarbers.map((barber) => (
+                <BarberCard
+                  key={barber.barberId}
+                  barber={barber}
+                  onEdit={(id) => navigate(`/barbers/${id}/edit`)}
+                  onDelete={setDeleteId}
+                  onToggleAvailability={handleToggleAvailability}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="mb-6">
+              <BarberListView
+                barbers={paginatedBarbers}
                 onEdit={(id) => navigate(`/barbers/${id}/edit`)}
                 onDelete={setDeleteId}
                 onToggleAvailability={handleToggleAvailability}
               />
-            ))}
-          </div>
+            </div>
+          )}
 
           {/* Pagination */}
           <Pagination
