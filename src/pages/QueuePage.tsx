@@ -1,10 +1,10 @@
 /**
  * Queue Management Page - Admin view for managing queue
  */
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useQueue } from '@/hooks/useQueue';
 import { QueueTicketCard } from '@/components/queue/QueueTicketCard';
-import type { QueueTicket } from '@/types';
+import type { QueueTicket, Branch } from '@/types';
 import { QueueListView } from '@/components/queue/QueueListView';
 import { LoadingState } from '@/components/shared/LoadingState';
 import { EmptyState } from '@/components/shared/EmptyState';
@@ -17,17 +17,25 @@ import { SortSelector, SortOption } from '@/components/shared/SortSelector';
 import { ViewToggle, ViewMode } from '@/components/shared/ViewToggle';
 import { ExportButton } from '@/components/shared/ExportButton';
 import { Button } from '@/components/ui/Button';
+import { branchService } from '@/services/branchService';
+import { useAuth } from '@/contexts/AuthContext';
 
 const ITEMS_PER_PAGE = 9;
 
 export default function QueuePage() {
-  const [selectedBranchId] = useState('branch1'); // TODO: Get from context/props or user selection
+  const { firebaseUser } = useAuth();
+  const [selectedBranchId, setSelectedBranchId] = useState<string>('');
+  const [branches, setBranches] = useState<Branch[]>([]);
+  const [loadingBranches, setLoadingBranches] = useState(true);
 
   const {
     queueTickets,
     queueLoading,
     advanceQueue,
     markArrival,
+    completeTicket,
+    cancelTicket,
+    advancing,
   } = useQueue({ branchId: selectedBranchId });
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -37,6 +45,21 @@ export default function QueuePage() {
   const [sortBy, setSortBy] = useState('position');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
+
+  // Load branches
+  useEffect(() => {
+    branchService.list()
+      .then(setBranches)
+      .catch(console.error)
+      .finally(() => setLoadingBranches(false));
+  }, []);
+
+  // Auto-select first branch
+  useEffect(() => {
+    if (branches.length > 0 && !selectedBranchId) {
+      setSelectedBranchId(branches[0].branchId);
+    }
+  }, [branches, selectedBranchId]);
 
   const filterConfigs: FilterConfig[] = [
     {
@@ -112,9 +135,17 @@ export default function QueuePage() {
 
   const handleCancel = async () => {
     if (!cancelId) return;
-    // TODO: Implement cancel ticket Cloud Function
-    console.log('Cancel ticket:', cancelId);
-    setCancelId(null);
+
+    try {
+      await cancelTicket({
+        queueId: cancelId,
+        reason: 'Cancelado por administrador'
+      });
+    } catch (err) {
+      console.error('Failed to cancel ticket:', err);
+    } finally {
+      setCancelId(null);
+    }
   };
 
   const handleFilterChange = (filters: Record<string, string>) => {
@@ -128,11 +159,16 @@ export default function QueuePage() {
   };
 
   const handleAdvanceQueue = async () => {
-    if (!selectedBranchId) return;
-    await advanceQueue({
-      branchId: selectedBranchId,
-      barberId: 'admin', // TODO: Get from auth context
-    });
+    if (!selectedBranchId || !firebaseUser?.uid) return;
+
+    try {
+      await advanceQueue({
+        branchId: selectedBranchId,
+        barberId: firebaseUser.uid,
+      });
+    } catch (err) {
+      console.error('Failed to advance queue:', err);
+    }
   };
 
   // Wrapper functions for components that expect (queueId: string) signature
@@ -142,12 +178,19 @@ export default function QueuePage() {
   };
 
   const handleMarkArrival = async (queueId: string) => {
-    await markArrival({ queueId });
+    try {
+      await markArrival({ queueId });
+    } catch (err) {
+      console.error('Failed to mark arrival:', err);
+    }
   };
 
   const handleCompleteTicket = async (queueId: string) => {
-    // TODO: Implement complete ticket Cloud Function
-    console.log('Complete ticket:', queueId);
+    try {
+      await completeTicket({ queueId });
+    } catch (err) {
+      console.error('Failed to complete ticket:', err);
+    }
   };
 
   // Stats
@@ -178,12 +221,41 @@ export default function QueuePage() {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <Button variant="primary" onClick={handleAdvanceQueue}>
-            ⏭️ Advance Queue
+          <Button
+            variant="primary"
+            onClick={handleAdvanceQueue}
+            disabled={advancing || !selectedBranchId}
+          >
+            {advancing ? 'Avanzando...' : '⏭️ Advance Queue'}
           </Button>
           <ExportButton data={filteredTickets || []} filename="queue-tickets" />
           <ViewToggle view={viewMode} onChange={setViewMode} />
         </div>
+      </div>
+
+      {/* Branch Selection */}
+      <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Seleccionar Sucursal
+        </label>
+        {loadingBranches ? (
+          <p className="text-gray-500">Cargando sucursales...</p>
+        ) : branches.length === 0 ? (
+          <p className="text-gray-500">No hay sucursales disponibles</p>
+        ) : (
+          <select
+            value={selectedBranchId}
+            onChange={(e) => setSelectedBranchId(e.target.value)}
+            className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          >
+            <option value="">Selecciona una sucursal</option>
+            {branches.map((branch) => (
+              <option key={branch.branchId} value={branch.branchId}>
+                {branch.name} - {branch.address}
+              </option>
+            ))}
+          </select>
+        )}
       </div>
 
       {/* Stats Cards */}
