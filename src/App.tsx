@@ -10,6 +10,14 @@ import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
+import FranchisesPage from './pages/FranchisesPage';
+import FranchiseFormPage from './pages/FranchiseFormPage';
+import BranchesPage from './pages/BranchesPage';
+import BranchFormPage from './pages/BranchFormPage';
+import BarbersPage from './pages/BarbersPage';
+import BarberFormPage from './pages/BarberFormPage';
+import ServicesPage from './pages/ServicesPage';
+import ServiceFormPage from './pages/ServiceFormPage';
 
 function App() {
   return (
@@ -28,6 +36,110 @@ function App() {
                       element={
                         <ProtectedRoute>
                           <Dashboard />
+                        </ProtectedRoute>
+                      }
+                    />
+
+                    {/* Franchises */}
+                    <Route
+                      path="/franchises"
+                      element={
+                        <ProtectedRoute>
+                          <FranchisesPage />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/franchises/new"
+                      element={
+                        <ProtectedRoute>
+                          <FranchiseFormPage />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/franchises/:id/edit"
+                      element={
+                        <ProtectedRoute>
+                          <FranchiseFormPage />
+                        </ProtectedRoute>
+                      }
+                    />
+
+                    {/* Branches */}
+                    <Route
+                      path="/branches"
+                      element={
+                        <ProtectedRoute>
+                          <BranchesPage />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/branches/new"
+                      element={
+                        <ProtectedRoute>
+                          <BranchFormPage />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/branches/:id/edit"
+                      element={
+                        <ProtectedRoute>
+                          <BranchFormPage />
+                        </ProtectedRoute>
+                      }
+                    />
+
+                    {/* Barbers */}
+                    <Route
+                      path="/barbers"
+                      element={
+                        <ProtectedRoute>
+                          <BarbersPage />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/barbers/new"
+                      element={
+                        <ProtectedRoute>
+                          <BarberFormPage />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/barbers/:id/edit"
+                      element={
+                        <ProtectedRoute>
+                          <BarberFormPage />
+                        </ProtectedRoute>
+                      }
+                    />
+
+                    {/* Services */}
+                    <Route
+                      path="/services"
+                      element={
+                        <ProtectedRoute>
+                          <ServicesPage />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/services/new"
+                      element={
+                        <ProtectedRoute>
+                          <ServiceFormPage />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/services/:id/edit"
+                      element={
+                        <ProtectedRoute>
+                          <ServiceFormPage />
                         </ProtectedRoute>
                       }
                     />

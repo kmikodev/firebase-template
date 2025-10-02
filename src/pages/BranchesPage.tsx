@@ -2,6 +2,7 @@
  * Branches list page
  */
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useBranch } from '@/contexts/BranchContext';
 import { BranchCard } from '@/components/branches/BranchCard';
 import { LoadingState } from '@/components/shared/LoadingState';
@@ -11,6 +12,7 @@ import { SearchBar } from '@/components/shared/SearchBar';
 import { Button } from '@/components/ui/Button';
 
 export default function BranchesPage() {
+  const navigate = useNavigate();
   const { branches, loading, deleteBranch, refreshBranches } = useBranch();
   const [searchQuery, setSearchQuery] = useState('');
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -39,7 +41,7 @@ export default function BranchesPage() {
     <div className="container mx-auto p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-gray-900">Branches</h1>
-        <Button>
+        <Button onClick={() => navigate('/branches/new?franchiseId=TEMP')}>
           + New Branch
         </Button>
       </div>
@@ -58,7 +60,7 @@ export default function BranchesPage() {
           title="No branches found"
           message={searchQuery ? "No branches match your search." : "Get started by creating your first branch."}
           actionLabel="Create Branch"
-          onAction={() => alert('Navigate to create branch')}
+          onAction={() => navigate('/branches/new?franchiseId=TEMP')}
         />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -66,7 +68,7 @@ export default function BranchesPage() {
             <BranchCard
               key={branch.branchId}
               branch={branch}
-              onEdit={(id) => alert(`Edit branch: ${id}`)}
+              onEdit={(id) => navigate(`/branches/${id}/edit`)}
               onDelete={setDeleteId}
             />
           ))}

@@ -2,6 +2,7 @@
  * Services list page
  */
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useService } from '@/contexts/ServiceContext';
 import { ServiceCard } from '@/components/services/ServiceCard';
 import { LoadingState } from '@/components/shared/LoadingState';
@@ -11,6 +12,7 @@ import { SearchBar } from '@/components/shared/SearchBar';
 import { Button } from '@/components/ui/Button';
 
 export default function ServicesPage() {
+  const navigate = useNavigate();
   const { services, loading, deleteService, listServices } = useService();
   const [searchQuery, setSearchQuery] = useState('');
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -39,7 +41,7 @@ export default function ServicesPage() {
     <div className="container mx-auto p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-gray-900">Services</h1>
-        <Button>
+        <Button onClick={() => navigate('/services/new?franchiseId=TEMP')}>
           + New Service
         </Button>
       </div>
@@ -58,7 +60,7 @@ export default function ServicesPage() {
           title="No services found"
           message={searchQuery ? "No services match your search." : "Get started by creating your first service."}
           actionLabel="Create Service"
-          onAction={() => alert('Navigate to create service')}
+          onAction={() => navigate('/services/new?franchiseId=TEMP')}
         />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -66,7 +68,7 @@ export default function ServicesPage() {
             <ServiceCard
               key={service.serviceId}
               service={service}
-              onEdit={(id) => alert(`Edit service: ${id}`)}
+              onEdit={(id) => navigate(`/services/${id}/edit`)}
               onDelete={setDeleteId}
             />
           ))}

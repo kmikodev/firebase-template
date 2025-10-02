@@ -2,6 +2,7 @@
  * Barbers list page
  */
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useBarber } from '@/contexts/BarberContext';
 import { BarberCard } from '@/components/barbers/BarberCard';
 import { LoadingState } from '@/components/shared/LoadingState';
@@ -11,6 +12,7 @@ import { SearchBar } from '@/components/shared/SearchBar';
 import { Button } from '@/components/ui/Button';
 
 export default function BarbersPage() {
+  const navigate = useNavigate();
   const { barbers, loading, deleteBarber, updateBarber, listBarbers } = useBarber();
   const [searchQuery, setSearchQuery] = useState('');
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -42,7 +44,7 @@ export default function BarbersPage() {
     <div className="container mx-auto p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-gray-900">Barbers</h1>
-        <Button>
+        <Button onClick={() => navigate('/barbers/new?franchiseId=TEMP&branchId=TEMP')}>
           + New Barber
         </Button>
       </div>
@@ -61,7 +63,7 @@ export default function BarbersPage() {
           title="No barbers found"
           message={searchQuery ? "No barbers match your search." : "Get started by creating your first barber."}
           actionLabel="Create Barber"
-          onAction={() => alert('Navigate to create barber')}
+          onAction={() => navigate('/barbers/new?franchiseId=TEMP&branchId=TEMP')}
         />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -69,7 +71,7 @@ export default function BarbersPage() {
             <BarberCard
               key={barber.barberId}
               barber={barber}
-              onEdit={(id) => alert(`Edit barber: ${id}`)}
+              onEdit={(id) => navigate(`/barbers/${id}/edit`)}
               onDelete={setDeleteId}
               onToggleAvailability={handleToggleAvailability}
             />

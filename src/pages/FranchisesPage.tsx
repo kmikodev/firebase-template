@@ -2,6 +2,7 @@
  * Franchises list page
  */
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useFranchise } from '@/contexts/FranchiseContext';
 import { FranchiseCard } from '@/components/franchises/FranchiseCard';
 import { LoadingState } from '@/components/shared/LoadingState';
@@ -11,6 +12,7 @@ import { SearchBar } from '@/components/shared/SearchBar';
 import { Button } from '@/components/ui/Button';
 
 export default function FranchisesPage() {
+  const navigate = useNavigate();
   const { franchises, loading, deleteFranchise, refreshFranchises } = useFranchise();
   const [searchQuery, setSearchQuery] = useState('');
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -38,7 +40,7 @@ export default function FranchisesPage() {
     <div className="container mx-auto p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-gray-900">Franchises</h1>
-        <Button>
+        <Button onClick={() => navigate('/franchises/new')}>
           + New Franchise
         </Button>
       </div>
@@ -57,7 +59,7 @@ export default function FranchisesPage() {
           title="No franchises found"
           message={searchQuery ? "No franchises match your search." : "Get started by creating your first franchise."}
           actionLabel="Create Franchise"
-          onAction={() => alert('Navigate to create franchise')}
+          onAction={() => navigate('/franchises/new')}
         />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -65,7 +67,7 @@ export default function FranchisesPage() {
             <FranchiseCard
               key={franchise.franchiseId}
               franchise={franchise}
-              onEdit={(id) => alert(`Edit franchise: ${id}`)}
+              onEdit={(id) => navigate(`/franchises/${id}/edit`)}
               onDelete={setDeleteId}
             />
           ))}
