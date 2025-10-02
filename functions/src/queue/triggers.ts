@@ -6,6 +6,7 @@ import { onDocumentCreated, onDocumentUpdated } from 'firebase-functions/v2/fire
 import * as logger from 'firebase-functions/logger';
 import * as admin from 'firebase-admin';
 import { config } from '../config';
+import { sendNotificationToUser, createNotificationDocument } from '../notifications/sender';
 
 const db = admin.firestore();
 
@@ -74,8 +75,29 @@ export const onQueueCreate = onDocumentCreated({
       position,
     });
 
-    // TODO: Send confirmation notification
-    // await sendQueueConfirmation(ticket.userId, { ticketNumber, position, estimatedWaitMinutes });
+    // Send confirmation notification
+    try {
+      await sendNotificationToUser(ticket.userId, {
+        title: '🎫 Turno Confirmado',
+        body: `Tu turno es #${ticketNumber}. Posición ${position} en la cola. Tiempo estimado: ${estimatedWaitMinutes} min.`,
+        data: {
+          type: 'ticket_confirmed',
+          queueId,
+          ticketNumber,
+          position: String(position),
+        },
+      });
+
+      await createNotificationDocument(ticket.userId, {
+        type: 'ticket_confirmed',
+        title: 'Turno Confirmado',
+        body: `Turno #${ticketNumber} - Posición ${position}`,
+        data: { queueId, ticketNumber, position },
+      });
+    } catch (notifError) {
+      logger.error('Error sending confirmation notification', notifError);
+      // Don't fail the whole function if notification fails
+    }
 
     return { success: true, position, ticketNumber };
   } catch (error) {
@@ -138,8 +160,27 @@ export const onQueueUpdate = onDocumentUpdated({
       updates.notifiedAt = admin.firestore.FieldValue.serverTimestamp();
       logger.info('Client notified, grace timer started', { queueId });
 
-      // TODO: Send "Your turn!" notification
-      // await sendYourTurnNotification(after.userId, { queueId, ticketNumber: after.ticketNumber });
+      // Send "Your turn!" notification
+      try {
+        await sendNotificationToUser(after.userId, {
+          title: '🎉 ¡ES TU TURNO!',
+          body: `Turno #${after.ticketNumber}. Preséntate en el mostrador ahora. Tienes 5 minutos.`,
+          data: {
+            type: 'your_turn',
+            queueId,
+            ticketNumber: after.ticketNumber,
+          },
+        });
+
+        await createNotificationDocument(after.userId, {
+          type: 'your_turn',
+          title: '¡ES TU TURNO!',
+          body: `Turno #${after.ticketNumber} - Preséntate ahora`,
+          data: { queueId, ticketNumber: after.ticketNumber },
+        });
+      } catch (notifError) {
+        logger.error('Error sending your turn notification', notifError);
+      }
       break;
 
     case 'in_service':
