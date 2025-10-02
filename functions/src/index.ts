@@ -14,10 +14,13 @@ admin.initializeApp();
 // ========================================
 
 import { updateUserRole } from './auth/onCreate';
+import { setSuperAdmin, setSuperAdminHTTP } from './auth/setSuperAdmin';
 
 export {
   // Auth
   updateUserRole,
+  setSuperAdmin,
+  setSuperAdminHTTP,
 };
 
 // ========================================

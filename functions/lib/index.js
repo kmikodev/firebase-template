@@ -28,7 +28,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateUserRole = void 0;
+exports.setSuperAdminHTTP = exports.setSuperAdmin = exports.updateUserRole = void 0;
 const admin = __importStar(require("firebase-admin"));
 // Inicializar Firebase Admin
 admin.initializeApp();
@@ -37,6 +37,9 @@ admin.initializeApp();
 // ========================================
 const onCreate_1 = require("./auth/onCreate");
 Object.defineProperty(exports, "updateUserRole", { enumerable: true, get: function () { return onCreate_1.updateUserRole; } });
+const setSuperAdmin_1 = require("./auth/setSuperAdmin");
+Object.defineProperty(exports, "setSuperAdmin", { enumerable: true, get: function () { return setSuperAdmin_1.setSuperAdmin; } });
+Object.defineProperty(exports, "setSuperAdminHTTP", { enumerable: true, get: function () { return setSuperAdmin_1.setSuperAdminHTTP; } });
 // ========================================
 // Queue Functions (se agregarán en Milestone 3)
 // ========================================

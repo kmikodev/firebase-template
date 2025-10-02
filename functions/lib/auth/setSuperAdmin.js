@@ -1,0 +1,152 @@
+"use strict";
+/**
+ * Cloud Function to set super_admin custom claims
+ *
+ * This is a one-time setup function to establish the first super admin.
+ * Can be called via HTTP or Firebase Console.
+ */
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.setSuperAdminHTTP = exports.setSuperAdmin = void 0;
+const admin = __importStar(require("firebase-admin"));
+const https_1 = require("firebase-functions/v2/https");
+const https_2 = require("firebase-functions/v2/https");
+const logger = __importStar(require("firebase-functions/logger"));
+/**
+ * HTTP Callable function to set a user as super_admin
+ *
+ * Usage:
+ * 1. Call this function with email: c2developers2025@gmail.com
+ * 2. User will be granted super_admin role
+ * 3. User document will be created/updated in Firestore
+ */
+exports.setSuperAdmin = (0, https_1.onCall)(async (request) => {
+    // Security: Only allow authenticated requests
+    if (!request.auth) {
+        throw new https_1.HttpsError('unauthenticated', 'User must be authenticated to call this function');
+    }
+    const { email } = request.data;
+    if (!email) {
+        throw new https_1.HttpsError('invalid-argument', 'Email is required');
+    }
+    try {
+        // Get user by email
+        const userRecord = await admin.auth().getUserByEmail(email);
+        // Set custom claims
+        await admin.auth().setCustomUserClaims(userRecord.uid, {
+            role: 'super_admin',
+            isAnonymous: false,
+        });
+        // Create/update user document in Firestore
+        await admin.firestore().collection('users').doc(userRecord.uid).set({
+            userId: userRecord.uid,
+            email: userRecord.email,
+            displayName: userRecord.displayName || email.split('@')[0],
+            photoURL: userRecord.photoURL || null,
+            role: 'super_admin',
+            isAnonymous: false,
+            queuePoints: 0,
+            createdAt: admin.firestore.FieldValue.serverTimestamp(),
+            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        }, { merge: true });
+        logger.info(`Super admin set for user: ${email}`);
+        return {
+            success: true,
+            message: `Super admin role set for ${email}`,
+            uid: userRecord.uid,
+        };
+    }
+    catch (error) {
+        logger.error('Error setting super admin:', error);
+        throw new https_1.HttpsError('internal', `Failed to set super admin: ${error.message}`);
+    }
+});
+/**
+ * Alternative: HTTP endpoint version (can be called via URL)
+ *
+ * Usage: POST https://us-central1-PROJECT_ID.cloudfunctions.net/setSuperAdminHTTP
+ * Body: { "email": "c2developers2025@gmail.com", "secret": "YOUR_SECRET_KEY" }
+ */
+exports.setSuperAdminHTTP = (0, https_2.onRequest)(async (req, res) => {
+    // CORS
+    res.set('Access-Control-Allow-Origin', '*');
+    res.set('Access-Control-Allow-Methods', 'POST');
+    res.set('Access-Control-Allow-Headers', 'Content-Type');
+    if (req.method === 'OPTIONS') {
+        res.status(204).send('');
+        return;
+    }
+    if (req.method !== 'POST') {
+        res.status(405).send('Method Not Allowed');
+        return;
+    }
+    const { email, secret } = req.body;
+    // Basic security: require a secret key
+    // In production, you should use Firebase Authentication or more robust security
+    const ADMIN_SECRET = process.env.ADMIN_SECRET || 'change-this-secret-key';
+    if (secret !== ADMIN_SECRET) {
+        res.status(403).json({ error: 'Invalid secret key' });
+        return;
+    }
+    if (!email) {
+        res.status(400).json({ error: 'Email is required' });
+        return;
+    }
+    try {
+        // Get user by email
+        const userRecord = await admin.auth().getUserByEmail(email);
+        // Set custom claims
+        await admin.auth().setCustomUserClaims(userRecord.uid, {
+            role: 'super_admin',
+            isAnonymous: false,
+        });
+        // Create/update user document in Firestore
+        await admin.firestore().collection('users').doc(userRecord.uid).set({
+            userId: userRecord.uid,
+            email: userRecord.email,
+            displayName: userRecord.displayName || email.split('@')[0],
+            photoURL: userRecord.photoURL || null,
+            role: 'super_admin',
+            isAnonymous: false,
+            queuePoints: 0,
+            createdAt: admin.firestore.FieldValue.serverTimestamp(),
+            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        }, { merge: true });
+        logger.info(`Super admin set via HTTP for user: ${email}`);
+        res.status(200).json({
+            success: true,
+            message: `Super admin role set for ${email}`,
+            uid: userRecord.uid,
+        });
+    }
+    catch (error) {
+        logger.error('Error setting super admin via HTTP:', error);
+        res.status(500).json({
+            error: 'Failed to set super admin',
+            details: error.message,
+        });
+    }
+});
+//# sourceMappingURL=setSuperAdmin.js.map
