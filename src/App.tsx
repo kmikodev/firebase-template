@@ -6,6 +6,7 @@ import { FranchiseProvider } from './contexts/FranchiseContext';
 import { BranchProvider } from './contexts/BranchContext';
 import { BarberProvider } from './contexts/BarberContext';
 import { ServiceProvider } from './contexts/ServiceContext';
+import { QueueProvider } from './contexts/QueueContext';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { Layout } from './components/layout/Layout';
 import Home from './pages/Home';
@@ -19,6 +20,8 @@ import BarbersPage from './pages/BarbersPage';
 import BarberFormPage from './pages/BarberFormPage';
 import ServicesPage from './pages/ServicesPage';
 import ServiceFormPage from './pages/ServiceFormPage';
+import QueuePage from './pages/QueuePage';
+import TakeTicketPage from './pages/TakeTicketPage';
 import NotFound from './pages/NotFound';
 
 function App() {
@@ -29,7 +32,8 @@ function App() {
           <BranchProvider>
             <BarberProvider>
               <ServiceProvider>
-                <BrowserRouter>
+                <QueueProvider>
+                  <BrowserRouter>
                   <Routes>
                     <Route path="/" element={<Home />} />
                     <Route path="/login" element={<Login />} />
@@ -172,11 +176,34 @@ function App() {
                       }
                     />
 
+                    {/* Queue */}
+                    <Route
+                      path="/queue"
+                      element={
+                        <ProtectedRoute>
+                          <Layout>
+                            <QueuePage />
+                          </Layout>
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/take-ticket"
+                      element={
+                        <ProtectedRoute>
+                          <Layout>
+                            <TakeTicketPage />
+                          </Layout>
+                        </ProtectedRoute>
+                      }
+                    />
+
                     {/* 404 Not Found */}
                     <Route path="*" element={<NotFound />} />
                   </Routes>
-                </BrowserRouter>
-                <Toaster position="top-right" />
+                  </BrowserRouter>
+                  <Toaster position="top-right" />
+                </QueueProvider>
               </ServiceProvider>
             </BarberProvider>
           </BranchProvider>

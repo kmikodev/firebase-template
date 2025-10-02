@@ -1,0 +1,225 @@
+/**
+ * Take Ticket Page - Client view for taking a queue ticket
+ */
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
+import { useQueue } from '@/contexts/QueueContext';
+import { useBranch } from '@/contexts/BranchContext';
+import { useService } from '@/contexts/ServiceContext';
+import { useBarber } from '@/contexts/BarberContext';
+import { LoadingState } from '@/components/shared/LoadingState';
+import { Button } from '@/components/ui/Button';
+import { Breadcrumbs } from '@/components/shared/Breadcrumbs';
+
+export default function TakeTicketPage() {
+  const navigate = useNavigate();
+  const { firebaseUser } = useAuth();
+  const { takeTicket, loading: queueLoading } = useQueue();
+  const { branches, listBranches, loading: branchLoading } = useBranch();
+  const { services, listServices, loading: serviceLoading } = useService();
+  const { barbers, listBarbers, loading: barberLoading } = useBarber();
+
+  const [selectedBranch, setSelectedBranch] = useState('');
+  const [selectedService, setSelectedService] = useState('');
+  const [selectedBarber, setSelectedBarber] = useState('');
+  const [ticketTaken, setTicketTaken] = useState(false);
+  const [ticketNumber, setTicketNumber] = useState('');
+
+  useEffect(() => {
+    listBranches();
+    listServices();
+    listBarbers();
+  }, []);
+
+  const handleTakeTicket = async () => {
+    if (!firebaseUser || !selectedBranch) {
+      return;
+    }
+
+    try {
+      const queueId = await takeTicket(
+        selectedBranch,
+        firebaseUser.uid,
+        selectedService || undefined,
+        selectedBarber || undefined
+      );
+
+      // Get the ticket number (this is a simplified version)
+      // In a real app, you'd fetch the created ticket to get the actual ticket number
+      setTicketNumber(`TICKET-${queueId.substring(0, 8)}`);
+      setTicketTaken(true);
+    } catch (error) {
+      console.error('Error taking ticket:', error);
+    }
+  };
+
+  const handleReset = () => {
+    setTicketTaken(false);
+    setTicketNumber('');
+    setSelectedBranch('');
+    setSelectedService('');
+    setSelectedBarber('');
+  };
+
+  const loading = branchLoading || serviceLoading || barberLoading || queueLoading;
+
+  if (loading && (branches?.length || 0) === 0) {
+    return <LoadingState message="Loading..." variant="skeleton" />;
+  }
+
+  if (ticketTaken) {
+    return (
+      <div className="container mx-auto p-6">
+        <Breadcrumbs items={[{ label: 'Take Ticket' }]} />
+
+        <div className="max-w-2xl mx-auto mt-12">
+          <div className="bg-white rounded-lg shadow-xl p-12 text-center border-4 border-green-500">
+            <div className="text-6xl mb-6">🎫</div>
+            <h1 className="text-4xl font-bold text-gray-900 mb-4">
+              Ticket Confirmed!
+            </h1>
+            <div className="bg-green-50 border-2 border-green-500 rounded-lg p-6 mb-6">
+              <div className="text-sm text-gray-600 mb-2">Your Ticket Number</div>
+              <div className="text-5xl font-mono font-bold text-green-600">
+                {ticketNumber}
+              </div>
+            </div>
+            <p className="text-lg text-gray-600 mb-8">
+              Please wait for your turn. You'll be notified when it's time.
+            </p>
+            <div className="flex gap-4 justify-center">
+              <Button
+                variant="primary"
+                onClick={() => navigate('/queue')}
+              >
+                View Queue
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={handleReset}
+              >
+                Take Another Ticket
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="container mx-auto p-6">
+      <Breadcrumbs items={[{ label: 'Take Ticket' }]} />
+
+      <div className="max-w-2xl mx-auto">
+        <div className="bg-white rounded-lg shadow-md p-8">
+          <div className="text-center mb-8">
+            <div className="text-6xl mb-4">🎫</div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              Take a Queue Ticket
+            </h1>
+            <p className="text-gray-600">
+              Select your preferred branch and service to get in line
+            </p>
+          </div>
+
+          <div className="space-y-6">
+            {/* Branch Selection */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Select Branch <span className="text-red-500">*</span>
+              </label>
+              <select
+                value={selectedBranch}
+                onChange={(e) => setSelectedBranch(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                required
+              >
+                <option value="">-- Choose a branch --</option>
+                {branches
+                  ?.filter(b => b.isActive)
+                  .map((branch) => (
+                    <option key={branch.branchId} value={branch.branchId}>
+                      {branch.name} - {branch.city}
+                    </option>
+                  ))}
+              </select>
+            </div>
+
+            {/* Service Selection (Optional) */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Select Service (Optional)
+              </label>
+              <select
+                value={selectedService}
+                onChange={(e) => setSelectedService(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                disabled={!selectedBranch}
+              >
+                <option value="">-- Choose a service --</option>
+                {services
+                  ?.filter(s => s.isActive)
+                  .map((service) => (
+                    <option key={service.serviceId} value={service.serviceId}>
+                      {service.name} - €{(service.price / 100).toFixed(2)} ({service.duration}min)
+                    </option>
+                  ))}
+              </select>
+            </div>
+
+            {/* Barber Selection (Optional) */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Select Barber (Optional)
+              </label>
+              <select
+                value={selectedBarber}
+                onChange={(e) => setSelectedBarber(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                disabled={!selectedBranch}
+              >
+                <option value="">-- Choose a barber --</option>
+                {barbers
+                  ?.filter(b => b.isActive && b.isAvailable && b.branchId === selectedBranch)
+                  .map((barber) => (
+                    <option key={barber.barberId} value={barber.barberId}>
+                      {barber.displayName}
+                    </option>
+                  ))}
+              </select>
+            </div>
+
+            {/* Info Box */}
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <div className="flex items-start gap-3">
+                <span className="text-2xl">ℹ️</span>
+                <div className="text-sm text-blue-800">
+                  <p className="font-medium mb-1">How it works:</p>
+                  <ul className="list-disc list-inside space-y-1">
+                    <li>Select your branch to get in line</li>
+                    <li>Optionally choose a specific service or barber</li>
+                    <li>You'll receive a ticket number and position</li>
+                    <li>We'll notify you when it's your turn</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            {/* Submit Button */}
+            <Button
+              variant="primary"
+              size="lg"
+              onClick={handleTakeTicket}
+              disabled={!selectedBranch || loading}
+              className="w-full"
+            >
+              {loading ? 'Taking Ticket...' : '🎫 Take Ticket'}
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
