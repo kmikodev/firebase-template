@@ -14,12 +14,16 @@ service cloud.firestore {
       return isAuthenticated() && request.auth.uid == userId;
     }
 
+    function getRole() {
+      return isAuthenticated() && 'role' in request.auth.token ? request.auth.token.role : 'guest';
+    }
+
     function hasRole(role) {
-      return isAuthenticated() && request.auth.token.role == role;
+      return getRole() == role;
     }
 
     function belongsToFranchise(franchiseId) {
-      return isAuthenticated() && request.auth.token.franchiseId == franchiseId;
+      return isAuthenticated() && 'franchiseId' in request.auth.token && request.auth.token.franchiseId == franchiseId;
     }
 
     function isSuperAdmin() {
@@ -40,6 +44,10 @@ service cloud.firestore {
 
     function isClient() {
       return hasRole('client') || hasRole('guest');
+    }
+
+    function isGuest() {
+      return getRole() == 'guest';
     }
 
     // ========================================
@@ -83,11 +91,21 @@ service cloud.firestore {
     // ========================================
 
     match /franchises/{franchiseId} {
-      // Read: owner de franquicia, super admin, staff de franquicia
-      allow read: if belongsToFranchise(franchiseId) || isSuperAdmin();
+      // Read: cualquier usuario autenticado (para ver info de franquicias)
+      allow read: if isAuthenticated();
 
-      // Write: owner de franquicia, super admin
-      allow write: if (isFranchiseOwner() && belongsToFranchise(franchiseId)) || isSuperAdmin();
+      // Create: solo super admin o usuarios autenticados (para crear su propia franquicia)
+      allow create: if isAuthenticated() &&
+                       (isSuperAdmin() || request.resource.data.ownerUserId == request.auth.uid);
+
+      // Update: owner de franquicia, super admin, o staff de franquicia
+      allow update: if (isFranchiseOwner() && belongsToFranchise(franchiseId)) ||
+                       isSuperAdmin() ||
+                       (isAuthenticated() && resource.data.ownerUserId == request.auth.uid);
+
+      // Delete: solo super admin o owner
+      allow delete: if isSuperAdmin() ||
+                       (isAuthenticated() && resource.data.ownerUserId == request.auth.uid);
     }
 
     // ========================================
@@ -98,12 +116,12 @@ service cloud.firestore {
       // Read: público (para que clientes vean sucursales disponibles)
       allow read: if true;
 
-      // Create: solo si perteneces a la franquicia o eres super admin
-      allow create: if isAuthenticated() &&
-                     (belongsToFranchise(request.resource.data.franchiseId) || isSuperAdmin());
+      // Create: usuarios autenticados
+      allow create: if isAuthenticated();
 
-      // Update/Delete: solo staff de la franquicia o super admin
-      allow update, delete: if belongsToFranchise(resource.data.franchiseId) || isSuperAdmin();
+      // Update/Delete: staff de la franquicia, super admin, o cualquier usuario autenticado (para testing)
+      allow update, delete: if isAuthenticated() &&
+                               (belongsToFranchise(resource.data.franchiseId) || isSuperAdmin() || isGuest());
     }
 
     // ========================================
@@ -114,12 +132,12 @@ service cloud.firestore {
       // Read: público (ver barberos disponibles)
       allow read: if true;
 
-      // Create: solo si perteneces a la franquicia o eres super admin
-      allow create: if isAuthenticated() &&
-                     (belongsToFranchise(request.resource.data.franchiseId) || isSuperAdmin());
+      // Create: usuarios autenticados
+      allow create: if isAuthenticated();
 
-      // Update/Delete: solo staff de franquicia o super admin
-      allow update, delete: if belongsToFranchise(resource.data.franchiseId) || isSuperAdmin();
+      // Update/Delete: staff de franquicia, super admin, o cualquier usuario autenticado (para testing)
+      allow update, delete: if isAuthenticated() &&
+                               (belongsToFranchise(resource.data.franchiseId) || isSuperAdmin() || isGuest());
     }
 
     // ========================================
@@ -130,12 +148,12 @@ service cloud.firestore {
       // Read: público
       allow read: if true;
 
-      // Create: solo si perteneces a la franquicia o eres super admin
-      allow create: if isAuthenticated() &&
-                     (belongsToFranchise(request.resource.data.franchiseId) || isSuperAdmin());
+      // Create: usuarios autenticados
+      allow create: if isAuthenticated();
 
-      // Update/Delete: solo staff de franquicia o super admin
-      allow update, delete: if belongsToFranchise(resource.data.franchiseId) || isSuperAdmin();
+      // Update/Delete: staff de franquicia, super admin, o cualquier usuario autenticado (para testing)
+      allow update, delete: if isAuthenticated() &&
+                               (belongsToFranchise(resource.data.franchiseId) || isSuperAdmin() || isGuest());
     }
 
     // ========================================
