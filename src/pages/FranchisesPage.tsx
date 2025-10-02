@@ -5,6 +5,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useFranchise } from '@/contexts/FranchiseContext';
 import { FranchiseCard } from '@/components/franchises/FranchiseCard';
+import { FranchiseListView } from '@/components/franchises/FranchiseListView';
 import { LoadingState } from '@/components/shared/LoadingState';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog';
@@ -13,6 +14,8 @@ import { FilterBar, FilterConfig } from '@/components/shared/FilterBar';
 import { Pagination } from '@/components/shared/Pagination';
 import { Breadcrumbs } from '@/components/shared/Breadcrumbs';
 import { SortSelector, SortOption } from '@/components/shared/SortSelector';
+import { ViewToggle, ViewMode } from '@/components/shared/ViewToggle';
+import { ExportButton } from '@/components/shared/ExportButton';
 import { Button } from '@/components/ui/Button';
 
 const ITEMS_PER_PAGE = 9;
@@ -26,6 +29,7 @@ export default function FranchisesPage() {
   const [activeFilters, setActiveFilters] = useState<Record<string, string>>({});
   const [sortBy, setSortBy] = useState('name');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+  const [viewMode, setViewMode] = useState<ViewMode>('grid');
 
   useEffect(() => {
     refreshFranchises();
@@ -144,9 +148,13 @@ export default function FranchisesPage() {
             {filteredFranchises?.length || 0} total {filteredFranchises?.length === 1 ? 'franchise' : 'franchises'}
           </p>
         </div>
-        <Button onClick={() => navigate('/franchises/new')}>
-          + New Franchise
-        </Button>
+        <div className="flex items-center gap-3">
+          <ExportButton data={filteredFranchises || []} filename="franchises" />
+          <ViewToggle view={viewMode} onChange={setViewMode} />
+          <Button onClick={() => navigate('/franchises/new')}>
+            + New Franchise
+          </Button>
+        </div>
       </div>
 
       {/* Search Bar */}
@@ -187,16 +195,27 @@ export default function FranchisesPage() {
         />
       ) : (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-            {paginatedFranchises.map((franchise) => (
-              <FranchiseCard
-                key={franchise.franchiseId}
-                franchise={franchise}
+          {/* Grid or List View */}
+          {viewMode === 'grid' ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+              {paginatedFranchises.map((franchise) => (
+                <FranchiseCard
+                  key={franchise.franchiseId}
+                  franchise={franchise}
+                  onEdit={(id) => navigate(`/franchises/${id}/edit`)}
+                  onDelete={setDeleteId}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="mb-6">
+              <FranchiseListView
+                franchises={paginatedFranchises}
                 onEdit={(id) => navigate(`/franchises/${id}/edit`)}
                 onDelete={setDeleteId}
               />
-            ))}
-          </div>
+            </div>
+          )}
 
           {/* Pagination */}
           <Pagination
