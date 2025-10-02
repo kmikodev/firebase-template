@@ -71,8 +71,11 @@ service firebase.storage {
       // Read: público (fotos de sucursales visibles para clientes)
       allow read: if true;
 
-      // Write: staff de franquicia (verificado via custom claim)
+      // Write: solo super_admin o franchise_owner/admin (no podemos verificar franchiseId exacto sin Firestore)
       allow write: if isAuthenticated()
+                   && (request.auth.token.role == 'super_admin'
+                       || request.auth.token.role == 'franchise_owner'
+                       || request.auth.token.role == 'admin')
                    && isValidImageType()
                    && isValidSize(10); // Max 10MB
     }
@@ -85,8 +88,12 @@ service firebase.storage {
       // Read: público (portafolio de trabajos)
       allow read: if true;
 
-      // Write: el barbero mismo o staff de franquicia
+      // Write: solo barbers, admins, franchise_owners o super_admin
       allow write: if isAuthenticated()
+                   && (request.auth.token.role == 'barber'
+                       || request.auth.token.role == 'admin'
+                       || request.auth.token.role == 'franchise_owner'
+                       || request.auth.token.role == 'super_admin')
                    && isValidImageType()
                    && isValidSize(10); // Max 10MB
     }

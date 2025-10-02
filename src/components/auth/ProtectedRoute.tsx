@@ -36,13 +36,8 @@ export function ProtectedRoute({
     const allowedRoles = Array.isArray(requiredRole) ? requiredRole : [requiredRole];
 
     if (!allowedRoles.includes(customClaims.role)) {
-      return (
-        <div className="flex flex-col items-center justify-center min-h-screen">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Acceso Denegado</h1>
-          <p className="text-gray-600 mb-4">No tienes permisos para acceder a esta página</p>
-          <Navigate to="/" replace />
-        </div>
-      );
+      // Redirigir inmediatamente sin mostrar mensaje
+      return <Navigate to="/" replace />;
     }
   }
 

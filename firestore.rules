@@ -98,8 +98,12 @@ service cloud.firestore {
       // Read: público (para que clientes vean sucursales disponibles)
       allow read: if true;
 
-      // Write: solo staff de la franquicia o super admin
-      allow write: if belongsToFranchise(resource.data.franchiseId) || isSuperAdmin();
+      // Create: solo si perteneces a la franquicia o eres super admin
+      allow create: if isAuthenticated() &&
+                     (belongsToFranchise(request.resource.data.franchiseId) || isSuperAdmin());
+
+      // Update/Delete: solo staff de la franquicia o super admin
+      allow update, delete: if belongsToFranchise(resource.data.franchiseId) || isSuperAdmin();
     }
 
     // ========================================
@@ -110,8 +114,12 @@ service cloud.firestore {
       // Read: público (ver barberos disponibles)
       allow read: if true;
 
-      // Write: solo staff de franquicia o super admin
-      allow write: if belongsToFranchise(resource.data.franchiseId) || isSuperAdmin();
+      // Create: solo si perteneces a la franquicia o eres super admin
+      allow create: if isAuthenticated() &&
+                     (belongsToFranchise(request.resource.data.franchiseId) || isSuperAdmin());
+
+      // Update/Delete: solo staff de franquicia o super admin
+      allow update, delete: if belongsToFranchise(resource.data.franchiseId) || isSuperAdmin();
     }
 
     // ========================================
@@ -122,8 +130,12 @@ service cloud.firestore {
       // Read: público
       allow read: if true;
 
-      // Write: solo staff de franquicia o super admin
-      allow write: if belongsToFranchise(resource.data.franchiseId) || isSuperAdmin();
+      // Create: solo si perteneces a la franquicia o eres super admin
+      allow create: if isAuthenticated() &&
+                     (belongsToFranchise(request.resource.data.franchiseId) || isSuperAdmin());
+
+      // Update/Delete: solo staff de franquicia o super admin
+      allow update, delete: if belongsToFranchise(resource.data.franchiseId) || isSuperAdmin();
     }
 
     // ========================================
