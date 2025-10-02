@@ -18,11 +18,11 @@ export default function BarberQueue() {
     queueTickets,
     queueLoading,
     advanceQueue,
-    // completeTicket,  // TODO: Add UI for completing tickets
-    // cancelTicket,    // TODO: Add UI for cancelling tickets
+    completeTicket,
+    cancelTicket,
     advancing,
-    // completing,
-    // cancelling,
+    completing,
+    cancelling,
     error
   } = useQueue({ branchId: selectedBranchId });
 
@@ -51,6 +51,27 @@ export default function BarberQueue() {
       });
     } catch (err) {
       console.error('Failed to advance queue:', err);
+    }
+  };
+
+  const handleCompleteTicket = async (queueId: string) => {
+    if (!window.confirm('¿Marcar servicio como completado?')) return;
+
+    try {
+      await completeTicket({ queueId });
+    } catch (err) {
+      console.error('Failed to complete ticket:', err);
+    }
+  };
+
+  const handleCancelTicket = async (queueId: string) => {
+    const reason = prompt('Razón de cancelación (opcional):');
+    if (reason === null) return; // User clicked cancel
+
+    try {
+      await cancelTicket({ queueId, reason: reason || 'Cancelado por barbero' });
+    } catch (err) {
+      console.error('Failed to cancel ticket:', err);
     }
   };
 
@@ -195,11 +216,12 @@ export default function BarberQueue() {
                   <table className="w-full">
                     <thead className="bg-gray-50 border-b-2 border-gray-200">
                       <tr>
-                        <th className="text-left py-3 px-4 font-semibold text-sm text-gray-700">Posición</th>
+                        <th className="text-left py-3 px-4 font-semibold text-sm text-gray-700">Pos.</th>
                         <th className="text-left py-3 px-4 font-semibold text-sm text-gray-700">Ticket</th>
                         <th className="text-left py-3 px-4 font-semibold text-sm text-gray-700">Estado</th>
-                        <th className="text-left py-3 px-4 font-semibold text-sm text-gray-700">Espera Est.</th>
+                        <th className="text-left py-3 px-4 font-semibold text-sm text-gray-700">Espera</th>
                         <th className="text-left py-3 px-4 font-semibold text-sm text-gray-700">Creado</th>
+                        <th className="text-right py-3 px-4 font-semibold text-sm text-gray-700">Acciones</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200">
@@ -218,7 +240,7 @@ export default function BarberQueue() {
                             </span>
                           </td>
                           <td className="py-3 px-4">
-                            <span className="font-mono font-semibold text-gray-900">
+                            <span className="font-mono font-semibold text-gray-900 text-sm">
                               {ticket.ticketNumber}
                             </span>
                           </td>
@@ -229,13 +251,37 @@ export default function BarberQueue() {
                             </span>
                           </td>
                           <td className="py-3 px-4 text-sm text-gray-600">
-                            {ticket.estimatedWaitTime} min
+                            {ticket.estimatedWaitTime}m
                           </td>
                           <td className="py-3 px-4 text-sm text-gray-600">
                             {ticket.createdAt?.toDate().toLocaleTimeString('es-AR', {
                               hour: '2-digit',
                               minute: '2-digit'
                             })}
+                          </td>
+                          <td className="py-3 px-4">
+                            <div className="flex justify-end gap-2">
+                              {(ticket.status === 'in_service' || ticket.status === 'arrived') && (
+                                <button
+                                  onClick={() => handleCompleteTicket(ticket.queueId)}
+                                  disabled={completing}
+                                  className="px-3 py-1 bg-green-600 text-white text-xs font-medium rounded hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition"
+                                  title="Completar servicio"
+                                >
+                                  ✓ Completar
+                                </button>
+                              )}
+                              {ticket.status !== 'completed' && ticket.status !== 'cancelled' && ticket.status !== 'expired' && (
+                                <button
+                                  onClick={() => handleCancelTicket(ticket.queueId)}
+                                  disabled={cancelling}
+                                  className="px-3 py-1 bg-red-600 text-white text-xs font-medium rounded hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition"
+                                  title="Cancelar turno"
+                                >
+                                  ✕ Cancelar
+                                </button>
+                              )}
+                            </div>
                           </td>
                         </tr>
                       ))}

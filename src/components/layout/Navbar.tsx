@@ -28,7 +28,9 @@ export function Navbar() {
     { path: '/barbers', label: 'Barbers', icon: '💈', roles: ['super_admin', 'franchise_owner', 'admin'] },
     { path: '/services', label: 'Services', icon: '✂️', roles: ['super_admin', 'franchise_owner', 'admin'] },
     { path: '/queue', label: 'Queue', icon: '🎫', roles: ['super_admin', 'franchise_owner', 'admin', 'barber'] },
-    { path: '/take-ticket', label: 'Take Ticket', icon: '🎟️', roles: ['client', 'guest'] },
+    { path: '/barber-queue', label: 'Mi Cola', icon: '💈', roles: ['barber'] },
+    { path: '/client-queue', label: 'Mis Turnos', icon: '🎟️', roles: ['client', 'guest'] },
+    { path: '/profile', label: 'Perfil', icon: '👤' },
   ];
 
   const visibleLinks = navLinks.filter(link => {

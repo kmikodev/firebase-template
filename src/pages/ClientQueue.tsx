@@ -47,11 +47,19 @@ export default function ClientQueue() {
     }
   }, [branches, selectedBranchId]);
 
+  // TODO: Add service and barber selection UI
+  // const [selectedServiceId, setSelectedServiceId] = useState<string | null>(null);
+  // const [selectedBarberId, setSelectedBarberId] = useState<string | null>(null);
+
   const handleTakeTicket = async () => {
     if (!selectedBranchId) return;
 
     try {
-      await takeTicket({ branchId: selectedBranchId });
+      await takeTicket({
+        branchId: selectedBranchId,
+        // serviceId: selectedServiceId || undefined,
+        // barberId: selectedBarberId || undefined,
+      });
     } catch (err) {
       console.error('Failed to take ticket:', err);
     }

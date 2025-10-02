@@ -25,6 +25,7 @@ import QueuePage from './pages/QueuePage';
 import TakeTicketPage from './pages/TakeTicketPage';
 import ClientQueue from './pages/ClientQueue';
 import BarberQueue from './pages/BarberQueue';
+import ProfilePage from './pages/ProfilePage';
 import NotFound from './pages/NotFound';
 
 function App() {
@@ -217,6 +218,18 @@ function App() {
                         <ProtectedRoute>
                           <Layout>
                             <BarberQueue />
+                          </Layout>
+                        </ProtectedRoute>
+                      }
+                    />
+
+                    {/* Profile */}
+                    <Route
+                      path="/profile"
+                      element={
+                        <ProtectedRoute>
+                          <Layout>
+                            <ProfilePage />
                           </Layout>
                         </ProtectedRoute>
                       }
