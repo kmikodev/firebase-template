@@ -1,0 +1,9 @@
+{
+  "appId": "com.myapp.firebase",
+  "appName": "My Firebase App",
+  "webDir": "dist",
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "https"
+  }
+}
