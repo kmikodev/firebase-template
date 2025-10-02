@@ -21,9 +21,10 @@ interface LoyaltyTransaction {
 
 export default function ProfilePage() {
   const navigate = useNavigate();
-  const { user, firebaseUser, signOut } = useAuth();
+  const { user, firebaseUser, signOut, linkGoogleAccount, unlinkGoogleAccount } = useAuth();
   const [transactions, setTransactions] = useState<LoyaltyTransaction[]>([]);
   const [loading, setLoading] = useState(true);
+  const [linkingGoogle, setLinkingGoogle] = useState(false);
 
   useEffect(() => {
     if (!firebaseUser) return;
@@ -72,12 +73,44 @@ export default function ProfilePage() {
     return 'text-gray-600';
   };
 
+  const handleLinkGoogle = async () => {
+    setLinkingGoogle(true);
+    try {
+      await linkGoogleAccount();
+      alert('✅ Cuenta de Google vinculada exitosamente');
+    } catch (error: any) {
+      console.error('Error linking Google:', error);
+      alert(error.message || 'Error al vincular cuenta de Google');
+    } finally {
+      setLinkingGoogle(false);
+    }
+  };
+
+  const handleUnlinkGoogle = async () => {
+    if (!confirm('¿Estás seguro de desvincular tu cuenta de Google?')) return;
+
+    try {
+      await unlinkGoogleAccount();
+      alert('✅ Cuenta de Google desvinculada');
+    } catch (error: any) {
+      console.error('Error unlinking Google:', error);
+      alert(error.message || 'Error al desvincular cuenta de Google');
+    }
+  };
+
+  const hasGoogleLinked = firebaseUser?.providerData.some(
+    provider => provider.providerId === 'google.com'
+  );
+  const hasPasswordLinked = firebaseUser?.providerData.some(
+    provider => provider.providerId === 'password'
+  );
+
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Inicia sesión</h2>
-          <p className="text-gray-600 mb-4">Debes iniciar sesión para ver tu perfil</p>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Inicia sesión</h2>
+          <p className="text-gray-600 dark:text-gray-400 mb-4">Debes iniciar sesión para ver tu perfil</p>
           <button
             onClick={() => navigate('/login')}
             className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
@@ -90,34 +123,34 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 py-8 px-4">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 mb-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-4">
               {user.photoURL ? (
                 <img
                   src={user.photoURL}
                   alt={user.displayName || 'User'}
-                  className="w-16 h-16 rounded-full border-2 border-gray-200"
+                  className="w-16 h-16 rounded-full border-2 border-gray-200 dark:border-gray-700"
                 />
               ) : (
-                <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center text-2xl font-bold text-blue-600">
+                <div className="w-16 h-16 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-2xl font-bold text-blue-600 dark:text-blue-400">
                   {user.displayName?.charAt(0) || user.email?.charAt(0) || '?'}
                 </div>
               )}
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">{user.displayName || 'Usuario'}</h1>
-                <p className="text-sm text-gray-600">{user.email}</p>
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{user.displayName || 'Usuario'}</h1>
+                <p className="text-sm text-gray-600 dark:text-gray-400">{user.email}</p>
                 {user.phoneNumber && (
-                  <p className="text-sm text-gray-600">{user.phoneNumber}</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">{user.phoneNumber}</p>
                 )}
               </div>
             </div>
             <button
               onClick={() => signOut()}
-              className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition"
+              className="px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition"
             >
               Cerrar Sesión
             </button>
@@ -125,13 +158,13 @@ export default function ProfilePage() {
 
           {/* Role Badge */}
           <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-600">Rol:</span>
+            <span className="text-sm text-gray-600 dark:text-gray-400">Rol:</span>
             <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-              user.role === 'super_admin' ? 'bg-purple-100 text-purple-800' :
-              user.role === 'admin' ? 'bg-blue-100 text-blue-800' :
-              user.role === 'barber' ? 'bg-green-100 text-green-800' :
-              user.role === 'client' ? 'bg-gray-100 text-gray-800' :
-              'bg-yellow-100 text-yellow-800'
+              user.role === 'super_admin' ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-400' :
+              user.role === 'admin' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400' :
+              user.role === 'barber' ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400' :
+              user.role === 'client' ? 'bg-gray-100 dark:bg-gray-900/30 text-gray-800 dark:text-gray-300' :
+              'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400'
             }`}>
               {user.role === 'super_admin' ? '👑 Super Admin' :
                user.role === 'admin' ? '🔧 Administrador' :
@@ -139,6 +172,79 @@ export default function ProfilePage() {
                user.role === 'client' ? '👤 Cliente' :
                '👻 Invitado'}
             </span>
+          </div>
+        </div>
+
+        {/* Linked Accounts Section */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 mb-6">
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">🔗 Cuentas Vinculadas</h2>
+
+          <div className="space-y-3">
+            {/* Email/Password Provider */}
+            <div className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gray-100 dark:bg-gray-900/30 rounded-full flex items-center justify-center">
+                  📧
+                </div>
+                <div>
+                  <p className="font-medium text-gray-900 dark:text-white">Email/Contraseña</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">{user.email}</p>
+                </div>
+              </div>
+              {hasPasswordLinked ? (
+                <span className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 text-xs font-semibold rounded-full">
+                  ✓ Vinculado
+                </span>
+              ) : (
+                <span className="px-3 py-1 bg-gray-100 dark:bg-gray-900/30 text-gray-600 dark:text-gray-400 text-xs font-semibold rounded-full">
+                  No vinculado
+                </span>
+              )}
+            </div>
+
+            {/* Google Provider */}
+            <div className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center">
+                  🔴
+                </div>
+                <div>
+                  <p className="font-medium text-gray-900 dark:text-white">Google Sign-In</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    {hasGoogleLinked
+                      ? firebaseUser?.providerData.find(p => p.providerId === 'google.com')?.email
+                      : 'No vinculado'}
+                  </p>
+                </div>
+              </div>
+              {hasGoogleLinked ? (
+                <div className="flex items-center gap-2">
+                  <span className="px-3 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full">
+                    ✓ Vinculado
+                  </span>
+                  <button
+                    onClick={handleUnlinkGoogle}
+                    className="px-3 py-1 text-xs text-red-600 hover:bg-red-50 rounded-lg transition"
+                  >
+                    Desvincular
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={handleLinkGoogle}
+                  disabled={linkingGoogle}
+                  className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition disabled:opacity-50"
+                >
+                  {linkingGoogle ? 'Vinculando...' : 'Vincular Google'}
+                </button>
+              )}
+            </div>
+          </div>
+
+          <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-sm text-blue-800">
+              💡 <strong>Consejo:</strong> Vincula tu cuenta de Google para poder iniciar sesión con ambos métodos.
+            </p>
           </div>
         </div>
 

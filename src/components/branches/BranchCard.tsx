@@ -32,15 +32,15 @@ export function BranchCard({ branch, onEdit, onDelete }: BranchCardProps) {
       )}
 
       <div className="flex items-start justify-between mb-3">
-        <h3 className="text-lg font-semibold text-gray-900">{branch.name}</h3>
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{branch.name}</h3>
         <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-          isOpenNow() ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+          isOpenNow() ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400' : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400'
         }`}>
           {isOpenNow() ? '● Open' : 'Closed'}
         </span>
       </div>
 
-      <div className="space-y-2 text-sm text-gray-600 mb-4">
+      <div className="space-y-2 text-sm text-gray-600 dark:text-gray-300 mb-4">
         <div className="flex items-start gap-2">
           <span>📍</span>
           <div>
@@ -61,7 +61,7 @@ export function BranchCard({ branch, onEdit, onDelete }: BranchCardProps) {
       </div>
 
       <ProtectedAction requiredPermission={(claims) => canManageBranch(claims, branch.franchiseId)}>
-        <div className="flex gap-2 pt-4 border-t border-gray-200">
+        <div className="flex gap-2 pt-4 border-t border-gray-200 dark:border-gray-700">
           {onEdit && (
             <Button size="sm" variant="ghost" onClick={() => onEdit(branch.branchId)} className="flex-1">
               Edit

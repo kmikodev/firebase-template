@@ -11,13 +11,13 @@ interface ViewToggleProps {
 
 export function ViewToggle({ view, onChange }: ViewToggleProps) {
   return (
-    <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
+    <div className="flex items-center gap-1 bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
       <button
         onClick={() => onChange('grid')}
         className={`p-2 rounded transition-colors ${
           view === 'grid'
-            ? 'bg-white text-blue-600 shadow-sm'
-            : 'text-gray-600 hover:text-gray-900'
+            ? 'bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-400 shadow-sm'
+            : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
         }`}
         title="Grid view"
         aria-label="Grid view"
@@ -35,8 +35,8 @@ export function ViewToggle({ view, onChange }: ViewToggleProps) {
         onClick={() => onChange('list')}
         className={`p-2 rounded transition-colors ${
           view === 'list'
-            ? 'bg-white text-blue-600 shadow-sm'
-            : 'text-gray-600 hover:text-gray-900'
+            ? 'bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-400 shadow-sm'
+            : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
         }`}
         title="List view"
         aria-label="List view"

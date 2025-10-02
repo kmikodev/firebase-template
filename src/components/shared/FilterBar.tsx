@@ -54,12 +54,12 @@ export function FilterBar({ filters, onFilterChange, onReset }: FilterBarProps) 
   const activeFilterCount = Object.keys(activeFilters).length;
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <span className="text-sm font-medium text-gray-700">Filters</span>
+          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Filters</span>
           {activeFilterCount > 0 && (
-            <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">
+            <span className="px-2 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs rounded-full font-medium">
               {activeFilterCount} active
             </span>
           )}
@@ -72,10 +72,10 @@ export function FilterBar({ filters, onFilterChange, onReset }: FilterBarProps) 
           )}
           <button
             onClick={() => setIsExpanded(!isExpanded)}
-            className="p-1 hover:bg-gray-100 rounded transition-colors"
+            className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
           >
             <svg
-              className={`w-5 h-5 text-gray-600 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+              className={`w-5 h-5 text-gray-600 dark:text-gray-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -87,17 +87,17 @@ export function FilterBar({ filters, onFilterChange, onReset }: FilterBarProps) 
       </div>
 
       {isExpanded && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 pt-4 border-t border-gray-200">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
           {filters.map((filter) => (
             <div key={filter.key}>
-              <label htmlFor={filter.key} className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor={filter.key} className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 {filter.label}
               </label>
               <select
                 id={filter.key}
                 value={activeFilters[filter.key] || ''}
                 onChange={(e) => handleFilterChange(filter.key, e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="">All</option>
                 {filter.options.map((option) => (

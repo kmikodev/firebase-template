@@ -48,6 +48,19 @@ export {
 };
 
 // ========================================
+// Barber Management Functions
+// ========================================
+
+import { createBarber, updateBarber, deleteBarber } from './barbers/callable';
+
+export {
+  // Barbers
+  createBarber,
+  updateBarber,
+  deleteBarber,
+};
+
+// ========================================
 // Notifications Functions (se agregarán en Milestone 5)
 // ========================================
 

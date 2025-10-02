@@ -19,7 +19,7 @@ export function Breadcrumbs({ items }: BreadcrumbsProps) {
         <li className="inline-flex items-center">
           <Link
             to="/dashboard"
-            className="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600"
+            className="inline-flex items-center text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400"
           >
             <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
               <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path>
@@ -33,7 +33,7 @@ export function Breadcrumbs({ items }: BreadcrumbsProps) {
             <li key={index}>
               <div className="flex items-center">
                 <svg
-                  className="w-6 h-6 text-gray-400"
+                  className="w-6 h-6 text-gray-400 dark:text-gray-600"
                   fill="currentColor"
                   viewBox="0 0 20 20"
                 >
@@ -44,13 +44,13 @@ export function Breadcrumbs({ items }: BreadcrumbsProps) {
                   ></path>
                 </svg>
                 {isLast || !item.path ? (
-                  <span className="ml-1 text-sm font-medium text-gray-500 md:ml-2">
+                  <span className="ml-1 text-sm font-medium text-gray-500 dark:text-gray-400 md:ml-2">
                     {item.label}
                   </span>
                 ) : (
                   <Link
                     to={item.path}
-                    className="ml-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ml-2"
+                    className="ml-1 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 md:ml-2"
                   >
                     {item.label}
                   </Link>

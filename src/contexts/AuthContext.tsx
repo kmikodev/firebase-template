@@ -7,6 +7,7 @@ import {
   signOut as firebaseSignOut,
   onAuthStateChanged,
   linkWithPopup,
+  unlink,
 } from 'firebase/auth';
 import { doc, getDoc, setDoc, Timestamp } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase';
@@ -19,6 +20,8 @@ import {
   onForegroundMessage
 } from '@/services/notificationService';
 import { analyticsService } from '@/services/analyticsService';
+import { logEvent } from 'firebase/analytics';
+import { analytics } from '@/lib/firebase';
 
 interface AuthContextType {
   firebaseUser: FirebaseUser | null;
@@ -29,6 +32,8 @@ interface AuthContextType {
   signInAsGuest: () => Promise<void>;
   upgradeGuestAccount: () => Promise<void>;
   signOut: () => Promise<void>;
+  linkGoogleAccount: () => Promise<{ success: boolean }>;
+  unlinkGoogleAccount: () => Promise<{ success: boolean }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -189,18 +194,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [currentFCMToken]); // Include currentFCMToken in dependencies
 
   const signInWithGoogle = async () => {
-    const provider = new GoogleAuthProvider();
-    provider.setCustomParameters({
-      prompt: 'select_account',
-    });
-    const result = await signInWithPopup(auth, provider);
+    try {
+      const provider = new GoogleAuthProvider();
+      provider.setCustomParameters({
+        prompt: 'select_account',
+      });
+      const result = await signInWithPopup(auth, provider);
 
-    // Track login
-    const isNewUser = result.user.metadata.creationTime === result.user.metadata.lastSignInTime;
-    if (isNewUser) {
-      analyticsService.trackSignUp('google', customClaims?.role);
-    } else {
-      analyticsService.trackLogin('google', customClaims?.role);
+      // Track login
+      const isNewUser = result.user.metadata.creationTime === result.user.metadata.lastSignInTime;
+      if (isNewUser) {
+        analyticsService.trackSignUp('google', customClaims?.role);
+      } else {
+        analyticsService.trackLogin('google', customClaims?.role);
+      }
+    } catch (error: any) {
+      // Handle account-exists-with-different-credential error
+      if (error.code === 'auth/account-exists-with-different-credential') {
+        // Get the pending credential
+        const pendingCred = GoogleAuthProvider.credentialFromError(error);
+        const email = error.customData?.email;
+
+        if (email && pendingCred) {
+          throw new Error(
+            `Ya existe una cuenta con el email ${email}. Por favor, inicia sesión con tu método existente y vincula Google desde tu perfil.`
+          );
+        }
+      }
+      throw error;
     }
   };
 
@@ -240,6 +261,58 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await firebaseSignOut(auth);
   };
 
+  const linkGoogleAccount = async () => {
+    if (!firebaseUser) {
+      throw new Error('No user logged in');
+    }
+
+    try {
+      const provider = new GoogleAuthProvider();
+      provider.setCustomParameters({
+        prompt: 'select_account',
+      });
+      const result = await linkWithPopup(firebaseUser, provider);
+
+      // Update user document with Google provider info
+      await setDoc(doc(db, 'users', firebaseUser.uid), {
+        photoURL: result.user.photoURL,
+        updatedAt: Timestamp.now(),
+      }, { merge: true });
+
+      if (analytics) {
+        logEvent(analytics, 'account_linked', { provider: 'google' });
+      }
+      return { success: true };
+    } catch (error: any) {
+      if (error.code === 'auth/credential-already-in-use') {
+        throw new Error('Esta cuenta de Google ya está vinculada a otro usuario');
+      }
+      if (error.code === 'auth/provider-already-linked') {
+        throw new Error('Esta cuenta ya tiene Google vinculado');
+      }
+      throw error;
+    }
+  };
+
+  const unlinkGoogleAccount = async () => {
+    if (!firebaseUser) {
+      throw new Error('No user logged in');
+    }
+
+    try {
+      await unlink(firebaseUser, 'google.com');
+      if (analytics) {
+        logEvent(analytics, 'account_unlinked', { provider: 'google' });
+      }
+      return { success: true };
+    } catch (error: any) {
+      if (error.code === 'auth/no-such-provider') {
+        throw new Error('No hay cuenta de Google vinculada');
+      }
+      throw error;
+    }
+  };
+
   const value = {
     firebaseUser,
     user,
@@ -249,6 +322,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     signInAsGuest,
     upgradeGuestAccount,
     signOut,
+    linkGoogleAccount,
+    unlinkGoogleAccount,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

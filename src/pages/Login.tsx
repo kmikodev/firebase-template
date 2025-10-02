@@ -15,17 +15,17 @@ export default function Login() {
   }, [firebaseUser, navigate]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 to-primary-100 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 to-primary-100 dark:from-gray-900 dark:to-gray-950 p-4">
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle className="text-center">Bienvenido a Peluquerías</CardTitle>
-          <p className="text-center text-gray-600 mt-2">
+          <p className="text-center text-gray-600 dark:text-gray-400 mt-2">
             Gestiona tu turno de forma inteligente
           </p>
         </CardHeader>
         <CardContent className="flex flex-col items-center">
           <LoginButtons />
-          <p className="text-xs text-gray-500 text-center mt-6">
+          <p className="text-xs text-gray-500 dark:text-gray-400 text-center mt-6">
             Al continuar, aceptas nuestros términos de servicio y política de privacidad
           </p>
         </CardContent>

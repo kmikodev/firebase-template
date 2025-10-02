@@ -31,6 +31,7 @@ const https_1 = require("firebase-functions/v2/https");
 const logger = __importStar(require("firebase-functions/logger"));
 const admin = __importStar(require("firebase-admin"));
 const config_1 = require("../config");
+const sender_1 = require("../notifications/sender");
 const db = admin.firestore();
 /**
  * Advance queue - Call the next person in line
@@ -246,12 +247,15 @@ exports.markArrival = (0, https_1.onCall)({
             throw new https_1.HttpsError('not-found', 'Ticket not found');
         }
         const ticket = ticketDoc.data();
-        // Verify ownership
-        if ((ticket === null || ticket === void 0 ? void 0 : ticket.userId) !== userId) {
+        // Get user's custom claims to check role
+        const userRole = request.auth.token.role;
+        const isAdmin = userRole === 'super_admin' || userRole === 'admin' || userRole === 'barber';
+        // Verify ownership (clients can only mark their own arrival, but admins/barbers can mark anyone's)
+        if ((ticket === null || ticket === void 0 ? void 0 : ticket.userId) !== userId && !isAdmin) {
             throw new https_1.HttpsError('permission-denied', 'Not authorized to update this ticket');
         }
-        // Can only mark arrival if status is 'waiting'
-        if ((ticket === null || ticket === void 0 ? void 0 : ticket.status) !== 'waiting') {
+        // Can only mark arrival if status is 'waiting' or 'notified'
+        if ((ticket === null || ticket === void 0 ? void 0 : ticket.status) !== 'waiting' && (ticket === null || ticket === void 0 ? void 0 : ticket.status) !== 'notified') {
             throw new https_1.HttpsError('failed-precondition', `Cannot mark arrival from status: ${ticket === null || ticket === void 0 ? void 0 : ticket.status}`);
         }
         // Update to 'arrived' status
@@ -261,6 +265,35 @@ exports.markArrival = (0, https_1.onCall)({
             arrivedAt: admin.firestore.FieldValue.serverTimestamp(),
             updatedAt: admin.firestore.FieldValue.serverTimestamp(),
         });
+        // Send notification to client confirming arrival
+        const clientUserId = ticket === null || ticket === void 0 ? void 0 : ticket.userId;
+        if (clientUserId) {
+            try {
+                await (0, sender_1.createNotificationDocument)(clientUserId, {
+                    type: 'arrival_confirmed',
+                    title: '✅ Llegada Confirmada',
+                    body: 'Tu llegada ha sido confirmada. Pronto serás atendido.',
+                    data: { queueId },
+                });
+                await (0, sender_1.sendNotificationToUser)(clientUserId, {
+                    title: '✅ Llegada Confirmada',
+                    body: 'Tu llegada ha sido confirmada. Pronto serás atendido.',
+                    data: { queueId },
+                });
+                logger.info('Arrival confirmation notification sent', {
+                    queueId,
+                    clientUserId,
+                });
+            }
+            catch (notifError) {
+                logger.error('Error sending arrival confirmation notification', {
+                    error: notifError,
+                    queueId,
+                    clientUserId,
+                });
+                // Don't fail the entire operation if notification fails
+            }
+        }
         logger.info('Arrival marked successfully', {
             queueId,
             userId,
@@ -304,9 +337,13 @@ exports.completeTicket = (0, https_1.onCall)({
             throw new https_1.HttpsError('not-found', 'Ticket not found');
         }
         const ticket = ticketDoc.data();
-        // Check if user is barber/admin (has role permission)
-        // For now, allow ticket owner or any authenticated user (for testing)
-        // TODO: Add proper role check
+        // Get user's custom claims to check role
+        const userRole = request.auth.token.role;
+        const isAdmin = userRole === 'super_admin' || userRole === 'admin' || userRole === 'barber';
+        // Only admins/barbers can complete tickets (clients cannot complete their own service)
+        if (!isAdmin) {
+            throw new https_1.HttpsError('permission-denied', 'Only barbers and admins can complete services');
+        }
         // Can complete from 'in_service' or 'arrived' status
         if ((ticket === null || ticket === void 0 ? void 0 : ticket.status) !== 'in_service' && (ticket === null || ticket === void 0 ? void 0 : ticket.status) !== 'arrived') {
             throw new https_1.HttpsError('failed-precondition', `Cannot complete ticket from status: ${ticket === null || ticket === void 0 ? void 0 : ticket.status}`);

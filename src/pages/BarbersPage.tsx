@@ -144,15 +144,15 @@ export default function BarbersPage() {
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Barbers</h1>
-          <p className="text-gray-600 mt-1">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Barbers</h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-1">
             {filteredBarbers?.length || 0} total {filteredBarbers?.length === 1 ? 'barber' : 'barbers'}
           </p>
         </div>
         <div className="flex items-center gap-3">
           <ExportButton data={filteredBarbers || []} filename="barbers" />
           <ViewToggle view={viewMode} onChange={setViewMode} />
-          <Button onClick={() => navigate('/barbers/new?franchiseId=TEMP&branchId=TEMP')}>
+          <Button onClick={() => navigate('/admin/barbers')}>
             + New Barber
           </Button>
         </div>
@@ -192,7 +192,7 @@ export default function BarbersPage() {
             ? "No barbers match your search or filters. Try adjusting your criteria."
             : "Get started by creating your first barber."}
           actionLabel="Create Barber"
-          onAction={() => navigate('/barbers/new?franchiseId=TEMP&branchId=TEMP')}
+          onAction={() => navigate('/admin/barbers')}
         />
       ) : (
         <>

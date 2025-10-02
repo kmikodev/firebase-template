@@ -1,40 +1,34 @@
 /**
- * Dashboard quick actions component
+ * Dashboard quick actions component - Mobile-first design
  */
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { Card } from '@/components/ui/Card';
-import { Button } from '@/components/ui/Button';
 
-interface ActionCardProps {
+interface ActionButtonProps {
   icon: string;
   title: string;
-  description: string;
-  buttonLabel: string;
   onClick: () => void;
-  color: 'blue' | 'green' | 'purple' | 'orange';
+  color: 'blue' | 'green' | 'purple' | 'orange' | 'pink' | 'red';
 }
 
-function ActionCard({ icon, title, description, buttonLabel, onClick, color }: ActionCardProps) {
+function MobileActionButton({ icon, title, onClick, color }: ActionButtonProps) {
   const colorClasses = {
-    blue: 'from-blue-500 to-blue-600',
-    green: 'from-green-500 to-green-600',
-    purple: 'from-purple-500 to-purple-600',
-    orange: 'from-orange-500 to-orange-600',
+    blue: 'bg-blue-500 hover:bg-blue-600 active:bg-blue-700',
+    green: 'bg-green-500 hover:bg-green-600 active:bg-green-700',
+    purple: 'bg-purple-500 hover:bg-purple-600 active:bg-purple-700',
+    orange: 'bg-orange-500 hover:bg-orange-600 active:bg-orange-700',
+    pink: 'bg-pink-500 hover:bg-pink-600 active:bg-pink-700',
+    red: 'bg-red-500 hover:bg-red-600 active:bg-red-700',
   };
 
   return (
-    <Card className="overflow-hidden hover:shadow-lg transition-shadow">
-      <div className={`h-2 bg-gradient-to-r ${colorClasses[color]}`}></div>
-      <div className="p-6">
-        <div className="text-4xl mb-4">{icon}</div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">{title}</h3>
-        <p className="text-sm text-gray-600 mb-4">{description}</p>
-        <Button onClick={onClick} className="w-full">
-          {buttonLabel}
-        </Button>
-      </div>
-    </Card>
+    <button
+      onClick={onClick}
+      className={`${colorClasses[color]} text-white rounded-2xl p-6 shadow-lg hover:shadow-xl active:scale-95 transition-all duration-150 flex flex-col items-center justify-center gap-3 min-h-[140px] w-full`}
+    >
+      <span className="text-5xl">{icon}</span>
+      <span className="font-bold text-base text-center leading-tight">{title}</span>
+    </button>
   );
 }
 
@@ -44,54 +38,109 @@ export function QuickActions() {
 
   const canManageFranchises = customClaims?.role === 'super_admin';
   const canManageBranches = customClaims && ['super_admin', 'franchise_owner', 'admin'].includes(customClaims.role);
+  const isBarber = customClaims?.role === 'barber';
+  const isClient = customClaims && ['client', 'guest'].includes(customClaims.role);
 
-  const actions = [
+  const adminActions = [
     {
       icon: '🏢',
-      title: 'New Franchise',
-      description: 'Create a new franchise location',
-      buttonLabel: 'Add Franchise',
+      title: 'Nueva Franquicia',
       onClick: () => navigate('/franchises/new'),
       color: 'blue' as const,
       show: canManageFranchises,
     },
     {
       icon: '📍',
-      title: 'New Branch',
-      description: 'Add a branch to existing franchise',
-      buttonLabel: 'Add Branch',
-      onClick: () => navigate('/branches/new?franchiseId=TEMP'),
+      title: 'Nueva Sucursal',
+      onClick: () => navigate('/branches/new'),
       color: 'green' as const,
       show: canManageBranches,
     },
     {
       icon: '💈',
-      title: 'New Barber',
-      description: 'Register a new barber professional',
-      buttonLabel: 'Add Barber',
-      onClick: () => navigate('/barbers/new?franchiseId=TEMP&branchId=TEMP'),
+      title: 'Nuevo Barbero',
+      onClick: () => navigate('/admin/barbers'),
       color: 'purple' as const,
       show: canManageBranches,
     },
     {
       icon: '✂️',
-      title: 'New Service',
-      description: 'Create a new service offering',
-      buttonLabel: 'Add Service',
-      onClick: () => navigate('/services/new?franchiseId=TEMP'),
+      title: 'Nuevo Servicio',
+      onClick: () => navigate('/services/new'),
       color: 'orange' as const,
+      show: canManageBranches,
+    },
+    {
+      icon: '🎉',
+      title: 'Nueva Oferta',
+      onClick: () => navigate('/offers/new'),
+      color: 'pink' as const,
+      show: canManageBranches,
+    },
+    {
+      icon: '🎫',
+      title: 'Ver Cola',
+      onClick: () => navigate('/queue'),
+      color: 'red' as const,
       show: canManageBranches,
     },
   ];
 
-  const visibleActions = actions.filter(action => action.show);
+  const barberActions = [
+    {
+      icon: '💈',
+      title: 'Mi Cola',
+      onClick: () => navigate('/barber-queue'),
+      color: 'purple' as const,
+      show: isBarber,
+    },
+    {
+      icon: '👤',
+      title: 'Mi Perfil',
+      onClick: () => navigate('/profile'),
+      color: 'blue' as const,
+      show: isBarber,
+    },
+  ];
+
+  const clientActions = [
+    {
+      icon: '🎫',
+      title: 'Tomar Turno',
+      onClick: () => navigate('/take-ticket'),
+      color: 'green' as const,
+      show: isClient,
+    },
+    {
+      icon: '🎟️',
+      title: 'Mis Turnos',
+      onClick: () => navigate('/client-queue'),
+      color: 'purple' as const,
+      show: isClient,
+    },
+    {
+      icon: '👤',
+      title: 'Mi Perfil',
+      onClick: () => navigate('/profile'),
+      color: 'blue' as const,
+      show: isClient,
+    },
+  ];
+
+  const visibleActions = [...adminActions, ...barberActions, ...clientActions].filter(action => action.show);
+
+  if (visibleActions.length === 0) return null;
 
   return (
-    <div>
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">Quick Actions</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div className="mb-8">
+      <h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white mb-4 px-1">
+        Acciones Rápidas
+      </h2>
+
+      {/* Mobile: 2 columns */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 md:gap-4">
         {visibleActions.map((action, index) => (
-          <ActionCard key={index} {...action} />
+          <MobileActionButton key={index} {...action} />
         ))}
       </div>
     </div>

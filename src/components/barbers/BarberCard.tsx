@@ -25,16 +25,16 @@ export function BarberCard({ barber, onEdit, onDelete, onToggleAvailability }: B
             className="w-16 h-16 rounded-full object-cover"
           />
         ) : (
-          <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center text-2xl">
+          <div className="w-16 h-16 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-2xl">
             💈
           </div>
         )}
 
         <div className="flex-1">
-          <h3 className="text-lg font-semibold text-gray-900">{barber.displayName}</h3>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{barber.displayName}</h3>
           <div className="flex items-center gap-2 mt-1">
             <span className={`w-2 h-2 rounded-full ${barber.isAvailable ? 'bg-green-500' : 'bg-gray-400'}`} />
-            <span className="text-sm text-gray-600">
+            <span className="text-sm text-gray-600 dark:text-gray-400">
               {barber.isAvailable ? 'Available' : 'Unavailable'}
             </span>
           </div>
@@ -42,17 +42,17 @@ export function BarberCard({ barber, onEdit, onDelete, onToggleAvailability }: B
       </div>
 
       {barber.bio && (
-        <p className="text-sm text-gray-600 mb-3 line-clamp-2">{barber.bio}</p>
+        <p className="text-sm text-gray-600 dark:text-gray-300 mb-3 line-clamp-2">{barber.bio}</p>
       )}
 
       {barber.specialties.length > 0 && (
         <div className="mb-4">
-          <p className="text-xs font-medium text-gray-500 mb-2">Specialties:</p>
+          <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">Specialties:</p>
           <div className="flex flex-wrap gap-2">
             {barber.specialties.map((specialty, index) => (
               <span
                 key={index}
-                className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-full"
+                className="px-2 py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs rounded-full"
               >
                 {specialty}
               </span>
@@ -62,7 +62,7 @@ export function BarberCard({ barber, onEdit, onDelete, onToggleAvailability }: B
       )}
 
       <ProtectedAction requiredPermission={(claims) => canManageBarber(claims, barber.franchiseId)}>
-        <div className="space-y-2 pt-4 border-t border-gray-200">
+        <div className="space-y-2 pt-4 border-t border-gray-200 dark:border-gray-700">
           {onToggleAvailability && (
             <Button
               size="sm"

@@ -1,12 +1,15 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import { ErrorBoundary } from './components/shared/ErrorBoundary';
+import { ThemeProvider } from './contexts/ThemeContext';
 import { AuthProvider } from './contexts/AuthContext';
+import './i18n/config'; // Initialize i18next
 import { FranchiseProvider } from './contexts/FranchiseContext';
 import { BranchProvider } from './contexts/BranchContext';
 import { BarberProvider } from './contexts/BarberContext';
 import { ServiceProvider } from './contexts/ServiceContext';
 import { QueueProvider } from './contexts/QueueContext';
+import { OfferProvider } from './contexts/OfferContext';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { Layout } from './components/layout/Layout';
 import { NotificationPermissionBanner } from './components/notifications/NotificationPermissionBanner';
@@ -19,6 +22,7 @@ import BranchesPage from './pages/BranchesPage';
 import BranchFormPage from './pages/BranchFormPage';
 import BarbersPage from './pages/BarbersPage';
 import BarberFormPage from './pages/BarberFormPage';
+import BarberManagementPage from './pages/BarberManagementPage';
 import ServicesPage from './pages/ServicesPage';
 import ServiceFormPage from './pages/ServiceFormPage';
 import QueuePage from './pages/QueuePage';
@@ -26,20 +30,23 @@ import TakeTicketPage from './pages/TakeTicketPage';
 import ClientQueue from './pages/ClientQueue';
 import BarberQueue from './pages/BarberQueue';
 import ProfilePage from './pages/ProfilePage';
+import OffersPage from './pages/OffersPage';
 import NotFound from './pages/NotFound';
 
 function App() {
   return (
     <ErrorBoundary>
-      <AuthProvider>
-        <FranchiseProvider>
-          <BranchProvider>
-            <BarberProvider>
-              <ServiceProvider>
-                <QueueProvider>
-                  <BrowserRouter>
-                  <NotificationPermissionBanner />
-                  <Routes>
+      <ThemeProvider>
+        <AuthProvider>
+          <FranchiseProvider>
+            <BranchProvider>
+              <BarberProvider>
+                <ServiceProvider>
+                  <OfferProvider>
+                    <QueueProvider>
+                      <BrowserRouter>
+                    <NotificationPermissionBanner />
+                    <Routes>
                     <Route path="/" element={<Home />} />
                     <Route path="/login" element={<Login />} />
                     <Route
@@ -148,6 +155,16 @@ function App() {
                         </ProtectedRoute>
                       }
                     />
+                    <Route
+                      path="/admin/barbers"
+                      element={
+                        <ProtectedRoute>
+                          <Layout>
+                            <BarberManagementPage />
+                          </Layout>
+                        </ProtectedRoute>
+                      }
+                    />
 
                     {/* Services */}
                     <Route
@@ -235,17 +252,31 @@ function App() {
                       }
                     />
 
+                    {/* Offers */}
+                    <Route
+                      path="/offers"
+                      element={
+                        <ProtectedRoute>
+                          <Layout>
+                            <OffersPage />
+                          </Layout>
+                        </ProtectedRoute>
+                      }
+                    />
+
                     {/* 404 Not Found */}
                     <Route path="*" element={<NotFound />} />
                   </Routes>
-                  </BrowserRouter>
-                  <Toaster position="top-right" />
-                </QueueProvider>
-              </ServiceProvider>
-            </BarberProvider>
-          </BranchProvider>
-        </FranchiseProvider>
-      </AuthProvider>
+                    </BrowserRouter>
+                    <Toaster position="top-right" />
+                    </QueueProvider>
+                  </OfferProvider>
+                </ServiceProvider>
+              </BarberProvider>
+            </BranchProvider>
+          </FranchiseProvider>
+        </AuthProvider>
+      </ThemeProvider>
     </ErrorBoundary>
   );
 }

@@ -147,8 +147,8 @@ export default function ServicesPage() {
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Services</h1>
-          <p className="text-gray-600 mt-1">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Services</h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-1">
             {filteredServices?.length || 0} total {filteredServices?.length === 1 ? 'service' : 'services'}
           </p>
         </div>

@@ -3,8 +3,15 @@
 @tailwind utilities;
 
 @layer base {
+  html {
+    overflow-y: scroll;
+    overflow-x: hidden;
+  }
+
   body {
-    @apply bg-gray-50 text-gray-900;
+    @apply bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100;
+    position: relative;
+    min-height: 100vh;
   }
 }
 
@@ -14,18 +21,124 @@
   }
 
   .btn-primary {
-    @apply bg-primary-600 text-white hover:bg-primary-700 active:bg-primary-800;
+    @apply bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800;
   }
 
   .btn-secondary {
-    @apply bg-gray-200 text-gray-900 hover:bg-gray-300 active:bg-gray-400;
+    @apply bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 hover:bg-gray-300 dark:hover:bg-gray-600 active:bg-gray-400 dark:active:bg-gray-500;
   }
 
   .input {
-    @apply w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none;
+    @apply w-full px-4 py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none;
   }
 
   .card {
-    @apply bg-white rounded-lg shadow-md p-6;
+    @apply bg-white dark:bg-gray-800 rounded-lg shadow-md dark:shadow-lg p-6 border border-gray-200 dark:border-gray-700;
+  }
+
+  /* Mobile bottom navigation - always fixed */
+  .mobile-bottom-nav {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 9999 !important;
+    height: 64px !important;
+    max-height: 64px !important;
+  }
+
+  /* Ensure body has space for fixed navbar */
+  @media (max-width: 1024px) {
+    body {
+      padding-bottom: 64px;
+    }
+
+    /* Optimize all pages for mobile - reduce padding */
+    .container {
+      padding-left: 0.75rem !important;
+      padding-right: 0.75rem !important;
+      padding-top: 0.75rem !important;
+      padding-bottom: 0.5rem !important;
+    }
+
+    /* Reduce heading sizes on mobile */
+    h1 {
+      font-size: 1.5rem !important;
+      line-height: 2rem !important;
+      margin-bottom: 0.5rem !important;
+    }
+
+    h2 {
+      font-size: 1.25rem !important;
+      line-height: 1.75rem !important;
+      margin-bottom: 0.5rem !important;
+    }
+
+    /* Force page headers to stack on mobile - title on first line, controls on second */
+    .flex.justify-between.items-center,
+    .flex.items-center.justify-between {
+      flex-direction: column !important;
+      align-items: flex-start !important;
+      gap: 0.75rem !important;
+    }
+
+    /* Keep controls grouped and aligned to the right on second line */
+    .flex.justify-between > .flex,
+    .flex.justify-between > div:last-child {
+      width: 100%;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+    }
+
+    /* Compact buttons and controls */
+    .flex.gap-4,
+    .flex.gap-3 {
+      gap: 0.5rem !important;
+    }
+
+    /* Reduce card padding on mobile */
+    .bg-white.rounded-lg.shadow,
+    .bg-white.dark\\:bg-gray-800.rounded-lg.shadow {
+      padding: 0.75rem !important;
+    }
+
+    /* Hide or compact breadcrumbs on mobile */
+    nav[aria-label="Breadcrumb"] {
+      display: none !important;
+    }
+
+    /* Make buttons smaller and wrap on mobile */
+    button {
+      font-size: 0.875rem !important;
+      padding-top: 0.5rem !important;
+      padding-bottom: 0.5rem !important;
+      padding-left: 0.75rem !important;
+      padding-right: 0.75rem !important;
+    }
+
+    /* Compact filter and sort controls */
+    .flex.flex-col.gap-4,
+    .flex.gap-4 {
+      gap: 0.5rem !important;
+    }
+
+    /* Make select and input smaller */
+    select, input[type="text"], input[type="search"] {
+      font-size: 0.875rem !important;
+      padding: 0.5rem !important;
+    }
+
+    /* Reduce margin between sections */
+    .mb-6 {
+      margin-bottom: 0.75rem !important;
+    }
+
+    .mb-8 {
+      margin-bottom: 1rem !important;
+    }
+
+    .mt-8 {
+      margin-top: 1rem !important;
+    }
   }
 }

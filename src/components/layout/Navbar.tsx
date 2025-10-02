@@ -25,6 +25,7 @@ export function Navbar() {
     { path: '/dashboard', label: 'Dashboard', icon: '📊' },
     { path: '/franchises', label: 'Franchises', icon: '🏢', roles: ['super_admin', 'franchise_owner'] },
     { path: '/branches', label: 'Branches', icon: '📍', roles: ['super_admin', 'franchise_owner', 'admin'] },
+    { path: '/admin/barbers', label: 'Crear Barberos', icon: '👨‍💼', roles: ['super_admin'] },
     { path: '/barbers', label: 'Barbers', icon: '💈', roles: ['super_admin', 'franchise_owner', 'admin'] },
     { path: '/services', label: 'Services', icon: '✂️', roles: ['super_admin', 'franchise_owner', 'admin'] },
     { path: '/queue', label: 'Queue', icon: '🎫', roles: ['super_admin', 'franchise_owner', 'admin', 'barber'] },

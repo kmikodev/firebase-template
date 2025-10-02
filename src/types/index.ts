@@ -242,3 +242,44 @@ export interface LoyaltyTransaction {
   reason?: string;
   createdAt: Timestamp;
 }
+
+// ========================================
+// Offer Types
+// ========================================
+
+export type OfferType = 'discount' | 'bogo' | 'free_service' | 'points_bonus';
+
+export interface Offer {
+  offerId: string;
+  franchiseId: string;
+  branchId?: string; // Si está vacío, aplica a todas las sucursales
+  title: string;
+  description: string;
+  type: OfferType;
+  imageURL?: string;
+  discountPercentage?: number; // Para type='discount'
+  discountAmount?: number; // Para type='discount' (céntimos)
+  serviceIds?: string[]; // Servicios específicos afectados
+  minPurchase?: number; // Compra mínima requerida (céntimos)
+  maxDiscount?: number; // Descuento máximo (céntimos)
+  pointsBonus?: number; // Para type='points_bonus'
+  code?: string; // Código promocional opcional
+  isActive: boolean;
+  startDate: Timestamp;
+  endDate: Timestamp;
+  usageLimit?: number; // Límite total de usos
+  usageCount: number; // Contador de usos actuales
+  userLimit?: number; // Límite de usos por usuario
+  termsAndConditions?: string;
+  createdBy: string; // userId del creador
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+}
+
+export interface OfferUsage {
+  usageId: string;
+  offerId: string;
+  userId: string;
+  queueId?: string;
+  usedAt: Timestamp;
+}

@@ -131,8 +131,8 @@ export default function BranchesPage() {
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Branches</h1>
-          <p className="text-gray-600 mt-1">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Branches</h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-1">
             {filteredBranches?.length || 0} total {filteredBranches?.length === 1 ? 'branch' : 'branches'}
           </p>
         </div>

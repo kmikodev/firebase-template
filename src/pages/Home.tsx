@@ -40,15 +40,15 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900">
       {/* Hero Section */}
       <div className="container mx-auto px-6 pt-20 pb-16">
         <div className="text-center max-w-4xl mx-auto">
           <div className="text-6xl mb-6">💈</div>
-          <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
+          <h1 className="text-5xl md:text-6xl font-bold text-gray-900 dark:text-white mb-6">
             BarberApp
           </h1>
-          <p className="text-xl text-gray-600 mb-8 leading-relaxed">
+          <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 leading-relaxed">
             Complete barbershop management system with franchise support,
             scheduling, and role-based access control
           </p>
@@ -69,17 +69,17 @@ export default function Home() {
 
       {/* Features Section */}
       <div className="container mx-auto px-6 py-16">
-        <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
+        <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-white mb-12">
           Everything you need to manage your barbershop business
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
           {features.map((feature, index) => (
             <Card key={index} className="p-6 hover:shadow-lg transition-shadow">
               <div className="text-4xl mb-4">{feature.icon}</div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
                 {feature.title}
               </h3>
-              <p className="text-gray-600">
+              <p className="text-gray-600 dark:text-gray-300">
                 {feature.description}
               </p>
             </Card>
@@ -90,23 +90,23 @@ export default function Home() {
       {/* Tech Stack Section */}
       <div className="container mx-auto px-6 py-16">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl font-bold text-gray-900 mb-8">
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">
             Built with modern technologies
           </h2>
-          <div className="flex flex-wrap justify-center gap-6 text-gray-600">
-            <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg shadow">
+          <div className="flex flex-wrap justify-center gap-6 text-gray-600 dark:text-gray-300">
+            <div className="flex items-center gap-2 bg-white dark:bg-gray-800 px-4 py-2 rounded-lg shadow">
               <span className="font-semibold">⚛️ React 18</span>
             </div>
-            <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg shadow">
+            <div className="flex items-center gap-2 bg-white dark:bg-gray-800 px-4 py-2 rounded-lg shadow">
               <span className="font-semibold">🔥 Firebase</span>
             </div>
-            <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg shadow">
+            <div className="flex items-center gap-2 bg-white dark:bg-gray-800 px-4 py-2 rounded-lg shadow">
               <span className="font-semibold">📱 Capacitor</span>
             </div>
-            <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg shadow">
+            <div className="flex items-center gap-2 bg-white dark:bg-gray-800 px-4 py-2 rounded-lg shadow">
               <span className="font-semibold">🎨 Tailwind CSS</span>
             </div>
-            <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg shadow">
+            <div className="flex items-center gap-2 bg-white dark:bg-gray-800 px-4 py-2 rounded-lg shadow">
               <span className="font-semibold">📘 TypeScript</span>
             </div>
           </div>
@@ -131,8 +131,8 @@ export default function Home() {
       </div>
 
       {/* Footer */}
-      <footer className="container mx-auto px-6 py-8 border-t border-gray-200">
-        <div className="text-center text-gray-600">
+      <footer className="container mx-auto px-6 py-8 border-t border-gray-200 dark:border-gray-800">
+        <div className="text-center text-gray-600 dark:text-gray-400">
           <p>© 2025 BarberApp. Built with ❤️ and Firebase.</p>
         </div>
       </footer>

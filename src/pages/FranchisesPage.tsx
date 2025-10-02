@@ -143,8 +143,8 @@ export default function FranchisesPage() {
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Franchises</h1>
-          <p className="text-gray-600 mt-1">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Franchises</h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-1">
             {filteredFranchises?.length || 0} total {filteredFranchises?.length === 1 ? 'franchise' : 'franchises'}
           </p>
         </div>

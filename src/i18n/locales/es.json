@@ -1,0 +1,351 @@
+{
+  "common": {
+    "loading": "Cargando...",
+    "error": "Error",
+    "success": "Éxito",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "add": "Agregar",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "sort": "Ordenar",
+    "actions": "Acciones",
+    "view": "Ver",
+    "create": "Crear",
+    "update": "Actualizar",
+    "close": "Cerrar",
+    "confirm": "Confirmar",
+    "back": "Volver",
+    "next": "Siguiente",
+    "previous": "Anterior",
+    "submit": "Enviar",
+    "yes": "Sí",
+    "no": "No",
+    "active": "Activo",
+    "inactive": "Inactivo"
+  },
+  "nav": {
+    "dashboard": "Inicio",
+    "queue": "Cola",
+    "branches": "Sucursales",
+    "franchises": "Franquicias",
+    "barbers": "Barberos",
+    "services": "Servicios",
+    "offers": "Ofertas",
+    "profile": "Perfil",
+    "settings": "Configuración",
+    "logout": "Cerrar Sesión",
+    "myQueue": "Mi Cola",
+    "takeTicket": "Turno",
+    "myTickets": "Mis Turnos"
+  },
+  "dashboard": {
+    "greeting": "¡Hola, {{name}}! 👋",
+    "subtitle": "Gestiona tu negocio desde aquí",
+    "stats": {
+      "franchises": "Franquicias",
+      "branches": "Sucursales",
+      "barbers": "Barberos",
+      "services": "Servicios",
+      "clients": "Clientes",
+      "appointments": "Citas",
+      "revenue": "Ingresos"
+    },
+    "quickActions": {
+      "title": "Acciones Rápidas",
+      "manageBranches": "Gestionar Sucursales",
+      "manageBarbers": "Gestionar Barberos",
+      "manageServices": "Gestionar Servicios",
+      "viewQueue": "Ver Cola",
+      "viewReports": "Ver Reportes",
+      "manageOffers": "Gestionar Ofertas"
+    },
+    "overview": {
+      "title": "Resumen",
+      "todayAppointments": "Citas de Hoy",
+      "waitingClients": "Clientes en Espera",
+      "activeBarbers": "Barberos Activos",
+      "completedToday": "Completadas Hoy"
+    },
+    "recentActivity": {
+      "title": "Actividad Reciente",
+      "noActivity": "No hay actividad reciente"
+    }
+  },
+  "queue": {
+    "title": "Cola de Espera",
+    "subtitle": "Gestiona los turnos de tus clientes",
+    "filters": {
+      "all": "Todos",
+      "waiting": "En Espera",
+      "inProgress": "En Progreso",
+      "completed": "Completados",
+      "cancelled": "Cancelados"
+    },
+    "table": {
+      "ticket": "Ticket",
+      "client": "Cliente",
+      "barber": "Barbero",
+      "service": "Servicio",
+      "status": "Estado",
+      "time": "Hora",
+      "actions": "Acciones"
+    },
+    "status": {
+      "waiting": "En Espera",
+      "inProgress": "En Progreso",
+      "completed": "Completado",
+      "cancelled": "Cancelado"
+    },
+    "actions": {
+      "callNext": "Llamar Siguiente",
+      "startService": "Iniciar Servicio",
+      "complete": "Completar",
+      "cancel": "Cancelar",
+      "viewDetails": "Ver Detalles"
+    },
+    "empty": "No hay clientes en la cola",
+    "noResults": "No se encontraron resultados"
+  },
+  "branches": {
+    "title": "Sucursales",
+    "subtitle": "Gestiona las sucursales de tu negocio",
+    "add": "Agregar Sucursal",
+    "edit": "Editar Sucursal",
+    "delete": "Eliminar Sucursal",
+    "details": "Detalles de Sucursal",
+    "form": {
+      "name": "Nombre",
+      "address": "Dirección",
+      "phone": "Teléfono",
+      "email": "Email",
+      "manager": "Encargado",
+      "openingHours": "Horario de Apertura",
+      "closingHours": "Horario de Cierre",
+      "status": "Estado",
+      "franchise": "Franquicia"
+    },
+    "table": {
+      "name": "Nombre",
+      "address": "Dirección",
+      "phone": "Teléfono",
+      "barbers": "Barberos",
+      "status": "Estado",
+      "actions": "Acciones"
+    },
+    "empty": "No hay sucursales registradas",
+    "confirmDelete": "¿Está seguro de eliminar esta sucursal?"
+  },
+  "barbers": {
+    "title": "Barberos",
+    "subtitle": "Gestiona el equipo de barberos",
+    "add": "Agregar Barbero",
+    "edit": "Editar Barbero",
+    "delete": "Eliminar Barbero",
+    "details": "Detalles del Barbero",
+    "form": {
+      "name": "Nombre",
+      "email": "Email",
+      "phone": "Teléfono",
+      "branch": "Sucursal",
+      "specialties": "Especialidades",
+      "schedule": "Horario",
+      "status": "Estado",
+      "experience": "Experiencia",
+      "photo": "Foto"
+    },
+    "table": {
+      "name": "Nombre",
+      "email": "Email",
+      "phone": "Teléfono",
+      "branch": "Sucursal",
+      "status": "Estado",
+      "rating": "Calificación",
+      "actions": "Acciones"
+    },
+    "status": {
+      "available": "Disponible",
+      "busy": "Ocupado",
+      "offline": "No Disponible",
+      "break": "En Descanso"
+    },
+    "empty": "No hay barberos registrados",
+    "confirmDelete": "¿Está seguro de eliminar este barbero?"
+  },
+  "services": {
+    "title": "Servicios",
+    "subtitle": "Gestiona los servicios ofrecidos",
+    "add": "Agregar Servicio",
+    "edit": "Editar Servicio",
+    "delete": "Eliminar Servicio",
+    "details": "Detalles del Servicio",
+    "form": {
+      "name": "Nombre",
+      "description": "Descripción",
+      "duration": "Duración (minutos)",
+      "price": "Precio",
+      "category": "Categoría",
+      "status": "Estado",
+      "image": "Imagen"
+    },
+    "table": {
+      "name": "Nombre",
+      "duration": "Duración",
+      "price": "Precio",
+      "category": "Categoría",
+      "status": "Estado",
+      "actions": "Acciones"
+    },
+    "categories": {
+      "haircut": "Corte de Cabello",
+      "beard": "Barba",
+      "shave": "Afeitado",
+      "styling": "Peinado",
+      "treatment": "Tratamiento",
+      "other": "Otro"
+    },
+    "empty": "No hay servicios registrados",
+    "confirmDelete": "¿Está seguro de eliminar este servicio?"
+  },
+  "offers": {
+    "title": "Ofertas y Promociones",
+    "subtitle": "Gestiona las ofertas especiales",
+    "add": "Crear Oferta",
+    "edit": "Editar Oferta",
+    "delete": "Eliminar Oferta",
+    "details": "Detalles de la Oferta",
+    "form": {
+      "title": "Título",
+      "description": "Descripción",
+      "discount": "Descuento (%)",
+      "startDate": "Fecha de Inicio",
+      "endDate": "Fecha de Fin",
+      "services": "Servicios Aplicables",
+      "branches": "Sucursales Aplicables",
+      "status": "Estado",
+      "image": "Imagen",
+      "code": "Código Promocional"
+    },
+    "table": {
+      "title": "Título",
+      "discount": "Descuento",
+      "validUntil": "Válido Hasta",
+      "status": "Estado",
+      "uses": "Usos",
+      "actions": "Acciones"
+    },
+    "status": {
+      "active": "Activa",
+      "inactive": "Inactiva",
+      "expired": "Expirada",
+      "scheduled": "Programada"
+    },
+    "empty": "No hay ofertas disponibles",
+    "confirmDelete": "¿Está seguro de eliminar esta oferta?"
+  },
+  "profile": {
+    "title": "Mi Perfil",
+    "subtitle": "Gestiona tu información personal",
+    "personalInfo": "Información Personal",
+    "accountSettings": "Configuración de Cuenta",
+    "security": "Seguridad",
+    "notifications": "Notificaciones",
+    "form": {
+      "name": "Nombre",
+      "email": "Email",
+      "phone": "Teléfono",
+      "photo": "Foto de Perfil",
+      "currentPassword": "Contraseña Actual",
+      "newPassword": "Nueva Contraseña",
+      "confirmPassword": "Confirmar Contraseña",
+      "language": "Idioma",
+      "theme": "Tema",
+      "emailNotifications": "Notificaciones por Email",
+      "pushNotifications": "Notificaciones Push",
+      "smsNotifications": "Notificaciones por SMS"
+    },
+    "changePassword": "Cambiar Contraseña",
+    "updateProfile": "Actualizar Perfil",
+    "deleteAccount": "Eliminar Cuenta",
+    "confirmDelete": "¿Está seguro de eliminar su cuenta? Esta acción no se puede deshacer."
+  },
+  "auth": {
+    "login": "Iniciar Sesión",
+    "logout": "Cerrar Sesión",
+    "register": "Registrarse",
+    "forgotPassword": "¿Olvidó su contraseña?",
+    "resetPassword": "Restablecer Contraseña",
+    "form": {
+      "email": "Correo Electrónico",
+      "password": "Contraseña",
+      "confirmPassword": "Confirmar Contraseña",
+      "name": "Nombre Completo",
+      "phone": "Teléfono"
+    },
+    "rememberMe": "Recordarme",
+    "noAccount": "¿No tiene una cuenta?",
+    "hasAccount": "¿Ya tiene una cuenta?",
+    "signInWithGoogle": "Iniciar sesión con Google",
+    "signInWithFacebook": "Iniciar sesión con Facebook",
+    "or": "o"
+  },
+  "validation": {
+    "required": "Este campo es obligatorio",
+    "email": "Ingrese un email válido",
+    "phone": "Ingrese un teléfono válido",
+    "minLength": "Debe tener al menos {{min}} caracteres",
+    "maxLength": "No puede exceder {{max}} caracteres",
+    "passwordMatch": "Las contraseñas no coinciden",
+    "invalidFormat": "Formato inválido",
+    "invalidDate": "Fecha inválida",
+    "invalidNumber": "Número inválido",
+    "min": "El valor mínimo es {{min}}",
+    "max": "El valor máximo es {{max}}"
+  },
+  "messages": {
+    "success": {
+      "created": "Creado exitosamente",
+      "updated": "Actualizado exitosamente",
+      "deleted": "Eliminado exitosamente",
+      "saved": "Guardado exitosamente",
+      "sent": "Enviado exitosamente"
+    },
+    "error": {
+      "general": "Ocurrió un error",
+      "network": "Error de conexión",
+      "notFound": "No encontrado",
+      "unauthorized": "No autorizado",
+      "forbidden": "Acceso denegado",
+      "validation": "Error de validación",
+      "serverError": "Error del servidor"
+    },
+    "confirm": {
+      "delete": "¿Está seguro de eliminar?",
+      "cancel": "¿Está seguro de cancelar?",
+      "leave": "¿Está seguro de salir? Los cambios no guardados se perderán."
+    }
+  },
+  "time": {
+    "now": "Ahora",
+    "today": "Hoy",
+    "yesterday": "Ayer",
+    "tomorrow": "Mañana",
+    "thisWeek": "Esta Semana",
+    "lastWeek": "Semana Pasada",
+    "thisMonth": "Este Mes",
+    "lastMonth": "Mes Pasado",
+    "minutes": "minutos",
+    "hours": "horas",
+    "days": "días",
+    "weeks": "semanas",
+    "months": "meses",
+    "years": "años",
+    "ago": "hace {{time}}"
+  },
+  "languages": {
+    "es": "Español",
+    "en": "English"
+  }
+}

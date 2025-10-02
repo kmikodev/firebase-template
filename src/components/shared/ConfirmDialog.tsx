@@ -36,14 +36,14 @@ export function ConfirmDialog({
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black bg-opacity-50"
+        className="absolute inset-0 bg-black bg-opacity-50 dark:bg-opacity-70"
         onClick={onClose}
       />
 
       {/* Dialog */}
       <Card className="relative z-10 max-w-md p-6 m-4">
-        <h3 className="text-lg font-semibold mb-2">{title}</h3>
-        <p className="text-gray-600 mb-6">{message}</p>
+        <h3 className="text-lg font-semibold dark:text-white mb-2">{title}</h3>
+        <p className="text-gray-600 dark:text-gray-300 mb-6">{message}</p>
 
         <div className="flex gap-3 justify-end">
           <Button variant="outline" onClick={onClose}>

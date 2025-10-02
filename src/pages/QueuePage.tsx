@@ -173,8 +173,16 @@ export default function QueuePage() {
 
   // Wrapper functions for components that expect (queueId: string) signature
   const handleCallTicket = async (queueId: string) => {
-    // TODO: Implement call ticket (notify client)
-    console.log('Call ticket:', queueId);
+    // Call advanceQueue to notify the client (changes status to 'notified')
+    try {
+      await advanceQueue({
+        branchId: selectedBranchId,
+        barberId: firebaseUser?.uid || '',
+      });
+      console.log('Call ticket successful:', queueId);
+    } catch (err) {
+      console.error('Failed to call ticket:', err);
+    }
   };
 
   const handleMarkArrival = async (queueId: string) => {
@@ -215,8 +223,8 @@ export default function QueuePage() {
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Queue Management</h1>
-          <p className="text-gray-600 mt-1">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Queue Management</h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-1">
             {filteredTickets?.length || 0} total {filteredTickets?.length === 1 ? 'ticket' : 'tickets'}
           </p>
         </div>
@@ -234,19 +242,19 @@ export default function QueuePage() {
       </div>
 
       {/* Branch Selection */}
-      <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 mb-6">
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
           Seleccionar Sucursal
         </label>
         {loadingBranches ? (
-          <p className="text-gray-500">Cargando sucursales...</p>
+          <p className="text-gray-500 dark:text-gray-400">Cargando sucursales...</p>
         ) : branches.length === 0 ? (
-          <p className="text-gray-500">No hay sucursales disponibles</p>
+          <p className="text-gray-500 dark:text-gray-400">No hay sucursales disponibles</p>
         ) : (
           <select
             value={selectedBranchId}
             onChange={(e) => setSelectedBranchId(e.target.value)}
-            className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
             <option value="">Selecciona una sucursal</option>
             {branches.map((branch) => (
@@ -260,39 +268,39 @@ export default function QueuePage() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+        <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
           <div className="flex items-center gap-2">
             <span className="text-2xl">⏳</span>
             <div>
-              <div className="text-sm text-gray-600">Waiting</div>
-              <div className="text-2xl font-bold text-yellow-600">{stats.waiting}</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Waiting</div>
+              <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{stats.waiting}</div>
             </div>
           </div>
         </div>
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
           <div className="flex items-center gap-2">
             <span className="text-2xl">🔔</span>
             <div>
-              <div className="text-sm text-gray-600">Notified</div>
-              <div className="text-2xl font-bold text-blue-600">{stats.notified}</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Notified</div>
+              <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{stats.notified}</div>
             </div>
           </div>
         </div>
-        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+        <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
           <div className="flex items-center gap-2">
             <span className="text-2xl">✅</span>
             <div>
-              <div className="text-sm text-gray-600">Arrived</div>
-              <div className="text-2xl font-bold text-green-600">{stats.arrived}</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Arrived</div>
+              <div className="text-2xl font-bold text-green-600 dark:text-green-400">{stats.arrived}</div>
             </div>
           </div>
         </div>
-        <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+        <div className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-4">
           <div className="flex items-center gap-2">
             <span className="text-2xl">✂️</span>
             <div>
-              <div className="text-sm text-gray-600">In Service</div>
-              <div className="text-2xl font-bold text-purple-600">{stats.inService}</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">In Service</div>
+              <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">{stats.inService}</div>
             </div>
           </div>
         </div>

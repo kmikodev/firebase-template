@@ -40,25 +40,25 @@ export function QueueTicketCard({
   const canCancel = ['waiting', 'notified', 'arrived'].includes(ticket.status);
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200 hover:shadow-lg transition-shadow">
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-shadow">
       {/* Header */}
       <div className="flex justify-between items-start mb-4">
         <div>
-          <h3 className="text-2xl font-bold text-gray-900">#{ticket.ticketNumber}</h3>
-          <p className="text-sm text-gray-500">{formatDate(ticket.createdAt)}</p>
+          <h3 className="text-2xl font-bold text-gray-900 dark:text-white">#{ticket.ticketNumber}</h3>
+          <p className="text-sm text-gray-500 dark:text-gray-400">{formatDate(ticket.createdAt)}</p>
         </div>
         <QueueStatusBadge status={ticket.status} size="lg" />
       </div>
 
       {/* Position & Time */}
       <div className="grid grid-cols-2 gap-4 mb-4">
-        <div className="bg-blue-50 rounded-lg p-3 text-center">
-          <div className="text-sm text-gray-600">Position</div>
-          <div className="text-3xl font-bold text-blue-600">{ticket.position}</div>
+        <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3 text-center">
+          <div className="text-sm text-gray-600 dark:text-gray-400">Position</div>
+          <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">{ticket.position}</div>
         </div>
-        <div className="bg-purple-50 rounded-lg p-3 text-center">
-          <div className="text-sm text-gray-600">Est. Wait</div>
-          <div className="text-3xl font-bold text-purple-600">{ticket.estimatedWaitTime}m</div>
+        <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-3 text-center">
+          <div className="text-sm text-gray-600 dark:text-gray-400">Est. Wait</div>
+          <div className="text-3xl font-bold text-purple-600 dark:text-purple-400">{ticket.estimatedWaitTime}m</div>
         </div>
       </div>
 
@@ -66,49 +66,49 @@ export function QueueTicketCard({
       <div className="space-y-2 mb-4 text-sm">
         {ticket.serviceId && (
           <div className="flex justify-between">
-            <span className="text-gray-600">Service:</span>
-            <span className="font-medium text-gray-900">{ticket.serviceId}</span>
+            <span className="text-gray-600 dark:text-gray-400">Service:</span>
+            <span className="font-medium text-gray-900 dark:text-gray-100">{ticket.serviceId}</span>
           </div>
         )}
         {ticket.barberId && (
           <div className="flex justify-between">
-            <span className="text-gray-600">Barber:</span>
-            <span className="font-medium text-gray-900">{ticket.barberId}</span>
+            <span className="text-gray-600 dark:text-gray-400">Barber:</span>
+            <span className="font-medium text-gray-900 dark:text-gray-100">{ticket.barberId}</span>
           </div>
         )}
         <div className="flex justify-between">
-          <span className="text-gray-600">Created:</span>
-          <span className="font-medium text-gray-900">{formatTime(ticket.createdAt)}</span>
+          <span className="text-gray-600 dark:text-gray-400">Created:</span>
+          <span className="font-medium text-gray-900 dark:text-gray-100">{formatTime(ticket.createdAt)}</span>
         </div>
         {ticket.arrivedAt && (
           <div className="flex justify-between">
-            <span className="text-gray-600">Arrived:</span>
-            <span className="font-medium text-gray-900">{formatTime(ticket.arrivedAt)}</span>
+            <span className="text-gray-600 dark:text-gray-400">Arrived:</span>
+            <span className="font-medium text-gray-900 dark:text-gray-100">{formatTime(ticket.arrivedAt)}</span>
           </div>
         )}
         {ticket.calledAt && (
           <div className="flex justify-between">
-            <span className="text-gray-600">Called:</span>
-            <span className="font-medium text-gray-900">{formatTime(ticket.calledAt)}</span>
+            <span className="text-gray-600 dark:text-gray-400">Called:</span>
+            <span className="font-medium text-gray-900 dark:text-gray-100">{formatTime(ticket.calledAt)}</span>
           </div>
         )}
         {ticket.completedAt && (
           <div className="flex justify-between">
-            <span className="text-gray-600">Completed:</span>
-            <span className="font-medium text-gray-900">{formatTime(ticket.completedAt)}</span>
+            <span className="text-gray-600 dark:text-gray-400">Completed:</span>
+            <span className="font-medium text-gray-900 dark:text-gray-100">{formatTime(ticket.completedAt)}</span>
           </div>
         )}
         {ticket.cancelReason && (
           <div className="flex justify-between">
-            <span className="text-gray-600">Cancel Reason:</span>
-            <span className="font-medium text-red-600">{ticket.cancelReason}</span>
+            <span className="text-gray-600 dark:text-gray-400">Cancel Reason:</span>
+            <span className="font-medium text-red-600 dark:text-red-400">{ticket.cancelReason}</span>
           </div>
         )}
       </div>
 
       {/* Actions */}
       {showActions && (
-        <div className="flex flex-wrap gap-2 pt-4 border-t border-gray-200">
+        <div className="flex flex-wrap gap-2 pt-4 border-t border-gray-200 dark:border-gray-700">
           {canCall && onCall && (
             <Button
               size="sm"

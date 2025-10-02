@@ -6,6 +6,7 @@ import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import * as logger from 'firebase-functions/logger';
 import * as admin from 'firebase-admin';
 import { config } from '../config';
+import { sendNotificationToUser, createNotificationDocument } from '../notifications/sender';
 
 const db = admin.firestore();
 
@@ -299,16 +300,20 @@ export const markArrival = onCall({
 
     const ticket = ticketDoc.data();
 
-    // Verify ownership
-    if (ticket?.userId !== userId) {
+    // Get user's custom claims to check role
+    const userRole = request.auth.token.role;
+    const isAdmin = userRole === 'super_admin' || userRole === 'admin' || userRole === 'barber';
+
+    // Verify ownership (clients can only mark their own arrival, but admins/barbers can mark anyone's)
+    if (ticket?.userId !== userId && !isAdmin) {
       throw new HttpsError(
         'permission-denied',
         'Not authorized to update this ticket'
       );
     }
 
-    // Can only mark arrival if status is 'waiting'
-    if (ticket?.status !== 'waiting') {
+    // Can only mark arrival if status is 'waiting' or 'notified'
+    if (ticket?.status !== 'waiting' && ticket?.status !== 'notified') {
       throw new HttpsError(
         'failed-precondition',
         `Cannot mark arrival from status: ${ticket?.status}`
@@ -322,6 +327,37 @@ export const markArrival = onCall({
       arrivedAt: admin.firestore.FieldValue.serverTimestamp(),
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     });
+
+    // Send notification to client confirming arrival
+    const clientUserId = ticket?.userId;
+    if (clientUserId) {
+      try {
+        await createNotificationDocument(clientUserId, {
+          type: 'arrival_confirmed',
+          title: '✅ Llegada Confirmada',
+          body: 'Tu llegada ha sido confirmada. Pronto serás atendido.',
+          data: { queueId },
+        });
+
+        await sendNotificationToUser(clientUserId, {
+          title: '✅ Llegada Confirmada',
+          body: 'Tu llegada ha sido confirmada. Pronto serás atendido.',
+          data: { queueId },
+        });
+
+        logger.info('Arrival confirmation notification sent', {
+          queueId,
+          clientUserId,
+        });
+      } catch (notifError) {
+        logger.error('Error sending arrival confirmation notification', {
+          error: notifError,
+          queueId,
+          clientUserId,
+        });
+        // Don't fail the entire operation if notification fails
+      }
+    }
 
     logger.info('Arrival marked successfully', {
       queueId,
@@ -387,9 +423,17 @@ export const completeTicket = onCall({
 
     const ticket = ticketDoc.data();
 
-    // Check if user is barber/admin (has role permission)
-    // For now, allow ticket owner or any authenticated user (for testing)
-    // TODO: Add proper role check
+    // Get user's custom claims to check role
+    const userRole = request.auth.token.role;
+    const isAdmin = userRole === 'super_admin' || userRole === 'admin' || userRole === 'barber';
+
+    // Only admins/barbers can complete tickets (clients cannot complete their own service)
+    if (!isAdmin) {
+      throw new HttpsError(
+        'permission-denied',
+        'Only barbers and admins can complete services'
+      );
+    }
 
     // Can complete from 'in_service' or 'arrived' status
     if (ticket?.status !== 'in_service' && ticket?.status !== 'arrived') {

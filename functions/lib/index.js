@@ -28,7 +28,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.checkExpiredTimers = exports.cancelTicket = exports.completeTicket = exports.markArrival = exports.takeTicket = exports.advanceQueue = exports.onQueueUpdate = exports.onQueueCreate = exports.setSuperAdminHTTP = exports.setSuperAdmin = exports.updateUserRole = void 0;
+exports.deleteBarber = exports.updateBarber = exports.createBarber = exports.checkExpiredTimers = exports.cancelTicket = exports.completeTicket = exports.markArrival = exports.takeTicket = exports.advanceQueue = exports.onQueueUpdate = exports.onQueueCreate = exports.setSuperAdminHTTP = exports.setSuperAdmin = exports.updateUserRole = void 0;
 const admin = __importStar(require("firebase-admin"));
 // Inicializar Firebase Admin
 admin.initializeApp();
@@ -54,6 +54,13 @@ Object.defineProperty(exports, "takeTicket", { enumerable: true, get: function (
 Object.defineProperty(exports, "markArrival", { enumerable: true, get: function () { return callable_1.markArrival; } });
 Object.defineProperty(exports, "completeTicket", { enumerable: true, get: function () { return callable_1.completeTicket; } });
 Object.defineProperty(exports, "cancelTicket", { enumerable: true, get: function () { return callable_1.cancelTicket; } });
+// ========================================
+// Barber Management Functions
+// ========================================
+const callable_2 = require("./barbers/callable");
+Object.defineProperty(exports, "createBarber", { enumerable: true, get: function () { return callable_2.createBarber; } });
+Object.defineProperty(exports, "updateBarber", { enumerable: true, get: function () { return callable_2.updateBarber; } });
+Object.defineProperty(exports, "deleteBarber", { enumerable: true, get: function () { return callable_2.deleteBarber; } });
 // ========================================
 // Notifications Functions (se agregarán en Milestone 5)
 // ========================================
