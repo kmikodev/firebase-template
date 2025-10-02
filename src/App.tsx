@@ -19,6 +19,7 @@ import BarbersPage from './pages/BarbersPage';
 import BarberFormPage from './pages/BarberFormPage';
 import ServicesPage from './pages/ServicesPage';
 import ServiceFormPage from './pages/ServiceFormPage';
+import NotFound from './pages/NotFound';
 
 function App() {
   return (
@@ -170,6 +171,9 @@ function App() {
                         </ProtectedRoute>
                       }
                     />
+
+                    {/* 404 Not Found */}
+                    <Route path="*" element={<NotFound />} />
                   </Routes>
                 </BrowserRouter>
                 <Toaster position="top-right" />
