@@ -1,236 +1,256 @@
 /**
- * Queue Service - Firestore operations for queue management
+ * Queue Service - Client for queue management Cloud Functions
  */
+
+import { httpsCallable, HttpsCallableResult } from 'firebase/functions';
 import {
   collection,
-  doc,
-  getDoc,
-  getDocs,
-  addDoc,
-  updateDoc,
-  deleteDoc,
   query,
   where,
   orderBy,
-  Timestamp,
-  writeBatch,
+  onSnapshot,
+  doc,
+  getDoc,
+  Unsubscribe,
+  Timestamp
 } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
-import type { QueueTicket, QueueStatus } from '@/types';
+import { functions, db } from '../lib/firebase';
 
-const COLLECTION = 'queues';
+// Types
+export interface QueueTicket {
+  queueId: string;
+  userId: string;
+  branchId: string;
+  serviceId?: string | null;
+  barberId?: string | null;
+  status: 'waiting' | 'notified' | 'arrived' | 'in_service' | 'completed' | 'cancelled' | 'expired';
+  position: number;
+  ticketNumber: string;
+  timerExpiry: Timestamp | null;
+  estimatedWaitTime: number;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+  arrivedAt?: Timestamp;
+  notifiedAt?: Timestamp;
+  serviceStartedAt?: Timestamp;
+  completedAt?: Timestamp;
+  cancelledAt?: Timestamp;
+  expiredAt?: Timestamp;
+  cancelReason?: string;
+  penaltyApplied?: number;
+  penaltyReason?: string;
+}
 
-export const queueService = {
-  /**
-   * Get a queue ticket by ID
-   */
-  async getById(queueId: string): Promise<QueueTicket | null> {
-    const docRef = doc(db, COLLECTION, queueId);
+export interface TakeTicketRequest {
+  branchId: string;
+  serviceId?: string;
+  barberId?: string;
+}
+
+export interface TakeTicketResponse {
+  success: boolean;
+  queueId: string;
+  position: number;
+  message: string;
+}
+
+export interface AdvanceQueueRequest {
+  branchId: string;
+  barberId?: string;
+}
+
+export interface AdvanceQueueResponse {
+  success: boolean;
+  ticket?: {
+    queueId: string;
+    ticketNumber: string;
+    userId: string;
+    position: number;
+  };
+  message?: string;
+}
+
+export interface MarkArrivalRequest {
+  queueId: string;
+}
+
+export interface MarkArrivalResponse {
+  success: boolean;
+  message: string;
+}
+
+/**
+ * Cloud Functions callable references
+ */
+const takeTicketFn = httpsCallable<TakeTicketRequest, TakeTicketResponse>(functions, 'takeTicket');
+const advanceQueueFn = httpsCallable<AdvanceQueueRequest, AdvanceQueueResponse>(functions, 'advanceQueue');
+const markArrivalFn = httpsCallable<MarkArrivalRequest, MarkArrivalResponse>(functions, 'markArrival');
+
+/**
+ * Take a queue ticket
+ */
+export async function takeTicket(data: TakeTicketRequest): Promise<TakeTicketResponse> {
+  try {
+    const result: HttpsCallableResult<TakeTicketResponse> = await takeTicketFn(data);
+    return result.data;
+  } catch (error: any) {
+    console.error('Error taking ticket:', error);
+    throw new Error(error.message || 'Failed to take ticket');
+  }
+}
+
+/**
+ * Advance queue - Call next client (barber action)
+ */
+export async function advanceQueue(data: AdvanceQueueRequest): Promise<AdvanceQueueResponse> {
+  try {
+    const result: HttpsCallableResult<AdvanceQueueResponse> = await advanceQueueFn(data);
+    return result.data;
+  } catch (error: any) {
+    console.error('Error advancing queue:', error);
+    throw new Error(error.message || 'Failed to advance queue');
+  }
+}
+
+/**
+ * Mark arrival at branch
+ */
+export async function markArrival(data: MarkArrivalRequest): Promise<MarkArrivalResponse> {
+  try {
+    const result: HttpsCallableResult<MarkArrivalResponse> = await markArrivalFn(data);
+    return result.data;
+  } catch (error: any) {
+    console.error('Error marking arrival:', error);
+    throw new Error(error.message || 'Failed to mark arrival');
+  }
+}
+
+/**
+ * Get user's active ticket at a branch
+ */
+export async function getUserActiveTicket(userId: string, branchId: string): Promise<QueueTicket | null> {
+  try {
+    const q = query(
+      collection(db, 'queues'),
+      where('userId', '==', userId),
+      where('branchId', '==', branchId),
+      where('status', 'in', ['waiting', 'notified', 'arrived', 'in_service'])
+    );
+
+    return new Promise((resolve, reject) => {
+      const unsubscribe = onSnapshot(
+        q,
+        (snapshot) => {
+          unsubscribe();
+          if (snapshot.empty) {
+            resolve(null);
+          } else {
+            resolve(snapshot.docs[0].data() as QueueTicket);
+          }
+        },
+        (error) => {
+          unsubscribe();
+          reject(error);
+        }
+      );
+    });
+  } catch (error) {
+    console.error('Error getting user active ticket:', error);
+    return null;
+  }
+}
+
+/**
+ * Get active queue for a branch (real-time)
+ */
+export function subscribeToQueueByBranch(
+  branchId: string,
+  onUpdate: (tickets: QueueTicket[]) => void,
+  onError?: (error: Error) => void
+): Unsubscribe {
+  const q = query(
+    collection(db, 'queues'),
+    where('branchId', '==', branchId),
+    where('status', 'in', ['waiting', 'notified', 'arrived', 'in_service']),
+    orderBy('position', 'asc')
+  );
+
+  return onSnapshot(
+    q,
+    (snapshot) => {
+      const tickets = snapshot.docs.map(doc => doc.data() as QueueTicket);
+      onUpdate(tickets);
+    },
+    (error) => {
+      console.error('Error subscribing to queue:', error);
+      onError?.(error);
+    }
+  );
+}
+
+/**
+ * Get specific ticket by ID (real-time)
+ */
+export function subscribeToTicket(
+  queueId: string,
+  onUpdate: (ticket: QueueTicket | null) => void,
+  onError?: (error: Error) => void
+): Unsubscribe {
+  const docRef = doc(db, 'queues', queueId);
+
+  return onSnapshot(
+    docRef,
+    (snapshot) => {
+      if (snapshot.exists()) {
+        onUpdate(snapshot.data() as QueueTicket);
+      } else {
+        onUpdate(null);
+      }
+    },
+    (error) => {
+      console.error('Error subscribing to ticket:', error);
+      onError?.(error);
+    }
+  );
+}
+
+/**
+ * Get ticket details (one-time read)
+ */
+export async function getTicket(queueId: string): Promise<QueueTicket | null> {
+  try {
+    const docRef = doc(db, 'queues', queueId);
     const docSnap = await getDoc(docRef);
 
-    if (!docSnap.exists()) {
-      return null;
+    if (docSnap.exists()) {
+      return docSnap.data() as QueueTicket;
     }
 
-    return { queueId: docSnap.id, ...docSnap.data() } as QueueTicket;
-  },
+    return null;
+  } catch (error) {
+    console.error('Error getting ticket:', error);
+    return null;
+  }
+}
 
-  /**
-   * List all queue tickets
-   */
-  async list(): Promise<QueueTicket[]> {
-    const q = query(collection(db, COLLECTION), orderBy('position', 'asc'));
-    const snapshot = await getDocs(q);
+/**
+ * Calculate time remaining on timer
+ */
+export function getTimeRemaining(timerExpiry: Timestamp | null): number {
+  if (!timerExpiry) return 0;
 
-    return snapshot.docs.map(doc => ({
-      queueId: doc.id,
-      ...doc.data(),
-    })) as QueueTicket[];
-  },
+  const expiryMs = timerExpiry.toMillis();
+  const nowMs = Date.now();
+  const remaining = expiryMs - nowMs;
 
-  /**
-   * List queue tickets by branch
-   */
-  async listByBranch(branchId: string): Promise<QueueTicket[]> {
-    const q = query(
-      collection(db, COLLECTION),
-      where('branchId', '==', branchId),
-      orderBy('position', 'asc')
-    );
-    const snapshot = await getDocs(q);
+  return Math.max(0, Math.floor(remaining / 1000)); // seconds
+}
 
-    return snapshot.docs.map(doc => ({
-      queueId: doc.id,
-      ...doc.data(),
-    })) as QueueTicket[];
-  },
-
-  /**
-   * List queue tickets by user
-   */
-  async listByUser(userId: string): Promise<QueueTicket[]> {
-    const q = query(
-      collection(db, COLLECTION),
-      where('userId', '==', userId),
-      orderBy('createdAt', 'desc')
-    );
-    const snapshot = await getDocs(q);
-
-    return snapshot.docs.map(doc => ({
-      queueId: doc.id,
-      ...doc.data(),
-    })) as QueueTicket[];
-  },
-
-  /**
-   * List active queue tickets by branch (waiting, notified, arrived)
-   */
-  async listActiveByBranch(branchId: string): Promise<QueueTicket[]> {
-    const q = query(
-      collection(db, COLLECTION),
-      where('branchId', '==', branchId),
-      where('status', 'in', ['waiting', 'notified', 'arrived']),
-      orderBy('position', 'asc')
-    );
-    const snapshot = await getDocs(q);
-
-    return snapshot.docs.map(doc => ({
-      queueId: doc.id,
-      ...doc.data(),
-    })) as QueueTicket[];
-  },
-
-  /**
-   * Create a new queue ticket
-   */
-  async create(data: Omit<QueueTicket, 'queueId' | 'createdAt' | 'updatedAt'>): Promise<string> {
-    const now = Timestamp.now();
-
-    const docRef = await addDoc(collection(db, COLLECTION), {
-      ...data,
-      createdAt: now,
-      updatedAt: now,
-    });
-
-    return docRef.id;
-  },
-
-  /**
-   * Update a queue ticket
-   */
-  async update(queueId: string, data: Partial<QueueTicket>): Promise<void> {
-    const docRef = doc(db, COLLECTION, queueId);
-
-    await updateDoc(docRef, {
-      ...data,
-      updatedAt: Timestamp.now(),
-    });
-  },
-
-  /**
-   * Update ticket status
-   */
-  async updateStatus(queueId: string, status: QueueStatus, additionalData?: Partial<QueueTicket>): Promise<void> {
-    const docRef = doc(db, COLLECTION, queueId);
-    const now = Timestamp.now();
-
-    const updateData: any = {
-      status,
-      updatedAt: now,
-      ...additionalData,
-    };
-
-    // Add timestamp fields based on status
-    if (status === 'arrived') {
-      updateData.arrivedAt = now;
-    } else if (status === 'in_service') {
-      updateData.calledAt = now;
-    } else if (status === 'completed') {
-      updateData.completedAt = now;
-    } else if (status === 'cancelled') {
-      updateData.cancelledAt = now;
-    } else if (status === 'expired') {
-      updateData.expiredAt = now;
-    }
-
-    await updateDoc(docRef, updateData);
-  },
-
-  /**
-   * Delete a queue ticket
-   */
-  async delete(queueId: string): Promise<void> {
-    const docRef = doc(db, COLLECTION, queueId);
-    await deleteDoc(docRef);
-  },
-
-  /**
-   * Get next position number for a branch
-   */
-  async getNextPosition(branchId: string): Promise<number> {
-    const q = query(
-      collection(db, COLLECTION),
-      where('branchId', '==', branchId),
-      where('status', 'in', ['waiting', 'notified', 'arrived']),
-      orderBy('position', 'desc')
-    );
-
-    const snapshot = await getDocs(q);
-
-    if (snapshot.empty) {
-      return 1;
-    }
-
-    const lastTicket = snapshot.docs[0].data() as QueueTicket;
-    return lastTicket.position + 1;
-  },
-
-  /**
-   * Generate ticket number
-   */
-  generateTicketNumber(branchId: string, position: number): string {
-    const branchCode = branchId.substring(0, 4).toUpperCase();
-    const dateCode = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-    const positionCode = position.toString().padStart(3, '0');
-
-    return `${branchCode}-${dateCode}-${positionCode}`;
-  },
-
-  /**
-   * Reorder positions after a ticket is removed
-   */
-  async reorderPositions(branchId: string): Promise<void> {
-    const tickets = await this.listActiveByBranch(branchId);
-
-    if (tickets.length === 0) {
-      return;
-    }
-
-    // Sort by current position
-    tickets.sort((a, b) => a.position - b.position);
-
-    // Update positions sequentially
-    const batch = writeBatch(db);
-
-    tickets.forEach((ticket, index) => {
-      const newPosition = index + 1;
-      if (ticket.position !== newPosition) {
-        const docRef = doc(db, COLLECTION, ticket.queueId);
-        batch.update(docRef, { position: newPosition, updatedAt: Timestamp.now() });
-      }
-    });
-
-    await batch.commit();
-  },
-
-  /**
-   * Calculate estimated wait time
-   */
-  async calculateEstimatedWaitTime(_branchId: string, position: number): Promise<number> {
-    // Simple estimation: 15 minutes per person ahead in queue
-    const AVERAGE_SERVICE_TIME = 15; // minutes
-
-    const peopleAhead = position - 1;
-    return peopleAhead * AVERAGE_SERVICE_TIME;
-  },
-};
+/**
+ * Format time remaining as MM:SS
+ */
+export function formatTimeRemaining(seconds: number): string {
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+}
