@@ -1,7 +1,7 @@
 /**
  * Franchises list page
  */
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useFranchise } from '@/contexts/FranchiseContext';
 import { FranchiseCard } from '@/components/franchises/FranchiseCard';
@@ -9,27 +9,90 @@ import { LoadingState } from '@/components/shared/LoadingState';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog';
 import { SearchBar } from '@/components/shared/SearchBar';
+import { FilterBar, FilterConfig } from '@/components/shared/FilterBar';
+import { Pagination } from '@/components/shared/Pagination';
+import { Breadcrumbs } from '@/components/shared/Breadcrumbs';
 import { Button } from '@/components/ui/Button';
+
+const ITEMS_PER_PAGE = 9;
 
 export default function FranchisesPage() {
   const navigate = useNavigate();
   const { franchises, loading, deleteFranchise, refreshFranchises } = useFranchise();
   const [searchQuery, setSearchQuery] = useState('');
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [activeFilters, setActiveFilters] = useState<Record<string, string>>({});
 
   useEffect(() => {
     refreshFranchises();
   }, []);
 
-  const filteredFranchises = franchises?.filter(f =>
-    f.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    f.email.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filterConfigs: FilterConfig[] = [
+    {
+      key: 'planTier',
+      label: 'Plan Tier',
+      options: [
+        { value: 'free', label: 'Free' },
+        { value: 'basic', label: 'Basic' },
+        { value: 'premium', label: 'Premium' },
+        { value: 'enterprise', label: 'Enterprise' },
+      ],
+    },
+    {
+      key: 'isActive',
+      label: 'Status',
+      options: [
+        { value: 'true', label: 'Active' },
+        { value: 'false', label: 'Inactive' },
+      ],
+    },
+  ];
+
+  const filteredFranchises = useMemo(() => {
+    let result = franchises || [];
+
+    // Search filter
+    if (searchQuery) {
+      result = result.filter(f =>
+        f.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        f.email.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    // Active filters
+    if (activeFilters.planTier) {
+      result = result.filter(f => f.planTier === activeFilters.planTier);
+    }
+    if (activeFilters.isActive) {
+      result = result.filter(f => f.isActive === (activeFilters.isActive === 'true'));
+    }
+
+    return result;
+  }, [franchises, searchQuery, activeFilters]);
+
+  // Pagination
+  const totalPages = Math.ceil((filteredFranchises?.length || 0) / ITEMS_PER_PAGE);
+  const paginatedFranchises = useMemo(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    const end = start + ITEMS_PER_PAGE;
+    return filteredFranchises?.slice(start, end);
+  }, [filteredFranchises, currentPage]);
 
   const handleDelete = async () => {
     if (!deleteId) return;
     await deleteFranchise(deleteId);
     setDeleteId(null);
+  };
+
+  const handleFilterChange = (filters: Record<string, string>) => {
+    setActiveFilters(filters);
+    setCurrentPage(1); // Reset to first page when filters change
+  };
+
+  const handleSearchChange = (query: string) => {
+    setSearchQuery(query);
+    setCurrentPage(1); // Reset to first page when search changes
   };
 
   if (loading) {
@@ -38,40 +101,73 @@ export default function FranchisesPage() {
 
   return (
     <div className="container mx-auto p-6">
+      {/* Breadcrumbs */}
+      <Breadcrumbs items={[{ label: 'Franchises' }]} />
+
+      {/* Header */}
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Franchises</h1>
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Franchises</h1>
+          <p className="text-gray-600 mt-1">
+            {filteredFranchises?.length || 0} total {filteredFranchises?.length === 1 ? 'franchise' : 'franchises'}
+          </p>
+        </div>
         <Button onClick={() => navigate('/franchises/new')}>
           + New Franchise
         </Button>
       </div>
 
-      <div className="mb-6">
+      {/* Search Bar */}
+      <div className="mb-4">
         <SearchBar
           value={searchQuery}
-          onChange={setSearchQuery}
-          placeholder="Search franchises..."
+          onChange={handleSearchChange}
+          placeholder="Search franchises by name or email..."
         />
       </div>
 
-      {!filteredFranchises || filteredFranchises.length === 0 ? (
+      {/* Filter Bar */}
+      <div className="mb-6">
+        <FilterBar
+          filters={filterConfigs}
+          onFilterChange={handleFilterChange}
+          onReset={() => setSearchQuery('')}
+        />
+      </div>
+
+      {/* Content */}
+      {!paginatedFranchises || paginatedFranchises.length === 0 ? (
         <EmptyState
           icon="🏢"
           title="No franchises found"
-          message={searchQuery ? "No franchises match your search." : "Get started by creating your first franchise."}
+          message={searchQuery || Object.keys(activeFilters).length > 0
+            ? "No franchises match your search or filters. Try adjusting your criteria."
+            : "Get started by creating your first franchise."}
           actionLabel="Create Franchise"
           onAction={() => navigate('/franchises/new')}
         />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredFranchises.map((franchise) => (
-            <FranchiseCard
-              key={franchise.franchiseId}
-              franchise={franchise}
-              onEdit={(id) => navigate(`/franchises/${id}/edit`)}
-              onDelete={setDeleteId}
-            />
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+            {paginatedFranchises.map((franchise) => (
+              <FranchiseCard
+                key={franchise.franchiseId}
+                franchise={franchise}
+                onEdit={(id) => navigate(`/franchises/${id}/edit`)}
+                onDelete={setDeleteId}
+              />
+            ))}
+          </div>
+
+          {/* Pagination */}
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+            totalItems={filteredFranchises?.length || 0}
+            itemsPerPage={ITEMS_PER_PAGE}
+          />
+        </>
       )}
 
       <ConfirmDialog
