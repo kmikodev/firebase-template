@@ -66,7 +66,7 @@ const BarberContext = createContext<BarberContextType | undefined>(undefined);
 export function BarberProvider({ children }: { children: ReactNode }) {
   const [barbers, setBarbers] = useState<Barber[] | null>(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
+  const [error] = useState<Error | null>(null);
 
   const createBarber = async (data: CreateBarberInput): Promise<Barber> => {
     const toastId = toast.loading('Creating barber...');
@@ -104,7 +104,7 @@ export function BarberProvider({ children }: { children: ReactNode }) {
       const updateData = { ...validated.data, updatedAt: Timestamp.now() };
       await updateDoc(doc(db, 'barbers', barberId), updateData);
 
-      setBarbers(prev => prev?.map(b => (b.barberId === barberId ? { ...b, ...updateData } : b)) || null);
+      setBarbers(prev => prev?.map(b => (b.barberId === barberId ? { ...b, ...updateData as Partial<Barber> } : b)) || null);
 
       toast.dismiss(toastId);
       toast.success('Barber updated successfully!');

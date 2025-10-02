@@ -74,7 +74,7 @@ interface BranchContextType {
   listPublicBranches: (city?: string) => Promise<Branch[]>;
 
   // Utility Operations
-  setCurrentBranch: (branchId: string | null) => void;
+  setCurrentBranch: (branch: Branch | null) => void;
   refreshBranches: () => Promise<void>;
   uploadPhoto: (branchId: string, file: File) => Promise<string>;
 }

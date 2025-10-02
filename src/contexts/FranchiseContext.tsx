@@ -6,7 +6,6 @@ import {
   getDocs,
   setDoc,
   updateDoc,
-  deleteDoc,
   query,
   where,
   orderBy,
@@ -59,7 +58,7 @@ interface FranchiseContextType {
   listFranchises: (filters?: FranchiseFilters) => Promise<Franchise[]>;
 
   // Utility Operations
-  setCurrentFranchise: (franchiseId: string | null) => void;
+  setCurrentFranchise: (franchise: Franchise | null) => void;
   refreshFranchises: () => Promise<void>;
   uploadLogo: (franchiseId: string, file: File) => Promise<string>;
 }

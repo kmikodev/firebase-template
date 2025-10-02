@@ -55,7 +55,7 @@ export function ServiceProvider({ children }: { children: ReactNode }) {
   const [services, setServices] = useState<Service[] | null>(null);
   const [servicesByCategory, setServicesByCategory] = useState<Record<string, Service[]> | null>(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
+  const [error] = useState<Error | null>(null);
 
   const createService = async (data: CreateServiceInput): Promise<Service> => {
     const toastId = toast.loading('Creating service...');
