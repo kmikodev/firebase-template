@@ -1,0 +1,212 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ========================================
+    // Helper Functions
+    // ========================================
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function hasRole(role) {
+      return isAuthenticated() && request.auth.token.role == role;
+    }
+
+    function belongsToFranchise(franchiseId) {
+      return isAuthenticated() && request.auth.token.franchiseId == franchiseId;
+    }
+
+    function isSuperAdmin() {
+      return hasRole('super_admin');
+    }
+
+    function isFranchiseOwner() {
+      return hasRole('franchise_owner');
+    }
+
+    function isAdmin() {
+      return hasRole('admin');
+    }
+
+    function isBarber() {
+      return hasRole('barber');
+    }
+
+    function isClient() {
+      return hasRole('client') || hasRole('guest');
+    }
+
+    // ========================================
+    // Users Collection
+    // ========================================
+
+    match /users/{userId} {
+      // Read: usuario mismo, o staff de franquicia si tiene relación
+      allow read: if isOwner(userId) || isSuperAdmin() || isFranchiseOwner() || isAdmin();
+
+      // Create: solo al crear cuenta (auth uid == doc id)
+      allow create: if isAuthenticated() && request.auth.uid == userId;
+
+      // Update: usuario mismo (campos no sensibles), o admins (para roles)
+      allow update: if isOwner(userId) &&
+                       !request.resource.data.diff(resource.data).affectedKeys()
+                         .hasAny(['role', 'franchiseId', 'queuePoints'])
+                    || isSuperAdmin()
+                    || isFranchiseOwner();
+
+      // Delete: solo super admin
+      allow delete: if isSuperAdmin();
+
+      // Subcollections
+      match /fcmTokens/{tokenId} {
+        allow read, write: if isOwner(userId);
+      }
+
+      match /queuePenalties/{penaltyId} {
+        allow read: if isOwner(userId) || isSuperAdmin() || isFranchiseOwner();
+        allow write: if false; // Solo Cloud Functions
+      }
+
+      match /notificationPreferences/{docId} {
+        allow read, write: if isOwner(userId);
+      }
+    }
+
+    // ========================================
+    // Franchises Collection
+    // ========================================
+
+    match /franchises/{franchiseId} {
+      // Read: owner de franquicia, super admin, staff de franquicia
+      allow read: if belongsToFranchise(franchiseId) || isSuperAdmin();
+
+      // Write: owner de franquicia, super admin
+      allow write: if (isFranchiseOwner() && belongsToFranchise(franchiseId)) || isSuperAdmin();
+    }
+
+    // ========================================
+    // Branches Collection
+    // ========================================
+
+    match /branches/{branchId} {
+      // Read: público (para que clientes vean sucursales disponibles)
+      allow read: if true;
+
+      // Write: solo staff de la franquicia o super admin
+      allow write: if belongsToFranchise(resource.data.franchiseId) || isSuperAdmin();
+    }
+
+    // ========================================
+    // Barbers Collection
+    // ========================================
+
+    match /barbers/{barberId} {
+      // Read: público (ver barberos disponibles)
+      allow read: if true;
+
+      // Write: solo staff de franquicia o super admin
+      allow write: if belongsToFranchise(resource.data.franchiseId) || isSuperAdmin();
+    }
+
+    // ========================================
+    // Services Collection
+    // ========================================
+
+    match /services/{serviceId} {
+      // Read: público
+      allow read: if true;
+
+      // Write: solo staff de franquicia o super admin
+      allow write: if belongsToFranchise(resource.data.franchiseId) || isSuperAdmin();
+    }
+
+    // ========================================
+    // Queue Collection (CRÍTICA - Real-time)
+    // ========================================
+
+    match /queue/{queueId} {
+      // Read: cliente (su propio doc), staff de sucursal, super admin
+      allow read: if isOwner(resource.data.userId)
+                  || belongsToFranchise(resource.data.franchiseId)
+                  || isSuperAdmin();
+
+      // Write: SOLO Cloud Functions (validaciones complejas server-side)
+      allow write: if false;
+    }
+
+    // ========================================
+    // Appointments Collection
+    // ========================================
+
+    match /appointments/{appointmentId} {
+      // Read: cliente (sus turnos), staff sucursal
+      allow read: if isOwner(resource.data.userId)
+                  || belongsToFranchise(resource.data.franchiseId)
+                  || isSuperAdmin();
+
+      // Create: cliente autenticado (crear su propio turno)
+      allow create: if isAuthenticated() &&
+                       request.resource.data.userId == request.auth.uid;
+
+      // Update: cliente (cancelar), staff (actualizar status)
+      allow update: if isOwner(resource.data.userId)
+                    || belongsToFranchise(resource.data.franchiseId)
+                    || isSuperAdmin();
+
+      // Delete: solo super admin
+      allow delete: if isSuperAdmin();
+    }
+
+    // ========================================
+    // Notifications Collection
+    // ========================================
+
+    match /notifications/{notificationId} {
+      // Read: usuario destinatario
+      allow read: if isOwner(resource.data.userId);
+
+      // Write: solo Cloud Functions
+      allow write: if false;
+    }
+
+    // ========================================
+    // Loyalty Transactions Collection
+    // ========================================
+
+    match /loyaltyTransactions/{transactionId} {
+      // Read: usuario, super admin, franchise owner
+      allow read: if isOwner(resource.data.userId) || isSuperAdmin() || isFranchiseOwner();
+
+      // Write: solo Cloud Functions
+      allow write: if false;
+    }
+
+    // ========================================
+    // Payments Collection (Stripe)
+    // ========================================
+
+    match /payments/{paymentId} {
+      // Read: usuario, staff franquicia, super admin
+      allow read: if isOwner(resource.data.userId)
+                  || belongsToFranchise(resource.data.franchiseId)
+                  || isSuperAdmin();
+
+      // Write: solo Cloud Functions (seguridad crítica)
+      allow write: if false;
+    }
+
+    // ========================================
+    // Default: Deny all
+    // ========================================
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

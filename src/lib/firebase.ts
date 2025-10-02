@@ -20,7 +20,7 @@ export const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const storage = getStorage(app);
-export const functions = getFunctions(app);
+export const functions = getFunctions(app, 'europe-west1');
 
 // Enable offline persistence for Firestore (critical for mobile)
 import { enableIndexedDbPersistence } from 'firebase/firestore';

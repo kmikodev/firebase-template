@@ -1,30 +1,35 @@
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
+import { LoginButtons } from '@/components/auth/LoginButtons';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui';
+
 export default function Login() {
+  const { firebaseUser } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (firebaseUser) {
+      navigate('/dashboard');
+    }
+  }, [firebaseUser, navigate]);
+
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="card max-w-md w-full">
-        <h2 className="text-2xl font-bold mb-6">Sign In</h2>
-        <form className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-2">Email</label>
-            <input
-              type="email"
-              className="input"
-              placeholder="you@example.com"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-2">Password</label>
-            <input
-              type="password"
-              className="input"
-              placeholder="••••••••"
-            />
-          </div>
-          <button type="submit" className="btn btn-primary w-full">
-            Sign In
-          </button>
-        </form>
-      </div>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 to-primary-100 p-4">
+      <Card className="w-full max-w-md">
+        <CardHeader>
+          <CardTitle className="text-center">Bienvenido a Peluquerías</CardTitle>
+          <p className="text-center text-gray-600 mt-2">
+            Gestiona tu turno de forma inteligente
+          </p>
+        </CardHeader>
+        <CardContent className="flex flex-col items-center">
+          <LoginButtons />
+          <p className="text-xs text-gray-500 text-center mt-6">
+            Al continuar, aceptas nuestros términos de servicio y política de privacidad
+          </p>
+        </CardContent>
+      </Card>
     </div>
-  )
+  );
 }

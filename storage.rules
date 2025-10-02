@@ -1,0 +1,129 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // ========================================
+    // Helper Functions
+    // ========================================
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function hasRole(role) {
+      return isAuthenticated() && request.auth.token.role == role;
+    }
+
+    function belongsToFranchise(franchiseId) {
+      return isAuthenticated() && request.auth.token.franchiseId == franchiseId;
+    }
+
+    function isSuperAdmin() {
+      return hasRole('super_admin');
+    }
+
+    function isValidImageType() {
+      return request.resource.contentType.matches('image/.*');
+    }
+
+    function isValidSize(maxSizeMB) {
+      return request.resource.size < maxSizeMB * 1024 * 1024;
+    }
+
+    // ========================================
+    // User Profile Photos
+    // ========================================
+
+    match /users/{userId}/profile.{ext} {
+      // Read: cualquiera autenticado (fotos de perfil públicas)
+      allow read: if isAuthenticated();
+
+      // Write: solo el dueño del perfil
+      allow write: if isOwner(userId)
+                   && isValidImageType()
+                   && isValidSize(5); // Max 5MB
+    }
+
+    // ========================================
+    // Franchise Logos
+    // ========================================
+
+    match /franchises/{franchiseId}/logo.{ext} {
+      // Read: cualquiera autenticado
+      allow read: if isAuthenticated();
+
+      // Write: solo staff de franquicia o super admin
+      allow write: if (belongsToFranchise(franchiseId) || isSuperAdmin())
+                   && isValidImageType()
+                   && isValidSize(2); // Max 2MB
+    }
+
+    // ========================================
+    // Branch Photos
+    // ========================================
+
+    match /branches/{branchId}/{filename} {
+      // Read: público (fotos de sucursales visibles para clientes)
+      allow read: if true;
+
+      // Write: staff de franquicia (verificado via custom claim)
+      allow write: if isAuthenticated()
+                   && isValidImageType()
+                   && isValidSize(10); // Max 10MB
+    }
+
+    // ========================================
+    // Barber Portfolio Photos
+    // ========================================
+
+    match /barbers/{barberId}/portfolio/{filename} {
+      // Read: público (portafolio de trabajos)
+      allow read: if true;
+
+      // Write: el barbero mismo o staff de franquicia
+      allow write: if isAuthenticated()
+                   && isValidImageType()
+                   && isValidSize(10); // Max 10MB
+    }
+
+    // ========================================
+    // Service Photos
+    // ========================================
+
+    match /services/{serviceId}/{filename} {
+      // Read: público
+      allow read: if true;
+
+      // Write: staff de franquicia
+      allow write: if isAuthenticated()
+                   && isValidImageType()
+                   && isValidSize(5); // Max 5MB
+    }
+
+    // ========================================
+    // Temporary Uploads (procesados por Cloud Functions)
+    // ========================================
+
+    match /temp/{userId}/{filename} {
+      // Read: solo el dueño
+      allow read: if isOwner(userId);
+
+      // Write: solo el dueño, archivos temporales (auto-delete después de procesarlos)
+      allow write: if isOwner(userId)
+                   && isValidSize(20); // Max 20MB
+    }
+
+    // ========================================
+    // Default: Deny all
+    // ========================================
+
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

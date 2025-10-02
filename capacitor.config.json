@@ -1,9 +1,14 @@
 {
-  "appId": "com.myapp.firebase",
-  "appName": "My Firebase App",
+  "appId": "com.peluquerias.app",
+  "appName": "Peluquerías",
   "webDir": "dist",
   "bundledWebRuntime": false,
   "server": {
     "androidScheme": "https"
+  },
+  "plugins": {
+    "PushNotifications": {
+      "presentationOptions": ["badge", "sound", "alert"]
+    }
   }
 }
