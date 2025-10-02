@@ -304,7 +304,11 @@ export function BranchProvider({ children }: { children: ReactNode }) {
   // ========================================
 
   const refreshBranches = async (): Promise<void> => {
-    if (customClaims?.franchiseId) {
+    if (customClaims?.role === 'super_admin') {
+      // Super admin can see all branches
+      await listBranches();
+    } else if (customClaims?.franchiseId) {
+      // Others see only their franchise branches
       await listBranches({ franchiseId: customClaims.franchiseId });
     }
   };

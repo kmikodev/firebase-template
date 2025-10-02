@@ -37,21 +37,21 @@ async function seed() {
 
   try {
     // ========================================
-    // 1. Create Franchise: San Jorge
+    // 1. Create Franchise: Monkey Barbershop
     // ========================================
-    console.log('📍 Creating franchise: San Jorge...');
+    console.log('📍 Creating franchise: Monkey Barbershop...');
 
     const franchiseRef = db.collection('franchises').doc();
     const franchiseId = franchiseRef.id;
 
     await franchiseRef.set({
       franchiseId,
-      name: 'San Jorge',
+      name: 'Monkey Barbershop',
       ownerUserId: 'c2developers-uid', // Replace with actual super admin UID
-      logo: 'https://via.placeholder.com/200x200?text=San+Jorge',
-      description: 'Franquicia de peluquerías San Jorge - Calidad y servicio profesional',
-      website: 'https://sanjorge-peluquerias.com',
-      email: 'info@sanjorge-peluquerias.com',
+      logo: 'https://via.placeholder.com/200x200?text=Monkey+Barbershop',
+      description: 'Franquicia de barberías Monkey Barbershop - Estilo y tradición en cada corte',
+      website: 'https://monkeybarbershop.com',
+      email: 'info@monkeybarbershop.com',
       phone: '+34 912 345 678',
       planTier: 'premium',
       isActive: true,
@@ -62,9 +62,9 @@ async function seed() {
     console.log(`✅ Franchise created: ${franchiseId}\n`);
 
     // ========================================
-    // 2. Create Branch: Monkey Peluquería
+    // 2. Create Branch: San Jorge
     // ========================================
-    console.log('🏢 Creating branch: Monkey Peluquería...');
+    console.log('🏢 Creating branch: San Jorge...');
 
     const branchRef = db.collection('branches').doc();
     const branchId = branchRef.id;
@@ -72,15 +72,15 @@ async function seed() {
     await branchRef.set({
       branchId,
       franchiseId,
-      name: 'Monkey Peluquería',
+      name: 'San Jorge',
       address: 'Calle Mayor 123',
       city: 'Madrid',
       postalCode: '28001',
       province: 'Madrid',
       country: 'España',
       phone: '+34 912 345 679',
-      email: 'monkey@sanjorge-peluquerias.com',
-      photo: 'https://via.placeholder.com/400x300?text=Monkey+Peluqueria',
+      email: 'sanjorge@monkeybarbershop.com',
+      photo: 'https://via.placeholder.com/400x300?text=San+Jorge',
       location: {
         latitude: 40.4168,
         longitude: -3.7038,
@@ -241,8 +241,8 @@ async function seed() {
 
     console.log('\n🎉 Seed completed successfully!\n');
     console.log('📋 Summary:');
-    console.log(`   - 1 Franchise: San Jorge (${franchiseId})`);
-    console.log(`   - 1 Branch: Monkey Peluquería (${branchId})`);
+    console.log(`   - 1 Franchise: Monkey Barbershop (${franchiseId})`);
+    console.log(`   - 1 Branch: San Jorge (${branchId})`);
     console.log(`   - 2 Barbers: Monkey, Andrés`);
     console.log(`   - ${services.length} Services\n`);
 
