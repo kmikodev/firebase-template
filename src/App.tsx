@@ -9,6 +9,7 @@ import { ServiceProvider } from './contexts/ServiceContext';
 import { QueueProvider } from './contexts/QueueContext';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { Layout } from './components/layout/Layout';
+import { NotificationPermissionBanner } from './components/notifications/NotificationPermissionBanner';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
@@ -36,6 +37,7 @@ function App() {
               <ServiceProvider>
                 <QueueProvider>
                   <BrowserRouter>
+                  <NotificationPermissionBanner />
                   <Routes>
                     <Route path="/" element={<Home />} />
                     <Route path="/login" element={<Login />} />

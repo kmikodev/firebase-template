@@ -12,6 +12,12 @@ import { doc, getDoc, setDoc, Timestamp } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase';
 import { User, CustomClaims } from '@/types';
 import { parseCustomClaims, parseUser } from '@/lib/validation';
+import {
+  initializeMessaging,
+  getFCMToken,
+  deleteFCMToken,
+  onForegroundMessage
+} from '@/services/notificationService';
 
 interface AuthContextType {
   firebaseUser: FirebaseUser | null;
@@ -60,6 +66,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [customClaims, setCustomClaims] = useState<CustomClaims | null>(null);
   const [loading, setLoading] = useState(true);
+  const [currentFCMToken, setCurrentFCMToken] = useState<string | null>(null);
+
+  // Initialize FCM messaging on mount
+  useEffect(() => {
+    initializeMessaging();
+  }, []);
+
+  // Setup foreground notification handler
+  useEffect(() => {
+    const unsubscribe = onForegroundMessage((payload) => {
+      console.log('Notification received in foreground:', payload);
+      // You can show a toast notification or update UI here
+    });
+
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
+  }, []);
 
   // Escuchar cambios en el estado de autenticación
   useEffect(() => {
@@ -122,6 +146,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               }
             }
           }
+
+          // Register FCM token for authenticated users (not guests)
+          if (!firebaseUser.isAnonymous && !cancelled) {
+            try {
+              const token = await getFCMToken(firebaseUser.uid);
+              if (token && !cancelled) {
+                setCurrentFCMToken(token);
+                console.log('FCM token registered for user');
+              }
+            } catch (error) {
+              console.error('Error registering FCM token:', error);
+              // Non-critical error, don't block user flow
+            }
+          }
         } catch (error) {
           console.error('Error loading user data:', error);
           if (!cancelled) {
@@ -130,8 +168,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           }
         }
       } else {
+        // User signed out - delete FCM token
+        // Note: firebaseUser is null here, so we can't delete the token
+        // Tokens will be cleaned up by Cloud Functions when they become invalid
         setUser(null);
         setCustomClaims(null);
+        setCurrentFCMToken(null);
       }
 
       if (!cancelled) {
@@ -143,7 +185,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       cancelled = true;
       unsubscribe();
     };
-  }, []);
+  }, [currentFCMToken]); // Include currentFCMToken in dependencies
 
   const signInWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
@@ -170,6 +212,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signOut = async () => {
+    // Delete FCM token before signing out
+    if (currentFCMToken && firebaseUser) {
+      try {
+        await deleteFCMToken(firebaseUser.uid, currentFCMToken);
+        console.log('FCM token deleted on sign out');
+      } catch (error) {
+        console.error('Error deleting FCM token:', error);
+      }
+    }
     await firebaseSignOut(auth);
   };
 

@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useQueue } from '../hooks/useQueue';
 import { branchService } from '../services/branchService';
+import { NotificationHistory } from '../components/notifications/NotificationHistory';
 import type { Branch } from '../types';
 
 export default function ClientQueue() {
@@ -252,6 +253,11 @@ export default function ClientQueue() {
             )}
           </div>
         )}
+
+        {/* Notification History */}
+        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+          <NotificationHistory />
+        </div>
 
         {/* Queue status */}
         {selectedBranchId && (
