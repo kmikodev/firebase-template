@@ -28,7 +28,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.setSuperAdminHTTP = exports.setSuperAdmin = exports.updateUserRole = void 0;
+exports.checkExpiredTimers = exports.markArrival = exports.takeTicket = exports.advanceQueue = exports.onQueueUpdate = exports.onQueueCreate = exports.setSuperAdminHTTP = exports.setSuperAdmin = exports.updateUserRole = void 0;
 const admin = __importStar(require("firebase-admin"));
 // Inicializar Firebase Admin
 admin.initializeApp();
@@ -41,22 +41,17 @@ const setSuperAdmin_1 = require("./auth/setSuperAdmin");
 Object.defineProperty(exports, "setSuperAdmin", { enumerable: true, get: function () { return setSuperAdmin_1.setSuperAdmin; } });
 Object.defineProperty(exports, "setSuperAdminHTTP", { enumerable: true, get: function () { return setSuperAdmin_1.setSuperAdminHTTP; } });
 // ========================================
-// Queue Functions (se agregarán en Milestone 3)
+// Queue Functions
 // ========================================
-// import { canTakeTicket, takeTicket, markArrival, callTicket, completeTicket, advanceQueue } from './queue';
-// import { checkExpiredTickets } from './queue/scheduled';
-// export {
-//   // Queue management
-//   canTakeTicket,
-//   takeTicket,
-//   markArrival,
-//   callTicket,
-//   completeTicket,
-//   advanceQueue,
-//
-//   // Scheduled
-//   checkExpiredTickets,
-// };
+const triggers_1 = require("./queue/triggers");
+Object.defineProperty(exports, "onQueueCreate", { enumerable: true, get: function () { return triggers_1.onQueueCreate; } });
+Object.defineProperty(exports, "onQueueUpdate", { enumerable: true, get: function () { return triggers_1.onQueueUpdate; } });
+const scheduled_1 = require("./queue/scheduled");
+Object.defineProperty(exports, "checkExpiredTimers", { enumerable: true, get: function () { return scheduled_1.checkExpiredTimers; } });
+const callable_1 = require("./queue/callable");
+Object.defineProperty(exports, "advanceQueue", { enumerable: true, get: function () { return callable_1.advanceQueue; } });
+Object.defineProperty(exports, "takeTicket", { enumerable: true, get: function () { return callable_1.takeTicket; } });
+Object.defineProperty(exports, "markArrival", { enumerable: true, get: function () { return callable_1.markArrival; } });
 // ========================================
 // Notifications Functions (se agregarán en Milestone 5)
 // ========================================

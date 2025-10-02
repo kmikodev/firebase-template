@@ -24,24 +24,26 @@ export {
 };
 
 // ========================================
-// Queue Functions (se agregarán en Milestone 3)
+// Queue Functions
 // ========================================
 
-// import { canTakeTicket, takeTicket, markArrival, callTicket, completeTicket, advanceQueue } from './queue';
-// import { checkExpiredTickets } from './queue/scheduled';
+import { onQueueCreate, onQueueUpdate } from './queue/triggers';
+import { checkExpiredTimers } from './queue/scheduled';
+import { advanceQueue, takeTicket, markArrival } from './queue/callable';
 
-// export {
-//   // Queue management
-//   canTakeTicket,
-//   takeTicket,
-//   markArrival,
-//   callTicket,
-//   completeTicket,
-//   advanceQueue,
-//
-//   // Scheduled
-//   checkExpiredTickets,
-// };
+export {
+  // Queue triggers
+  onQueueCreate,
+  onQueueUpdate,
+
+  // Queue callable functions
+  advanceQueue,
+  takeTicket,
+  markArrival,
+
+  // Scheduled
+  checkExpiredTimers,
+};
 
 // ========================================
 // Notifications Functions (se agregarán en Milestone 5)
