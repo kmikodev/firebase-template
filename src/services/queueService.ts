@@ -15,31 +15,10 @@ import {
   Timestamp
 } from 'firebase/firestore';
 import { functions, db } from '../lib/firebase';
+import type { QueueTicket } from '../types';
 
-// Types
-export interface QueueTicket {
-  queueId: string;
-  userId: string;
-  branchId: string;
-  serviceId?: string | null;
-  barberId?: string | null;
-  status: 'waiting' | 'notified' | 'arrived' | 'in_service' | 'completed' | 'cancelled' | 'expired';
-  position: number;
-  ticketNumber: string;
-  timerExpiry: Timestamp | null;
-  estimatedWaitTime: number;
-  createdAt: Timestamp;
-  updatedAt: Timestamp;
-  arrivedAt?: Timestamp;
-  notifiedAt?: Timestamp;
-  serviceStartedAt?: Timestamp;
-  completedAt?: Timestamp;
-  cancelledAt?: Timestamp;
-  expiredAt?: Timestamp;
-  cancelReason?: string;
-  penaltyApplied?: number;
-  penaltyReason?: string;
-}
+// Re-export for convenience
+export type { QueueTicket };
 
 export interface TakeTicketRequest {
   branchId: string;

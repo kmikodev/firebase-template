@@ -22,6 +22,8 @@ import ServicesPage from './pages/ServicesPage';
 import ServiceFormPage from './pages/ServiceFormPage';
 import QueuePage from './pages/QueuePage';
 import TakeTicketPage from './pages/TakeTicketPage';
+import ClientQueue from './pages/ClientQueue';
+import BarberQueue from './pages/BarberQueue';
 import NotFound from './pages/NotFound';
 
 function App() {
@@ -193,6 +195,26 @@ function App() {
                         <ProtectedRoute>
                           <Layout>
                             <TakeTicketPage />
+                          </Layout>
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/client-queue"
+                      element={
+                        <ProtectedRoute>
+                          <Layout>
+                            <ClientQueue />
+                          </Layout>
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/barber-queue"
+                      element={
+                        <ProtectedRoute>
+                          <Layout>
+                            <BarberQueue />
                           </Layout>
                         </ProtectedRoute>
                       }

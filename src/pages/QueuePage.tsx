@@ -1,9 +1,10 @@
 /**
  * Queue Management Page - Admin view for managing queue
  */
-import { useEffect, useState, useMemo } from 'react';
-import { useQueue } from '@/contexts/QueueContext';
+import { useState, useMemo } from 'react';
+import { useQueue } from '@/hooks/useQueue';
 import { QueueTicketCard } from '@/components/queue/QueueTicketCard';
+import type { QueueTicket } from '@/types';
 import { QueueListView } from '@/components/queue/QueueListView';
 import { LoadingState } from '@/components/shared/LoadingState';
 import { EmptyState } from '@/components/shared/EmptyState';
@@ -20,16 +21,14 @@ import { Button } from '@/components/ui/Button';
 const ITEMS_PER_PAGE = 9;
 
 export default function QueuePage() {
+  const [selectedBranchId] = useState('branch1'); // TODO: Get from context/props or user selection
+
   const {
-    tickets,
-    loading,
-    listTickets,
-    callTicket,
-    markArrival,
-    completeTicket,
-    cancelTicket,
+    queueTickets,
+    queueLoading,
     advanceQueue,
-  } = useQueue();
+    markArrival,
+  } = useQueue({ branchId: selectedBranchId });
 
   const [searchQuery, setSearchQuery] = useState('');
   const [cancelId, setCancelId] = useState<string | null>(null);
@@ -38,10 +37,6 @@ export default function QueuePage() {
   const [sortBy, setSortBy] = useState('position');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
-
-  useEffect(() => {
-    listTickets();
-  }, []);
 
   const filterConfigs: FilterConfig[] = [
     {
@@ -67,11 +62,11 @@ export default function QueuePage() {
   ];
 
   const filteredTickets = useMemo(() => {
-    let result = tickets || [];
+    let result = queueTickets || [];
 
     // Search filter
     if (searchQuery) {
-      result = result.filter(t =>
+      result = result.filter((t: QueueTicket) =>
         t.ticketNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
         t.userId.toLowerCase().includes(searchQuery.toLowerCase())
       );
@@ -79,11 +74,11 @@ export default function QueuePage() {
 
     // Active filters
     if (activeFilters.status) {
-      result = result.filter(t => t.status === activeFilters.status);
+      result = result.filter((t: QueueTicket) => t.status === activeFilters.status);
     }
 
     // Sorting
-    result.sort((a, b) => {
+    result.sort((a: QueueTicket, b: QueueTicket) => {
       let aValue: any = a[sortBy as keyof typeof a];
       let bValue: any = b[sortBy as keyof typeof b];
 
@@ -105,7 +100,7 @@ export default function QueuePage() {
     });
 
     return result;
-  }, [tickets, searchQuery, activeFilters, sortBy, sortDirection]);
+  }, [queueTickets, searchQuery, activeFilters, sortBy, sortDirection]);
 
   // Pagination
   const totalPages = Math.ceil((filteredTickets?.length || 0) / ITEMS_PER_PAGE);
@@ -117,7 +112,8 @@ export default function QueuePage() {
 
   const handleCancel = async () => {
     if (!cancelId) return;
-    await cancelTicket(cancelId, 'Cancelled by admin');
+    // TODO: Implement cancel ticket Cloud Function
+    console.log('Cancel ticket:', cancelId);
     setCancelId(null);
   };
 
@@ -132,24 +128,39 @@ export default function QueuePage() {
   };
 
   const handleAdvanceQueue = async () => {
-    // For demo, using first ticket's branch
-    if (tickets.length > 0) {
-      await advanceQueue(tickets[0].branchId);
-      await listTickets();
-    }
+    if (!selectedBranchId) return;
+    await advanceQueue({
+      branchId: selectedBranchId,
+      barberId: 'admin', // TODO: Get from auth context
+    });
+  };
+
+  // Wrapper functions for components that expect (queueId: string) signature
+  const handleCallTicket = async (queueId: string) => {
+    // TODO: Implement call ticket (notify client)
+    console.log('Call ticket:', queueId);
+  };
+
+  const handleMarkArrival = async (queueId: string) => {
+    await markArrival({ queueId });
+  };
+
+  const handleCompleteTicket = async (queueId: string) => {
+    // TODO: Implement complete ticket Cloud Function
+    console.log('Complete ticket:', queueId);
   };
 
   // Stats
   const stats = useMemo(() => {
-    const waiting = tickets.filter(t => t.status === 'waiting').length;
-    const notified = tickets.filter(t => t.status === 'notified').length;
-    const arrived = tickets.filter(t => t.status === 'arrived').length;
-    const inService = tickets.filter(t => t.status === 'in_service').length;
+    const waiting = queueTickets.filter((t: QueueTicket) => t.status === 'waiting').length;
+    const notified = queueTickets.filter((t: QueueTicket) => t.status === 'notified').length;
+    const arrived = queueTickets.filter((t: QueueTicket) => t.status === 'arrived').length;
+    const inService = queueTickets.filter((t: QueueTicket) => t.status === 'in_service').length;
 
     return { waiting, notified, arrived, inService };
-  }, [tickets]);
+  }, [queueTickets]);
 
-  if (loading && tickets.length === 0) {
+  if (queueLoading && queueTickets.length === 0) {
     return <LoadingState message="Loading queue..." variant="skeleton" />;
   }
 
@@ -254,13 +265,13 @@ export default function QueuePage() {
           {/* Grid or List View */}
           {viewMode === 'grid' ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-              {paginatedTickets.map((ticket) => (
+              {paginatedTickets.map((ticket: QueueTicket) => (
                 <QueueTicketCard
                   key={ticket.queueId}
                   ticket={ticket}
-                  onCall={callTicket}
-                  onMarkArrival={markArrival}
-                  onComplete={completeTicket}
+                  onCall={handleCallTicket}
+                  onMarkArrival={handleMarkArrival}
+                  onComplete={handleCompleteTicket}
                   onCancel={setCancelId}
                 />
               ))}
@@ -269,9 +280,9 @@ export default function QueuePage() {
             <div className="mb-6">
               <QueueListView
                 tickets={paginatedTickets}
-                onCall={callTicket}
-                onMarkArrival={markArrival}
-                onComplete={completeTicket}
+                onCall={handleCallTicket}
+                onMarkArrival={handleMarkArrival}
+                onComplete={handleCompleteTicket}
                 onCancel={setCancelId}
               />
             </div>
