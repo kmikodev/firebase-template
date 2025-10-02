@@ -18,6 +18,7 @@ import {
   deleteFCMToken,
   onForegroundMessage
 } from '@/services/notificationService';
+import { analyticsService } from '@/services/analyticsService';
 
 interface AuthContextType {
   firebaseUser: FirebaseUser | null;
@@ -192,11 +193,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     provider.setCustomParameters({
       prompt: 'select_account',
     });
-    await signInWithPopup(auth, provider);
+    const result = await signInWithPopup(auth, provider);
+
+    // Track login
+    const isNewUser = result.user.metadata.creationTime === result.user.metadata.lastSignInTime;
+    if (isNewUser) {
+      analyticsService.trackSignUp('google', customClaims?.role);
+    } else {
+      analyticsService.trackLogin('google', customClaims?.role);
+    }
   };
 
   const signInAsGuest = async () => {
     await signInAnonymously(auth);
+    analyticsService.trackLogin('anonymous', 'guest');
   };
 
   const upgradeGuestAccount = async () => {
@@ -209,9 +219,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       prompt: 'select_account',
     });
     await linkWithPopup(firebaseUser, provider);
+
+    // Track account upgrade
+    analyticsService.trackSignUp('google_upgrade', customClaims?.role);
   };
 
   const signOut = async () => {
+    // Track logout
+    analyticsService.trackLogout();
+
     // Delete FCM token before signing out
     if (currentFCMToken && firebaseUser) {
       try {

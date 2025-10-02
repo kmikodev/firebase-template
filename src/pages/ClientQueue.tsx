@@ -8,6 +8,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useQueue } from '../hooks/useQueue';
 import { branchService } from '../services/branchService';
 import { NotificationHistory } from '../components/notifications/NotificationHistory';
+import { analyticsService } from '../services/analyticsService';
 import type { Branch } from '../types';
 
 export default function ClientQueue() {
@@ -31,6 +32,11 @@ export default function ClientQueue() {
     cancelling,
     error
   } = useQueue({ branchId: selectedBranchId });
+
+  // Track page view
+  useEffect(() => {
+    analyticsService.trackPageView('client_queue');
+  }, []);
 
   // Load branches
   useEffect(() => {
@@ -60,8 +66,18 @@ export default function ClientQueue() {
         // serviceId: selectedServiceId || undefined,
         // barberId: selectedBarberId || undefined,
       });
+
+      // Track analytics
+      if (myTicket) {
+        analyticsService.trackTicketTaken(
+          selectedBranchId,
+          myTicket.ticketNumber,
+          myTicket.position
+        );
+      }
     } catch (err) {
       console.error('Failed to take ticket:', err);
+      analyticsService.trackError(String(err), 'take_ticket');
     }
   };
 
@@ -69,9 +85,14 @@ export default function ClientQueue() {
     if (!myTicket) return;
 
     try {
+      const waitTime = myTicket.estimatedWaitTime || 0;
       await markArrival({ queueId: myTicket.queueId });
+
+      // Track analytics
+      analyticsService.trackArrivalMarked(myTicket.queueId, waitTime);
     } catch (err) {
       console.error('Failed to mark arrival:', err);
+      analyticsService.trackError(String(err), 'mark_arrival');
     }
   };
 
@@ -84,8 +105,12 @@ export default function ClientQueue() {
 
     try {
       await cancelTicket({ queueId: myTicket.queueId });
+
+      // Track analytics
+      analyticsService.trackTicketCancelled(myTicket.queueId, 'Usuario canceló');
     } catch (err) {
       console.error('Failed to cancel ticket:', err);
+      analyticsService.trackError(String(err), 'cancel_ticket');
     }
   };
 

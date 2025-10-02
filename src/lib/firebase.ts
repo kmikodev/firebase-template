@@ -3,6 +3,8 @@ import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 import { getFunctions } from 'firebase/functions';
+import { getAnalytics, Analytics } from 'firebase/analytics';
+import { getPerformance, FirebasePerformance } from 'firebase/performance';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -11,6 +13,7 @@ const firebaseConfig = {
   storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 };
 
 // Initialize Firebase
@@ -21,6 +24,22 @@ export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const storage = getStorage(app);
 export const functions = getFunctions(app, 'europe-west1');
+
+// Initialize Analytics (only in browser, not in SSR)
+let analyticsInstance: Analytics | null = null;
+let perfInstance: FirebasePerformance | null = null;
+
+if (typeof window !== 'undefined') {
+  try {
+    analyticsInstance = getAnalytics(app);
+    perfInstance = getPerformance(app);
+  } catch (error) {
+    console.warn('Analytics/Performance not available:', error);
+  }
+}
+
+export const analytics = analyticsInstance;
+export const perf = perfInstance;
 
 // Enable offline persistence for Firestore (critical for mobile)
 import { enableIndexedDbPersistence } from 'firebase/firestore';
