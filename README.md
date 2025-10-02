@@ -4,106 +4,100 @@ Serverless mobile-first application built with Firebase, React, Tailwind CSS, an
 
 ## 🚀 Quick Start
 
-```bash
+\`\`\`bash
 # Install dependencies
 npm install
 
-# Copy environment variables
+# Set up environment
 cp .env.example .env
 # Edit .env with your Firebase config
 
-# Start development server
-npm run dev
-
-# Start Firebase emulators (in another terminal)
-npm run firebase:emulators
-```
-
-Visit http://localhost:5173
+# Start development
+npm run dev                      # Dev server (localhost:5173)
+npm run firebase:emulators       # Firebase emulators (separate terminal)
+\`\`\`
 
 ## 🛠️ Tech Stack
 
 - **Frontend**: React 18 + TypeScript + Tailwind CSS
 - **Build**: Vite
-- **Backend**: Firebase (Firestore, Auth, Functions, Storage, Hosting)
+- **Backend**: Firebase (Firestore, Auth, Cloud Functions, Storage, Hosting)
 - **Mobile**: Capacitor (iOS + Android)
 - **Payments**: Stripe
 - **Testing**: Vitest + React Testing Library
 
-## 📁 Project Structure
-
-```
-my-firebase-app/
-├── src/                    # React application
-│   ├── components/         # Reusable components
-│   ├── pages/              # Page components
-│   ├── hooks/              # Custom React hooks
-│   ├── lib/                # Utilities and Firebase config
-│   └── types/              # TypeScript types
-├── functions/              # Cloud Functions
-├── .claude/                # AI agents and automation
-│   ├── agents/             # Specialized AI agents
-│   ├── commands/           # Custom slash commands
-│   └── output-styles/      # Communication styles
-├── public/                 # Static assets
-└── capacitor/              # Native mobile projects
-```
-
 ## 📝 Available Scripts
 
-```bash
+\`\`\`bash
 npm run dev              # Start dev server
 npm run build            # Build for production
 npm test                 # Run tests
 npm run lint             # Lint code
 npm run firebase:emulators  # Start Firebase emulators
 npm run capacitor:sync   # Sync with Capacitor
-```
+\`\`\`
 
-## 🤖 AI Agents
+## 🤖 AI-Powered Development
 
-This project includes specialized AI agents for the complete development lifecycle:
+This project includes a complete AI agent system for the full development lifecycle.
 
-### Planning
-- `firebase-architect` - System architecture and data modeling
-- `requirements-analyst` - Requirements gathering and user stories
-- `tech-researcher` - Technology research and recommendations
+**For Claude Code users:** Read **[CLAUDE.md](CLAUDE.md)** for complete instructions.
 
-### Development
-- `code-reviewer` - Code quality and security review
-- `test-writer` - Test creation and coverage
-- `cloud-functions-specialist` - Cloud Functions implementation
+### Quick Overview:
 
-### Testing
-- `qa-specialist` - Manual testing and QA
-- `security-auditor` - Security audits (especially payments)
+- **10 specialized agents** for planning, development, testing, and deployment
+- **5 custom commands** for common operations
+- **3 output styles** for different audiences
+- **Complete workflows** documented
 
-### Deployment
-- `firebase-deployer` - Deployment and CI/CD
-- `documentation-writer` - Technical documentation
+## 📚 Documentation
 
-**Usage**: `> Use the [agent-name] agent to [task]`
+### For Developers:
+1. **[CLAUDE.md](CLAUDE.md)** - Complete guide for AI-assisted development
+2. **[.claude_guide/START_HERE.md](.claude_guide/START_HERE.md)** - Comprehensive getting started guide
+3. **[.claude_guide/MASTER_INDEX.md](.claude_guide/MASTER_INDEX.md)** - Index of all documentation
 
-## 🎯 Custom Commands
-
-- `/deploy-staging` - Deploy to staging with checks
-- `/deploy-production` - Deploy to production (full validation)
-- `/test-payment-flow` - Test payment integration
-- `/security-audit` - Run security checks
-- `/build-mobile` - Build iOS/Android apps
+### For Setup:
+- **[.env.example](.env.example)** - Environment variables template
+- **[.claude_guide/SETUP_GUIDE.md](.claude_guide/SETUP_GUIDE.md)** - Detailed setup instructions
+- **[.claude_guide/MCP_SETUP.md](.claude_guide/MCP_SETUP.md)** - MCP servers configuration
 
 ## 🔧 Configuration
 
-See **CLAUDE.md** for comprehensive development guide including:
-- Code conventions and best practices
-- Firebase integration patterns
-- Payment flow implementation
-- Mobile build process
-- Security guidelines
+### Environment Variables
+
+Create \`.env\`:
+\`\`\`bash
+VITE_FIREBASE_API_KEY=your-api-key
+VITE_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=your-project-id
+# ... see .env.example for complete list
+\`\`\`
+
+### Firebase
+
+\`\`\`bash
+# Login
+firebase login
+
+# Deploy
+firebase deploy
+\`\`\`
+
+### Capacitor (Mobile)
+
+\`\`\`bash
+# Build and sync
+npm run capacitor:build
+
+# Open in IDE
+npm run capacitor:ios      # Xcode
+npm run capacitor:android  # Android Studio
+\`\`\`
 
 ## 🧪 Testing
 
-```bash
+\`\`\`bash
 # Run tests
 npm test
 
@@ -112,52 +106,62 @@ npm test:ui
 
 # Test Cloud Functions
 cd functions && npm test
-```
+\`\`\`
 
 ## 🚀 Deployment
 
-```bash
-# Deploy to Firebase
+\`\`\`bash
+# Build
 npm run build
+
+# Deploy to Firebase
 firebase deploy
 
 # Deploy specific services
 firebase deploy --only hosting
 firebase deploy --only functions
-```
+\`\`\`
 
 ## 📱 Mobile Build
 
-```bash
-# Build and sync
-npm run capacitor:build
+\`\`\`bash
+# Sync web app with native projects
+npm run capacitor:sync
 
-# Open in IDE
-npm run capacitor:ios      # Xcode
-npm run capacitor:android  # Android Studio
-```
+# Open in Xcode (iOS)
+npm run capacitor:ios
+
+# Open in Android Studio (Android)
+npm run capacitor:android
+\`\`\`
 
 ## 🔐 Security
 
-- Environment variables for all secrets
-- Firestore security rules enforced
+- All secrets in environment variables
 - Server-side validation in Cloud Functions
-- Webhook signature verification
+- Firestore security rules enforced
 - Payment data handled by Stripe only
-
-## 📖 Documentation
-
-- **CLAUDE.md** - Development guide for AI assistants
-- **functions/README.md** - Cloud Functions API documentation
-- **docs/** - Additional documentation
+- Webhook signature verification
 
 ## 🤝 Contributing
 
-1. Create feature branch
-2. Make changes
-3. Run tests and linting
-4. Use `/security-audit` before committing
-5. Create pull request
+This project uses AI agents for development. See **[CLAUDE.md](CLAUDE.md)** for the workflow.
+
+Key principles:
+1. Always use TodoWrite to plan tasks
+2. Use specialized agents for each phase
+3. Test in staging before production
+4. Security audits for sensitive features
+
+## 📖 Learn More
+
+- **[CLAUDE.md](CLAUDE.md)** - AI agent system guide
+- **[.claude_guide/](.claude_guide/)** - Complete documentation
+- [Firebase Docs](https://firebase.google.com/docs)
+- [React Docs](https://react.dev)
+- [Tailwind CSS](https://tailwindcss.com)
+- [Capacitor Docs](https://capacitorjs.com)
+- [Stripe Docs](https://stripe.com/docs)
 
 ## 📄 License
 
@@ -165,4 +169,4 @@ MIT
 
 ---
 
-**Need Help?** Check CLAUDE.md or use the specialized AI agents for guidance.
+**Ready to build?** Start with **[.claude_guide/START_HERE.md](.claude_guide/START_HERE.md)** 🚀

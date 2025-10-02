@@ -2,428 +2,451 @@
 
 This file provides guidance to Claude Code when working with this Firebase + Capacitor project.
 
-## Project Overview
+## ⚠️ CRITICAL: Read This FIRST
 
-**Stack**: React + TypeScript + Tailwind CSS + Firebase + Capacitor
-**Type**: Serverless mobile-first application with payment integration
+**Before doing ANYTHING, you MUST:**
+
+1. **Read** `.claude_guide/TODOWRITE_POLICY.md` - TodoWrite is MANDATORY
+2. **Create TodoWrite** for EVERY task before starting
+3. **Use specialized agents** from `.claude/agents/` for each phase
+
+**No exceptions. This is how this project works.**
+
+---
+
+## 📚 Complete Documentation System
+
+All comprehensive guides are in `.claude_guide/`:
+
+### 🚀 **Getting Started (Read in Order)**
+
+1. **[.claude_guide/START_HERE.md](.claude_guide/START_HERE.md)** - Your entry point (5 min)
+2. **[.claude_guide/MASTER_INDEX.md](.claude_guide/MASTER_INDEX.md)** - Index of all documentation (10 min)
+3. **[.claude_guide/TODOWRITE_POLICY.md](.claude_guide/TODOWRITE_POLICY.md)** - ⚠️ MANDATORY policy (10 min)
+4. **[.claude_guide/WORKFLOW_GUIDE.md](.claude_guide/WORKFLOW_GUIDE.md)** - How I (Claude) work here (20 min)
+
+### 📖 **Reference Documentation**
+
+- **[.claude_guide/BEST_PRACTICES.md](.claude_guide/BEST_PRACTICES.md)** - Patterns, checklists, decision matrices
+- **[.claude_guide/EXAMPLE_WORKFLOWS.md](.claude_guide/EXAMPLE_WORKFLOWS.md)** - Real case studies with full TodoWrite
+- **[.claude_guide/SETUP_GUIDE.md](.claude_guide/SETUP_GUIDE.md)** - Complete project setup
+- **[.claude_guide/MCP_SETUP.md](.claude_guide/MCP_SETUP.md)** - MCP servers configuration
+
+---
+
+## 🤖 Specialized Agents System
+
+Located in `.claude/agents/` - Use these for every task phase:
+
+### Planning Phase
+- **firebase-architect** - Architecture, data models, security rules design
+- **requirements-analyst** - Requirements analysis, user stories creation
+- **tech-researcher** - Library evaluation, best practices research
+
+### Development Phase
+- **code-reviewer** - Code quality, security, Firebase best practices review
+- **test-writer** - Unit and integration tests creation
+- **cloud-functions-specialist** - Cloud Functions implementation (especially payments)
+
+### Testing & QA Phase
+- **qa-specialist** - Manual testing, test plans, bug reproduction
+- **security-auditor** - Security audits (MANDATORY for payments/auth)
+
+### Deployment Phase
+- **firebase-deployer** - Deployments, CI/CD configuration
+- **documentation-writer** - Technical and user documentation
+
+**See:** [.claude_guide/WORKFLOW_GUIDE.md](.claude_guide/WORKFLOW_GUIDE.md) for detailed agent usage patterns
+
+---
+
+## 🎮 Custom Slash Commands
+
+Located in `.claude/commands/`:
+
+- **/deploy-staging** - Deploy to staging with validations
+- **/deploy-production** - Deploy to production with full checks
+- **/test-payment-flow** - Comprehensive payment testing guide
+- **/security-audit** - Complete security audit
+- **/build-mobile** - iOS/Android build process
+
+---
+
+## 📋 TodoWrite: The Foundation
+
+### This is MANDATORY for EVERY task
+
+**Before ANY work:**
+
+```markdown
+1. Create comprehensive TodoWrite with ALL steps
+2. Include which agents you'll use
+3. Mark one todo as in_progress at a time
+4. Update status immediately when done
+```
+
+**Example:**
+
+```markdown
+User: "Implement user authentication"
+
+You: "I'll implement authentication. Let me plan all steps first."
+
+TodoWrite:
+1. ⏳ Analyze auth requirements (requirements-analyst agent)
+2. ⏳ Design auth architecture (firebase-architect agent)
+3. ⏳ Configure Firebase Auth
+4. ⏳ Implement auth components
+5. ⏳ Create tests (test-writer agent)
+6. ⏳ Review code (code-reviewer agent)
+7. ⏳ Security audit (security-auditor agent)
+8. ⏳ Deploy to staging (/deploy-staging)
+9. ⏳ Deploy to production (/deploy-production)
+
+[Todo 1 - IN PROGRESS] Analyzing requirements...
+
+> Use the requirements-analyst agent to...
+```
+
+**NEVER start coding without TodoWrite. NEVER.**
+
+**See:** [.claude_guide/TODOWRITE_POLICY.md](.claude_guide/TODOWRITE_POLICY.md) for complete policy
+
+---
+
+## 🏗️ Project Architecture
 
 ### Tech Stack
 
-- **Frontend**: React 18 + TypeScript + Tailwind CSS
-- **Build Tool**: Vite
-- **Backend**: Firebase (Firestore, Auth, Cloud Functions, Hosting, Storage)
+- **Frontend**: React 18 + TypeScript + Tailwind CSS + Vite
+- **Backend**: Firebase (Firestore, Auth, Cloud Functions, Storage, Hosting)
 - **Mobile**: Capacitor (iOS + Android)
 - **Payments**: Stripe
 - **Testing**: Vitest + React Testing Library
-- **CI/CD**: GitHub Actions
 
-## Quick Start
-
-```bash
-# Install dependencies
-npm install
-
-# Set up environment
-cp .env.example .env
-# Add Firebase config and Stripe keys
-
-# Start development
-npm run dev                      # Frontend dev server
-npm run firebase:emulators       # Firebase emulators (in another terminal)
-
-# Build and deploy
-npm run build                    # Build for production
-firebase deploy                  # Deploy to Firebase
-```
-
-## Project Structure
+### Project Structure
 
 ```
 my-firebase-app/
-├── src/                         # React frontend
-│   ├── components/              # React components
-│   │   ├── auth/                # Authentication components
-│   │   ├── payment/             # Payment components
-│   │   ├── ui/                  # Reusable UI components
-│   │   └── layout/              # Layout components
-│   ├── hooks/                   # Custom React hooks
-│   ├── services/                # Firebase service integrations
-│   │   ├── auth.ts              # Firebase Auth service
-│   │   ├── firestore.ts         # Firestore service
-│   │   └── storage.ts           # Storage service
-│   ├── lib/                     # Utility functions
-│   ├── types/                   # TypeScript type definitions
-│   └── App.tsx                  # Main app component
-├── functions/                   # Cloud Functions (TypeScript)
+├── .claude/                    # Agent system configuration
+│   ├── agents/                 # 10 specialized agents
+│   ├── commands/               # 5 custom commands
+│   ├── output-styles/          # 3 communication styles
+│   └── hooks/                  # 3 automation hooks
+│
+├── .claude_guide/              # Complete documentation
+│   ├── START_HERE.md          # Entry point
+│   ├── MASTER_INDEX.md        # Documentation index
+│   ├── TODOWRITE_POLICY.md    # MANDATORY policy
+│   ├── WORKFLOW_GUIDE.md      # How I work
+│   ├── BEST_PRACTICES.md      # Patterns & checklists
+│   ├── EXAMPLE_WORKFLOWS.md   # Real examples
+│   ├── SETUP_GUIDE.md         # Setup instructions
+│   └── MCP_SETUP.md           # MCP configuration
+│
+├── src/                       # React frontend
+│   ├── components/            # React components
+│   ├── pages/                 # Page components
+│   ├── hooks/                 # Custom React hooks
+│   ├── lib/                   # Utils & Firebase config
+│   ├── services/              # Firebase services
+│   └── types/                 # TypeScript types
+│
+├── functions/                 # Cloud Functions
 │   └── src/
-│       ├── index.ts             # Functions entry point
-│       ├── payments.ts          # Stripe payment handlers
-│       └── triggers.ts          # Firestore triggers
-├── public/                      # Static assets
-├── capacitor/                   # Native mobile projects
-├── .claude/                     # Claude Code configuration
-│   ├── agents/                  # Specialized AI agents
-│   ├── commands/                # Custom slash commands
-│   ├── output-styles/           # Communication styles
-│   └── hooks/                   # Automation hooks
-└── firebase.json                # Firebase configuration
+│       ├── index.ts           # Entry point
+│       ├── payments.ts        # Stripe integration
+│       └── triggers.ts        # Firestore triggers
+│
+├── capacitor/                 # Native projects
+│   ├── ios/                   # Xcode project
+│   └── android/               # Android Studio project
+│
+├── CLAUDE.md                  # This file
+└── README.md                  # Quick start guide
 ```
 
-## Development Commands
+---
+
+## ⚡ Quick Reference
+
+### Essential Commands
 
 ```bash
-# Frontend Development
-npm run dev                      # Start dev server (http://localhost:5173)
-npm run build                    # Build for production
-npm run preview                  # Preview production build
-npm test                         # Run tests
-npm test:ui                      # Run tests with UI
-npm run lint                     # Lint code
-npm run lint:fix                 # Fix linting issues
-npm run format                   # Format code with Prettier
+# Development
+npm run dev                    # Start dev server (localhost:5173)
+npm run firebase:emulators     # Start Firebase emulators
+npm test                       # Run tests
+npm run lint                   # Lint code
 
 # Firebase
-npm run firebase:emulators       # Start all emulators
-firebase deploy                  # Deploy everything
-firebase deploy --only hosting   # Deploy hosting only
+firebase deploy                # Deploy everything
+firebase deploy --only hosting # Deploy hosting only
 firebase deploy --only functions # Deploy functions only
-firebase deploy --only firestore:rules # Deploy security rules
 
-# Cloud Functions
-cd functions
-npm run build                    # Build functions
-npm run serve                    # Test functions locally
-npm test                         # Test functions
-
-# Capacitor (Mobile)
-npm run capacitor:sync           # Sync web app with native projects
-npm run capacitor:ios            # Open Xcode
-npm run capacitor:android        # Open Android Studio
-npm run capacitor:build          # Build web + sync
+# Capacitor
+npm run capacitor:sync         # Sync web → native
+npm run capacitor:ios          # Open Xcode
+npm run capacitor:android      # Open Android Studio
 ```
 
-## Code Style & Conventions
+### Code Conventions
 
-### React Components
-
-- Use **functional components** with hooks
-- Use **TypeScript** for all components
+**React Components:**
+- Functional components with hooks
+- TypeScript for all files
 - File naming: `ComponentName.tsx` (PascalCase)
-- Export format: `export default ComponentName`
 
-```typescript
-// Good example
-interface PaymentButtonProps {
-  amount: number;
-  onSuccess: () => void;
-  onError: (error: Error) => void;
-}
+**Styling:**
+- Tailwind utility classes (mobile-first)
+- Custom classes in `src/index.css`
 
-export default function PaymentButton({
-  amount,
-  onSuccess,
-  onError
-}: PaymentButtonProps) {
-  // Component logic
-  return (
-    <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-      Pay ${amount / 100}
-    </button>
-  );
-}
-```
+**Firebase Integration:**
+- Environment variables for config
+- Real-time listeners for Firestore
+- Offline persistence enabled
 
-### Tailwind CSS
-
-- Use Tailwind utility classes (avoid custom CSS when possible)
-- Mobile-first approach: `className="text-sm md:text-base lg:text-lg"`
-- Common patterns:
-  - Buttons: `btn btn-primary` (configured in tailwind.config.js)
-  - Cards: `bg-white rounded-lg shadow-md p-4`
-  - Forms: `input input-bordered w-full`
-
-### State Management
-
-- **Local state**: `useState` for component-specific state
-- **Context**: React Context for auth and theme
-- **Firebase**: Real-time listeners for Firestore data
-- **React Query**: For server state (optional, can be added)
-
-### Firebase Integration
-
-```typescript
-// firestore.ts
-import { collection, query, where, onSnapshot } from 'firebase/firestore';
-import { db } from './config';
-
-export function subscribeToUserData(userId: string, callback: (data: any) => void) {
-  const q = query(collection(db, 'users'), where('userId', '==', userId));
-  return onSnapshot(q, (snapshot) => {
-    callback(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-  });
-}
-```
-
-### Cloud Functions
-
-- Always use **TypeScript**
-- Validate all inputs
-- Check authentication
-- Handle errors properly
+**Cloud Functions:**
+- TypeScript only
+- Always validate auth
+- Always validate input
 - Use environment variables for secrets
 
-```typescript
-import { onCall, HttpsError } from 'firebase-functions/v2/https';
+**See:** [.claude_guide/BEST_PRACTICES.md](.claude_guide/BEST_PRACTICES.md) for complete conventions
 
-export const myFunction = onCall(async (request) => {
-  // 1. Check authentication
-  if (!request.auth) {
-    throw new HttpsError('unauthenticated', 'Must be logged in');
-  }
+---
 
-  // 2. Validate input
-  const { data } = request.data;
-  if (!data) {
-    throw new HttpsError('invalid-argument', 'Data is required');
-  }
+## 🚨 Critical Security Rules
 
-  // 3. Business logic
-  try {
-    // ... implementation
-    return { success: true };
-  } catch (error) {
-    console.error('Function failed:', error);
-    throw new HttpsError('internal', 'Operation failed');
-  }
-});
+### ALWAYS Follow These:
+
+1. **Payments:**
+   - NEVER store card data in Firestore
+   - ALWAYS verify webhook signatures
+   - ALWAYS validate amounts server-side
+   - Use security-auditor agent MULTIPLE times
+   - Test with /test-payment-flow command
+   - Deploy to staging for 48h minimum
+
+2. **Authentication:**
+   - ALWAYS validate on server (Cloud Functions)
+   - NEVER trust client-side validation
+   - Use security-auditor agent before production
+
+3. **Data Access:**
+   - Firestore security rules MUST deny by default
+   - Test rules in emulators before deploy
+   - Use security-auditor agent to review rules
+
+4. **Secrets:**
+   - NEVER commit secrets to git
+   - Use environment variables (.env)
+   - Use Firebase Secret Manager for functions
+
+**See:** [.claude_guide/BEST_PRACTICES.md](.claude_guide/BEST_PRACTICES.md) → Security section
+
+---
+
+## 🔄 Standard Workflows
+
+### New Feature Workflow
+
+```markdown
+TodoWrite:
+1. requirements-analyst → Analyze requirements
+2. firebase-architect → Design architecture
+3. tech-researcher → Research libraries (if needed)
+4. [Implement code]
+5. test-writer → Create tests
+6. code-reviewer → Review code
+7. security-auditor → Audit (if sensitive)
+8. qa-specialist → Create test plan
+9. documentation-writer → Document
+10. /deploy-staging
+11. Manual testing
+12. /deploy-production
 ```
 
-## AI Agents Available
+### Payment Feature Workflow (CRITICAL)
 
-### Planning Phase
-- **firebase-architect**: Design system architecture, data models, security rules
-- **requirements-analyst**: Gather requirements, write user stories
-- **tech-researcher**: Research libraries and best practices
+```markdown
+TodoWrite:
+1. requirements-analyst → Payment requirements
+2. firebase-architect → Secure architecture design
+3. cloud-functions-specialist → Implement functions
+4. test-writer → Exhaustive tests
+5. code-reviewer → First review
+6. security-auditor → First audit
+7. /test-payment-flow → Test with all cards
+8. code-reviewer → Second review
+9. security-auditor → Second audit
+10. qa-specialist → Manual testing
+11. /deploy-staging
+12. [Test in staging 48h minimum]
+13. security-auditor → Third audit in staging
+14. /deploy-production
+15. [Monitor intensively 24h]
 
-### Development Phase
-- **code-reviewer**: Review code quality, security, Firebase best practices
-- **test-writer**: Write unit and integration tests
-- **cloud-functions-specialist**: Implement Cloud Functions, especially payments
-
-### Testing Phase
-- **qa-specialist**: Manual testing, test plans, bug reports
-- **security-auditor**: Security audit, especially for payment flows
-
-### Deployment Phase
-- **firebase-deployer**: Handle deployments, CI/CD setup
-- **documentation-writer**: Create technical and user documentation
-
-### How to Use Agents
-
-```
-> Use the firebase-architect agent to design a user authentication flow
-
-> Use the code-reviewer agent to review my recent payment implementation
-
-> Use the security-auditor agent to audit the payment security
+NEVER skip steps for payments.
 ```
 
-## Custom Slash Commands
+### Bug Fix Workflow
 
-- **/deploy-staging** - Deploy to staging environment with checks
-- **/deploy-production** - Deploy to production with full validation
-- **/test-payment-flow** - Guide for testing payment integration
-- **/security-audit** - Run comprehensive security checks
-- **/build-mobile** - Build iOS and Android apps
-
-## Key Firebase Patterns
-
-### Authentication
-
-```typescript
-import { signInWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth';
-import { auth } from './config';
-
-// Sign in
-const userCredential = await signInWithEmailAndPassword(auth, email, password);
-
-// Listen to auth state
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    // User is signed in
-  } else {
-    // User is signed out
-  }
-});
+```markdown
+TodoWrite:
+1. qa-specialist → Reproduce bug
+2. [Identify root cause]
+3. [Implement fix]
+4. test-writer → Regression test
+5. code-reviewer → Review fix
+6. /deploy-staging
+7. Verify fix
+8. /deploy-production
+9. Monitor
 ```
 
-### Firestore Real-time
+**See:** [.claude_guide/EXAMPLE_WORKFLOWS.md](.claude_guide/EXAMPLE_WORKFLOWS.md) for complete real-world examples
 
-```typescript
-import { doc, onSnapshot } from 'firebase/firestore';
-import { db } from './config';
+---
 
-// Real-time listener
-const unsubscribe = onSnapshot(doc(db, 'users', userId), (doc) => {
-  console.log('Current data:', doc.data());
-});
+## 🎨 Output Styles
 
-// Don't forget to unsubscribe!
-return () => unsubscribe();
+Located in `.claude/output-styles/`:
+
+- **technical** - For developers (code, technical details)
+- **executive** - For stakeholders (business impact, summaries)
+- **qa** - For QA reports (bug reports, test results)
+
+**Usage:**
+```
+> Use technical output style to explain the architecture
 ```
 
-### Payment Flow
+---
 
-1. **Client**: Call `createPaymentIntent` Cloud Function
-2. **Server**: Create Stripe Payment Intent, return client secret
-3. **Client**: Use Stripe SDK with client secret
-4. **Stripe**: Process payment
-5. **Webhook**: Stripe notifies Cloud Function
-6. **Server**: Update Firestore with payment status
-7. **Client**: Real-time listener updates UI
+## 🔌 MCP Integration (Optional)
 
-## Security Best Practices
+Enhance capabilities with MCP servers:
 
-1. **Never store payment data in Firestore** - Only store Stripe customer ID
-2. **Validate on server** - Never trust client-side data
-3. **Use environment variables** - No secrets in code
-4. **Verify webhook signatures** - Critical for Stripe webhooks
-5. **Check authentication** - In all Cloud Functions
-6. **Firestore security rules** - Deny by default, allow explicitly
-7. **Input sanitization** - Validate all user inputs
+- **Firebase MCP** - Direct Firestore/Functions access, real-time logs
+- **Stripe MCP** - Test payments, view webhooks
+- **GitHub MCP** - Create issues/PRs, check CI/CD
 
-## Testing Strategy
+**Setup:** [.claude_guide/MCP_SETUP.md](.claude_guide/MCP_SETUP.md)
 
-### Unit Tests (Vitest)
-- Test React components: `npm test`
-- Test Cloud Functions: `cd functions && npm test`
-- Coverage goal: 80%+ for business logic
+---
 
-### Integration Tests
-- Use Firebase emulators
-- Test with Stripe test mode
-- Test payment webhooks
+## ✅ Pre-Flight Checklists
 
-### E2E Tests (Optional)
-- Playwright or Cypress
-- Test critical flows: auth + payment
+### Before ANY Commit
 
-## Deployment Strategy
+- [ ] TodoWrite created and all todos completed
+- [ ] Tests passing (`npm test`)
+- [ ] Linting passing (`npm run lint`)
+- [ ] Code reviewed (code-reviewer agent)
+- [ ] No console.log in production code
+- [ ] No exposed secrets
 
-### Environments
-- **Development**: Local emulators
-- **Staging**: Firebase project `my-app-staging`
-- **Production**: Firebase project `my-app-prod`
+### Before Staging Deploy
 
-### Deployment Checklist
-1. All tests passing
-2. Security audit complete
-3. Build successful
-4. Environment variables configured
-5. Test in staging first
-6. Monitor logs after production deploy
+- [ ] Commit checklist ↑ completed
+- [ ] Security audit if auth/payments/sensitive data
+- [ ] Documentation updated
+- [ ] `/security-audit` passed
 
-## Performance Optimization
+### Before Production Deploy
 
-- **Bundle size**: Keep < 500KB (check with `npm run build`)
-- **Images**: Use WebP, lazy loading
-- **Firestore**: Minimize reads with pagination
-- **Functions**: Keep dependencies small (faster cold starts)
-- **Caching**: Use Firebase Hosting cache headers
+- [ ] Staging checklist ↑ completed
+- [ ] Tested in staging minimum 24h (48h for payments)
+- [ ] Second security audit completed
+- [ ] QA manual testing done
+- [ ] Rollback plan ready
+- [ ] Monitoring configured
 
-## Mobile Considerations
+**See:** [.claude_guide/BEST_PRACTICES.md](.claude_guide/BEST_PRACTICES.md) for complete checklists
 
-- **Offline-first**: Firestore persistence enabled
-- **Touch targets**: Minimum 44x44 pixels
-- **Loading states**: Show for all network operations
-- **Error handling**: User-friendly messages
-- **Native features**: Camera, notifications via Capacitor
+---
 
-## Common Patterns
+## 🎓 Learning Path
 
-### Loading State
-```typescript
-const [loading, setLoading] = useState(false);
+### For New Users (Read in Order):
 
-const handleSubmit = async () => {
-  setLoading(true);
-  try {
-    await someAsyncOperation();
-  } catch (error) {
-    console.error(error);
-  } finally {
-    setLoading(false);
-  }
-};
+1. This file (CLAUDE.md) - 10 min
+2. [.claude_guide/START_HERE.md](.claude_guide/START_HERE.md) - 5 min
+3. [.claude_guide/TODOWRITE_POLICY.md](.claude_guide/TODOWRITE_POLICY.md) - 10 min ⚠️
+4. [.claude_guide/WORKFLOW_GUIDE.md](.claude_guide/WORKFLOW_GUIDE.md) - 20 min
+5. [.claude_guide/BEST_PRACTICES.md](.claude_guide/BEST_PRACTICES.md) - 15 min
+6. [.claude_guide/EXAMPLE_WORKFLOWS.md](.claude_guide/EXAMPLE_WORKFLOWS.md) - 20 min
+
+**Total: ~80 minutes to master the system**
+
+---
+
+## 🆘 Getting Help
+
+### Quick Reference:
+
+1. **[.claude_guide/MASTER_INDEX.md](.claude_guide/MASTER_INDEX.md)** - Find relevant documentation
+2. **[.claude_guide/BEST_PRACTICES.md](.claude_guide/BEST_PRACTICES.md)** - Look for similar patterns
+3. **[.claude_guide/EXAMPLE_WORKFLOWS.md](.claude_guide/EXAMPLE_WORKFLOWS.md)** - See real examples
+4. **Specific agent in `.claude/agents/`** - Detailed agent instructions
+
+### How to Ask for Help:
+
+```markdown
+✅ GOOD:
+"I need to implement [specific feature].
+ I've read [relevant guide].
+ My TodoWrite plan is:
+ 1. [step]
+ 2. [step]
+ Can you review my approach?"
+
+❌ BAD:
+"Help me"
 ```
 
-### Error Handling
-```typescript
-try {
-  await operation();
-} catch (error) {
-  if (error instanceof FirebaseError) {
-    // Handle Firebase errors
-    toast.error(error.message);
-  } else {
-    // Handle other errors
-    toast.error('An unexpected error occurred');
-  }
-}
-```
+---
 
-### Form Validation
-```typescript
-import { z } from 'zod';
+## 📊 Success Metrics
 
-const schema = z.object({
-  email: z.string().email(),
-  password: z.string().min(8)
-});
+### Quality Goals:
 
-const result = schema.safeParse(formData);
-if (!result.success) {
-  // Handle validation errors
-}
-```
+- **Code Coverage**: 80%+ for business logic, 90%+ for Cloud Functions
+- **Security**: All audits passing before production
+- **Documentation**: Every feature documented
+- **Testing**: All critical paths have tests
+- **Deployment**: Staging tested before production (always)
 
-## Troubleshooting
+---
 
-### Firebase Emulator Issues
-```bash
-# Kill all emulators
-lsof -ti:4000,5000,8080,9099 | xargs kill -9
+## 🎯 Remember
 
-# Restart
-npm run firebase:emulators
-```
+1. **TodoWrite is MANDATORY** - No exceptions
+2. **Use agents for each phase** - They're specialized for a reason
+3. **Staging before production** - Always
+4. **Security audits for payments** - Multiple times
+5. **Follow checklists** - They prevent mistakes
+6. **Document as you go** - Not after
+7. **Monitor post-deploy** - First 15 minutes are critical
 
-### Build Failures
-```bash
-# Clear cache
-rm -rf node_modules dist
-npm install
-npm run build
-```
+---
 
-### Payment Testing
-- Use Stripe test cards: https://stripe.com/docs/testing
-- Success: 4242 4242 4242 4242
-- Decline: 4000 0000 0000 0002
+## 📚 Complete Documentation
 
-## Resources
+**Everything you need is in `.claude_guide/`:**
 
-- [Firebase Docs](https://firebase.google.com/docs)
-- [React Docs](https://react.dev)
-- [Tailwind CSS](https://tailwindcss.com)
-- [Capacitor Docs](https://capacitorjs.com)
-- [Stripe Docs](https://stripe.com/docs)
-- [TypeScript Handbook](https://www.typescriptlang.org/docs)
+- START_HERE.md - Entry point
+- MASTER_INDEX.md - Complete index
+- TODOWRITE_POLICY.md - TodoWrite rules (MANDATORY)
+- WORKFLOW_GUIDE.md - How I work with agents
+- BEST_PRACTICES.md - Patterns and checklists
+- EXAMPLE_WORKFLOWS.md - Real case studies
+- SETUP_GUIDE.md - Project setup
+- MCP_SETUP.md - MCP configuration
 
-## Getting Help
+**Start here:** [.claude_guide/START_HERE.md](.claude_guide/START_HERE.md)
 
-1. Check this CLAUDE.md file
-2. Use relevant AI agent for specific tasks
-3. Check Firebase console for errors
-4. Review Cloud Functions logs: `firebase functions:log`
-5. Use `/security-audit` command before releases
+---
+
+**This project is configured for maximum quality and efficiency. Follow the system and you'll build amazing things.** 🚀
