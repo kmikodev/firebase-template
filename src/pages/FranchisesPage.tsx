@@ -12,6 +12,7 @@ import { SearchBar } from '@/components/shared/SearchBar';
 import { FilterBar, FilterConfig } from '@/components/shared/FilterBar';
 import { Pagination } from '@/components/shared/Pagination';
 import { Breadcrumbs } from '@/components/shared/Breadcrumbs';
+import { SortSelector, SortOption } from '@/components/shared/SortSelector';
 import { Button } from '@/components/ui/Button';
 
 const ITEMS_PER_PAGE = 9;
@@ -23,6 +24,8 @@ export default function FranchisesPage() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [activeFilters, setActiveFilters] = useState<Record<string, string>>({});
+  const [sortBy, setSortBy] = useState('name');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
 
   useEffect(() => {
     refreshFranchises();
@@ -49,6 +52,13 @@ export default function FranchisesPage() {
     },
   ];
 
+  const sortOptions: SortOption[] = [
+    { value: 'name', label: 'Name' },
+    { value: 'email', label: 'Email' },
+    { value: 'planTier', label: 'Plan Tier' },
+    { value: 'createdAt', label: 'Date Created' },
+  ];
+
   const filteredFranchises = useMemo(() => {
     let result = franchises || [];
 
@@ -68,8 +78,30 @@ export default function FranchisesPage() {
       result = result.filter(f => f.isActive === (activeFilters.isActive === 'true'));
     }
 
+    // Sorting
+    result.sort((a, b) => {
+      let aValue: any = a[sortBy as keyof typeof a];
+      let bValue: any = b[sortBy as keyof typeof b];
+
+      // Handle Firestore Timestamps
+      if (sortBy === 'createdAt' && aValue?.toDate && bValue?.toDate) {
+        aValue = aValue.toDate().getTime();
+        bValue = bValue.toDate().getTime();
+      }
+
+      // Handle string comparison
+      if (typeof aValue === 'string' && typeof bValue === 'string') {
+        aValue = aValue.toLowerCase();
+        bValue = bValue.toLowerCase();
+      }
+
+      if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
+      if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
+      return 0;
+    });
+
     return result;
-  }, [franchises, searchQuery, activeFilters]);
+  }, [franchises, searchQuery, activeFilters, sortBy, sortDirection]);
 
   // Pagination
   const totalPages = Math.ceil((filteredFranchises?.length || 0) / ITEMS_PER_PAGE);
@@ -126,12 +158,19 @@ export default function FranchisesPage() {
         />
       </div>
 
-      {/* Filter Bar */}
-      <div className="mb-6">
+      {/* Filter Bar and Sort */}
+      <div className="mb-6 flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
         <FilterBar
           filters={filterConfigs}
           onFilterChange={handleFilterChange}
           onReset={() => setSearchQuery('')}
+        />
+        <SortSelector
+          options={sortOptions}
+          value={sortBy}
+          direction={sortDirection}
+          onChange={setSortBy}
+          onDirectionChange={setSortDirection}
         />
       </div>
 
