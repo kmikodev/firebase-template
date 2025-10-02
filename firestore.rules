@@ -238,6 +238,60 @@ service cloud.firestore {
     }
 
     // ========================================
+    // Loyalty Card System Collections
+    // ========================================
+
+    // Loyalty Stamps (sellos individuales)
+    match /loyalty_stamps/{stampId} {
+      // Read: usuario propietario, staff de franquicia, super admin
+      allow read: if isOwner(resource.data.userId)
+                  || belongsToFranchise(resource.data.franchiseId)
+                  || isSuperAdmin();
+
+      // Write: SOLO Cloud Functions (prevenir fraude)
+      allow write: if false;
+    }
+
+    // Loyalty Rewards (premios generados)
+    match /loyalty_rewards/{rewardId} {
+      // Read: usuario propietario, staff de franquicia, super admin
+      allow read: if isOwner(resource.data.userId)
+                  || belongsToFranchise(resource.data.franchiseId)
+                  || isSuperAdmin();
+
+      // Write: SOLO Cloud Functions (prevenir fraude y doble uso)
+      allow write: if false;
+    }
+
+    // Loyalty Config (configuración por franquicia)
+    match /loyalty_configs/{franchiseId} {
+      // Read: usuarios autenticados (para ver si franquicia tiene programa)
+      allow read: if isAuthenticated();
+
+      // Create: franchise owner o super admin
+      allow create: if (isFranchiseOwner() && belongsToFranchise(franchiseId))
+                    || isSuperAdmin();
+
+      // Update: franchise owner de la franquicia, super admin
+      allow update: if (isFranchiseOwner() && belongsToFranchise(franchiseId))
+                    || isSuperAdmin();
+
+      // Delete: solo super admin
+      allow delete: if isSuperAdmin();
+    }
+
+    // Loyalty Customer Summary (resumen por usuario)
+    match /loyalty_customer_summary/{userId} {
+      // Read: usuario propietario, super admin, franchise owners
+      allow read: if isOwner(userId)
+                  || isSuperAdmin()
+                  || isFranchiseOwner();
+
+      // Write: SOLO Cloud Functions (calculado automáticamente)
+      allow write: if false;
+    }
+
+    // ========================================
     // Default: Deny all
     // ========================================
 

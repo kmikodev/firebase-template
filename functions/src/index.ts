@@ -61,6 +61,31 @@ export {
 };
 
 // ========================================
+// Loyalty Card System Functions
+// ========================================
+
+import {
+  onQueueCompleted,
+  redeemReward,
+  applyRewardToQueue,
+  expireStampsDaily,
+  expireRewardsDaily,
+} from './loyalty';
+
+export {
+  // Loyalty triggers
+  onQueueCompleted,
+
+  // Loyalty callable
+  redeemReward,
+  applyRewardToQueue,
+
+  // Loyalty scheduled
+  expireStampsDaily,
+  expireRewardsDaily,
+};
+
+// ========================================
 // Notifications Functions (se agregarán en Milestone 5)
 // ========================================
 

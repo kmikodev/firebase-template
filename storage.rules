@@ -39,12 +39,13 @@ service firebase.storage {
     // User Profile Photos
     // ========================================
 
-    match /users/{userId}/profile.{ext} {
+    match /users/{userId}/{filename} {
       // Read: cualquiera autenticado (fotos de perfil públicas)
-      allow read: if isAuthenticated();
+      allow read: if isAuthenticated() && filename.matches('profile\\.(jpg|jpeg|png|gif|webp)');
 
       // Write: solo el dueño del perfil
       allow write: if isOwner(userId)
+                   && filename.matches('profile\\.(jpg|jpeg|png|gif|webp)')
                    && isValidImageType()
                    && isValidSize(5); // Max 5MB
     }
@@ -53,12 +54,13 @@ service firebase.storage {
     // Franchise Logos
     // ========================================
 
-    match /franchises/{franchiseId}/logo.{ext} {
+    match /franchises/{franchiseId}/{filename} {
       // Read: cualquiera autenticado
-      allow read: if isAuthenticated();
+      allow read: if isAuthenticated() && filename.matches('logo\\.(jpg|jpeg|png|gif|webp|svg)');
 
       // Write: solo staff de franquicia o super admin
       allow write: if (belongsToFranchise(franchiseId) || isSuperAdmin())
+                   && filename.matches('logo\\.(jpg|jpeg|png|gif|webp|svg)')
                    && isValidImageType()
                    && isValidSize(2); // Max 2MB
     }

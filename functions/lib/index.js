@@ -28,7 +28,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteBarber = exports.updateBarber = exports.createBarber = exports.checkExpiredTimers = exports.cancelTicket = exports.completeTicket = exports.markArrival = exports.takeTicket = exports.advanceQueue = exports.onQueueUpdate = exports.onQueueCreate = exports.setSuperAdminHTTP = exports.setSuperAdmin = exports.updateUserRole = void 0;
+exports.expireRewardsDaily = exports.expireStampsDaily = exports.applyRewardToQueue = exports.redeemReward = exports.onQueueCompleted = exports.deleteBarber = exports.updateBarber = exports.createBarber = exports.checkExpiredTimers = exports.cancelTicket = exports.completeTicket = exports.markArrival = exports.takeTicket = exports.advanceQueue = exports.onQueueUpdate = exports.onQueueCreate = exports.setSuperAdminHTTP = exports.setSuperAdmin = exports.updateUserRole = void 0;
 const admin = __importStar(require("firebase-admin"));
 // Inicializar Firebase Admin
 admin.initializeApp();
@@ -61,6 +61,15 @@ const callable_2 = require("./barbers/callable");
 Object.defineProperty(exports, "createBarber", { enumerable: true, get: function () { return callable_2.createBarber; } });
 Object.defineProperty(exports, "updateBarber", { enumerable: true, get: function () { return callable_2.updateBarber; } });
 Object.defineProperty(exports, "deleteBarber", { enumerable: true, get: function () { return callable_2.deleteBarber; } });
+// ========================================
+// Loyalty Card System Functions
+// ========================================
+const loyalty_1 = require("./loyalty");
+Object.defineProperty(exports, "onQueueCompleted", { enumerable: true, get: function () { return loyalty_1.onQueueCompleted; } });
+Object.defineProperty(exports, "redeemReward", { enumerable: true, get: function () { return loyalty_1.redeemReward; } });
+Object.defineProperty(exports, "applyRewardToQueue", { enumerable: true, get: function () { return loyalty_1.applyRewardToQueue; } });
+Object.defineProperty(exports, "expireStampsDaily", { enumerable: true, get: function () { return loyalty_1.expireStampsDaily; } });
+Object.defineProperty(exports, "expireRewardsDaily", { enumerable: true, get: function () { return loyalty_1.expireRewardsDaily; } });
 // ========================================
 // Notifications Functions (se agregarán en Milestone 5)
 // ========================================

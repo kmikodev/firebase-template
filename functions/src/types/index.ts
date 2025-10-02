@@ -246,3 +246,171 @@ export interface QueuePenalty {
   reason: string;
   createdAt: Timestamp;
 }
+
+// ========================================
+// Loyalty Card System Types (Fidelización con Sellos)
+// ========================================
+
+export type StampStatus = 'active' | 'expired' | 'used_in_reward';
+
+export interface LoyaltyStamp {
+  stampId: string;
+  userId: string;
+  franchiseId: string;
+  branchId: string;
+
+  // Metadata de obtención
+  earnedAt: Timestamp;
+  expiresAt: Timestamp | null;
+  status: StampStatus;
+
+  // Relación con servicio
+  queueId: string;
+  serviceId: string;
+  barberId: string;
+
+  // Auditoría
+  createdBy: string; // User ID (barbero o sistema)
+  createdMethod: 'automatic' | 'manual';
+  adjustmentReason?: string; // Si fue manual
+
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+}
+
+export type RewardStatus = 'generated' | 'active' | 'in_use' | 'redeemed' | 'expired' | 'cancelled';
+
+export interface LoyaltyReward {
+  rewardId: string;
+  userId: string;
+  franchiseId: string;
+  code: string; // Código único para validar
+
+  // Estado
+  status: RewardStatus;
+
+  // Generación
+  generatedAt: Timestamp;
+  generatedFromStamps: string[]; // IDs de sellos que lo generaron
+
+  // Expiración
+  expiresAt: Timestamp | null;
+  expiredAt?: Timestamp;
+  extensionCount?: number; // Veces que se extendió
+
+  // Redención
+  redeemedAt?: Timestamp;
+  redeemedBy?: string; // Barbero ID
+  redeemedAtBranch?: string;
+  queueId?: string; // Ticket donde se usó
+
+  // Metadata del premio
+  rewardType: 'free_service';
+  serviceId: string; // Servicio gratis (ej: 'haircut')
+  value: number; // Valor monetario del premio en céntimos
+
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+}
+
+export interface LoyaltyConfig {
+  franchiseId: string;
+
+  enabled: boolean;
+  stampsRequired: number;
+
+  stampExpiration: {
+    enabled: boolean;
+    days: number; // Días hasta expiración
+  };
+
+  rewardExpiration: {
+    enabled: boolean;
+    days: number; // Días hasta expiración
+  };
+
+  eligibleServices: {
+    mode: 'all' | 'specific';
+    serviceIds: string[]; // Si mode='specific', lista de IDs
+  };
+
+  stampsPerVisit: {
+    mode: 'one_per_ticket' | 'one_per_service';
+    maxPerTicket: number; // Máximo sellos por ticket
+  };
+
+  autoApplyReward: boolean; // ¿Aplicar premio automáticamente?
+
+  notifications: {
+    onStampEarned: boolean;
+    onRewardGenerated: boolean;
+    onRewardExpiring: boolean;
+    onStampExpiring: boolean;
+    expiringDaysBefore: number; // Días antes para notificar
+  };
+
+  crossBranchRedemption: boolean; // ¿Canjear en cualquier sucursal?
+  allowStampOnFreeService: boolean; // ¿Dar sello en servicios gratuitos?
+  preventSelfStamping: boolean; // ¿Prevenir auto-sellos? (siempre true)
+
+  // Auditoría
+  updatedAt: Timestamp;
+  updatedBy: string; // User ID del admin que actualizó
+  createdAt: Timestamp;
+}
+
+export interface FranchiseLoyaltySummary {
+  stamps: number;
+  required: number;
+  percentage: number;
+}
+
+export interface LoyaltyCustomerSummary {
+  userId: string;
+
+  // Por franquicia
+  franchises: {
+    [franchiseId: string]: {
+      activeStamps: number;
+      totalStampsEarned: number;
+      totalRewardsGenerated: number;
+      totalRewardsRedeemed: number;
+      totalRewardsExpired: number;
+
+      currentProgress: FranchiseLoyaltySummary;
+
+      activeRewards: string[]; // IDs de premios activos
+
+      lastStampAt?: Timestamp;
+      lastRewardAt?: Timestamp;
+    };
+  };
+
+  // Global
+  totalStampsEarned: number;
+  totalRewardsRedeemed: number;
+
+  updatedAt: Timestamp;
+  createdAt: Timestamp;
+}
+
+// Extensión del QueueTicket para incluir información de redención
+export interface QueueTicketWithReward extends QueueTicket {
+  loyaltyReward?: {
+    rewardId: string;
+    code: string;
+    appliedAt: Timestamp;
+    appliedBy: string; // Barbero ID
+    discountAmount: number; // 100% del servicio si es gratis
+    originalPrice: number;
+    finalPrice: number; // 0 si gratis
+  };
+
+  pricingBreakdown?: {
+    subtotal: number;
+    loyaltyDiscount: number; // Descuento por premio
+    otherDiscounts: number;
+    taxes: number;
+    total: number;
+  };
+}
