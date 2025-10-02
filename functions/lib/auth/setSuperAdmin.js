@@ -32,7 +32,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.setSuperAdminHTTP = exports.setSuperAdmin = void 0;
 const admin = __importStar(require("firebase-admin"));
 const https_1 = require("firebase-functions/v2/https");
-const https_2 = require("firebase-functions/v2/https");
 const logger = __importStar(require("firebase-functions/logger"));
 /**
  * HTTP Callable function to set a user as super_admin
@@ -89,7 +88,7 @@ exports.setSuperAdmin = (0, https_1.onCall)(async (request) => {
  * Usage: POST https://us-central1-PROJECT_ID.cloudfunctions.net/setSuperAdminHTTP
  * Body: { "email": "c2developers2025@gmail.com", "secret": "YOUR_SECRET_KEY" }
  */
-exports.setSuperAdminHTTP = (0, https_2.onRequest)(async (req, res) => {
+exports.setSuperAdminHTTP = (0, https_1.onRequest)(async (req, res) => {
     // CORS
     res.set('Access-Control-Allow-Origin', '*');
     res.set('Access-Control-Allow-Methods', 'POST');

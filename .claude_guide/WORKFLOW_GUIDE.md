@@ -70,6 +70,9 @@ Todos creados:
 8. ⏳ Auditar seguridad con security-auditor
 9. ⏳ Testear flujo completo con /test-payment-flow
 10. ⏳ Documentar API de pagos
+11. ⏳ Commitear cambios con git
+12. ⏳ Deploy a staging
+13. ⏳ Deploy a producción
 
 Comenzaré con el primer todo: análisis de requisitos.
 ```
@@ -249,8 +252,9 @@ Resumen de lo implementado:
 9. Revisar seguridad (security-auditor)
 10. Documentar API (documentation-writer)
 11. Testear en dispositivos reales (qa-specialist)
-12. Deploy a staging (/deploy-staging)
-13. Deploy a producción (/deploy-production)
+12. Commitear cambios con git
+13. Deploy a staging (/deploy-staging)
+14. Deploy a producción (/deploy-production)
 ```
 
 **Ejecución paso a paso:**
@@ -265,8 +269,9 @@ Resumen de lo implementado:
 [Todo 9] > Use security-auditor agent to audit notification security
 [Todo 10] > Use documentation-writer agent to document notification API
 [Todo 11] > Use qa-specialist agent to create test plan for notifications
-[Todo 12] > /deploy-staging
-[Todo 13] > /deploy-production
+[Todo 12] git add . && git commit -m "feat: implement push notifications system"
+[Todo 13] > /deploy-staging
+[Todo 14] > /deploy-production
 ```
 
 ### 🐛 Bug Fix (Ejemplo: Payment failing on iOS)
@@ -280,7 +285,8 @@ Resumen de lo implementado:
 5. Crear test para prevenir regresión (test-writer)
 6. Revisar fix (code-reviewer)
 7. Testear en iOS device
-8. Deploy hotfix a producción
+8. Commitear fix con git
+9. Deploy hotfix a producción
 ```
 
 ### 🔄 Refactoring (Ejemplo: Optimizar Firestore queries)
@@ -294,7 +300,8 @@ Resumen de lo implementado:
 5. Crear tests (test-writer)
 6. Revisar código (code-reviewer)
 7. Testear performance en emulators
-8. Deploy gradual a producción
+8. Commitear cambios con git
+9. Deploy gradual a producción
 ```
 
 ### 💳 Feature de Pagos (CRÍTICA - proceso especial)
@@ -312,9 +319,10 @@ Resumen de lo implementado:
 9. ⚠️  Revisar código línea por línea (code-reviewer)
 10. ⚠️ Testear webhooks en staging
 11. ⚠️ Documentar (documentation-writer)
-12. ⚠️ Deploy a staging y testear 48 horas
-13. ⚠️ Segunda auditoría de seguridad
-14. ⚠️ Deploy a producción con monitoring intensivo
+12. ⚠️ Commitear cambios con git
+13. ⚠️ Deploy a staging y testear 48 horas
+14. ⚠️ Segunda auditoría de seguridad
+15. ⚠️ Deploy a producción con monitoring intensivo
 ```
 
 **REGLA ESPECIAL PARA PAGOS:**
@@ -404,9 +412,10 @@ Perfecto, voy a implementar el sistema de comentarios. Primero, déjame planific
 13. ⏳ Revisar seguridad (security-auditor)
 14. ⏳ Crear test plan manual (qa-specialist)
 15. ⏳ Documentar API (documentation-writer)
-16. ⏳ Deploy a staging (/deploy-staging)
-17. ⏳ Testing en staging
-18. ⏳ Deploy a producción (/deploy-production)
+16. ⏳ Commitear cambios con git
+17. ⏳ Deploy a staging (/deploy-staging)
+18. ⏳ Testing en staging
+19. ⏳ Deploy a producción (/deploy-production)
 
 ---
 
@@ -542,7 +551,12 @@ Implementando rate limiting...
 [Agent crea documentación]
 
 **[Todo 15 - COMPLETED]**
-**[Todo 16 - IN PROGRESS]** Desplegando a staging...
+**[Todo 16 - IN PROGRESS]** Commiteando cambios...
+
+git add . && git commit -m "feat: implement comments system with real-time updates"
+
+**[Todo 16 - COMPLETED]**
+**[Todo 17 - IN PROGRESS]** Desplegando a staging...
 
 > /deploy-staging
 
@@ -550,8 +564,8 @@ Implementando rate limiting...
 
 Deploy exitoso! URL: https://staging.myapp.com
 
-**[Todo 16 - COMPLETED]**
-**[Todo 17 - IN PROGRESS]** Testing en staging...
+**[Todo 17 - COMPLETED]**
+**[Todo 18 - IN PROGRESS]** Testing en staging...
 
 > Use the qa-specialist agent to verify the test plan in staging environment
 
@@ -564,8 +578,8 @@ Testeando:
 ✅ Moderación
 ✅ Permisos
 
-**[Todo 17 - COMPLETED]**
-**[Todo 18 - IN PROGRESS]** Desplegando a producción...
+**[Todo 18 - COMPLETED]**
+**[Todo 19 - IN PROGRESS]** Desplegando a producción...
 
 > /deploy-production
 
@@ -578,11 +592,11 @@ Monitoreando logs...
 ✅ Analytics normal
 ✅ Comments funcionando correctamente
 
-**[Todo 18 - COMPLETED]**
+**[Todo 19 - COMPLETED]**
 
 ---
 
-## ✅ FEATURE COMPLETADA (18/18)
+## ✅ FEATURE COMPLETADA (19/19)
 
 **Resumen:**
 - ✅ Sistema de comentarios implementado

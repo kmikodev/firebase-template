@@ -21,83 +21,83 @@ const db = admin.firestore();
 export const advanceQueue = onCall({
   region: config.region,
 }, async (request) => {
-    // Check authentication
-    if (!request.auth) {
-      throw new HttpsError(
-        'unauthenticated',
-        'User must be authenticated to advance queue'
-      );
+  // Check authentication
+  if (!request.auth) {
+    throw new HttpsError(
+      'unauthenticated',
+      'User must be authenticated to advance queue'
+    );
+  }
+
+  const { branchId, barberId } = request.data;
+
+  // Validate required parameters
+  if (!branchId) {
+    throw new HttpsError(
+      'invalid-argument',
+      'branchId is required'
+    );
+  }
+
+  try {
+    logger.info('Advancing queue', {
+      branchId,
+      barberId,
+      userId: request.auth.uid,
+    });
+
+    // Get next ticket in queue (status = 'arrived' or 'waiting')
+    const nextTicketSnapshot = await db
+      .collection('queues')
+      .where('branchId', '==', branchId)
+      .where('status', 'in', ['arrived', 'waiting'])
+      .orderBy('position', 'asc')
+      .limit(1)
+      .get();
+
+    if (nextTicketSnapshot.empty) {
+      logger.info('No tickets in queue', { branchId });
+      return {
+        success: false,
+        message: 'No hay clientes en cola',
+      };
     }
 
-    const { branchId, barberId } = request.data;
+    const nextTicketDoc = nextTicketSnapshot.docs[0];
+    const nextTicket = nextTicketDoc.data();
 
-    // Validate required parameters
-    if (!branchId) {
-      throw new HttpsError(
-        'invalid-argument',
-        'branchId is required'
-      );
-    }
+    // Update ticket to 'notified' status
+    // The onQueueUpdate trigger will handle starting the 5-min timer
+    await nextTicketDoc.ref.update({
+      status: 'notified',
+      barberId: barberId || nextTicket.barberId,
+      notifiedAt: admin.firestore.FieldValue.serverTimestamp(),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
 
-    try {
-      logger.info('Advancing queue', {
-        branchId,
-        barberId,
-        userId: request.auth.uid,
-      });
+    logger.info('Queue advanced successfully', {
+      queueId: nextTicketDoc.id,
+      ticketNumber: nextTicket.ticketNumber,
+      userId: nextTicket.userId,
+    });
 
-      // Get next ticket in queue (status = 'arrived' or 'waiting')
-      const nextTicketSnapshot = await db
-        .collection('queues')
-        .where('branchId', '==', branchId)
-        .where('status', 'in', ['arrived', 'waiting'])
-        .orderBy('position', 'asc')
-        .limit(1)
-        .get();
-
-      if (nextTicketSnapshot.empty) {
-        logger.info('No tickets in queue', { branchId });
-        return {
-          success: false,
-          message: 'No hay clientes en cola',
-        };
-      }
-
-      const nextTicketDoc = nextTicketSnapshot.docs[0];
-      const nextTicket = nextTicketDoc.data();
-
-      // Update ticket to 'notified' status
-      // The onQueueUpdate trigger will handle starting the 5-min timer
-      await nextTicketDoc.ref.update({
-        status: 'notified',
-        barberId: barberId || nextTicket.barberId,
-        notifiedAt: admin.firestore.FieldValue.serverTimestamp(),
-        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-      });
-
-      logger.info('Queue advanced successfully', {
+    return {
+      success: true,
+      ticket: {
         queueId: nextTicketDoc.id,
         ticketNumber: nextTicket.ticketNumber,
         userId: nextTicket.userId,
-      });
-
-      return {
-        success: true,
-        ticket: {
-          queueId: nextTicketDoc.id,
-          ticketNumber: nextTicket.ticketNumber,
-          userId: nextTicket.userId,
-          position: nextTicket.position,
-        },
-      };
-    } catch (error) {
-      logger.error('Error advancing queue:', error);
-      throw new HttpsError(
-        'internal',
-        'Failed to advance queue'
-      );
-    }
-  });
+        position: nextTicket.position,
+      },
+    };
+  } catch (error) {
+    logger.error('Error advancing queue:', error);
+    throw new HttpsError(
+      'internal',
+      'Failed to advance queue'
+    );
+  }
+});
 
 /**
  * Take ticket - Client takes a queue ticket
@@ -115,150 +115,150 @@ export const advanceQueue = onCall({
 export const takeTicket = onCall({
   region: config.region,
 }, async (request) => {
-    // Check authentication
-    if (!request.auth) {
+  // Check authentication
+  if (!request.auth) {
+    throw new HttpsError(
+      'unauthenticated',
+      'User must be authenticated to take a ticket'
+    );
+  }
+
+  const { branchId, serviceId, barberId } = request.data;
+  const userId = request.auth.uid;
+
+  // Validate required parameters
+  if (!branchId) {
+    throw new HttpsError(
+      'invalid-argument',
+      'branchId is required'
+    );
+  }
+
+  try {
+    logger.info('Taking ticket', {
+      userId,
+      branchId,
+      serviceId,
+      barberId,
+    });
+
+    // Check if user already has an active ticket at this branch
+    const existingTicketSnapshot = await db
+      .collection('queues')
+      .where('userId', '==', userId)
+      .where('branchId', '==', branchId)
+      .where('status', 'in', ['waiting', 'notified', 'arrived', 'in_service'])
+      .get();
+
+    if (!existingTicketSnapshot.empty) {
       throw new HttpsError(
-        'unauthenticated',
-        'User must be authenticated to take a ticket'
+        'already-exists',
+        'Ya tienes un turno activo en esta sucursal'
       );
     }
 
-    const { branchId, serviceId, barberId } = request.data;
-    const userId = request.auth.uid;
-
-    // Validate required parameters
-    if (!branchId) {
+    // Check user points
+    const userDoc = await db.collection('users').doc(userId).get();
+    if (!userDoc.exists) {
       throw new HttpsError(
-        'invalid-argument',
-        'branchId is required'
+        'not-found',
+        'User not found'
       );
     }
 
-    try {
-      logger.info('Taking ticket', {
-        userId,
-        branchId,
-        serviceId,
-        barberId,
-      });
+    const userData = userDoc.data();
+    const queuePoints = userData?.queuePoints || 0;
 
-      // Check if user already has an active ticket at this branch
-      const existingTicketSnapshot = await db
-        .collection('queues')
-        .where('userId', '==', userId)
-        .where('branchId', '==', branchId)
-        .where('status', 'in', ['waiting', 'notified', 'arrived', 'in_service'])
-        .get();
-
-      if (!existingTicketSnapshot.empty) {
-        throw new HttpsError(
-          'already-exists',
-          'Ya tienes un turno activo en esta sucursal'
-        );
-      }
-
-      // Check user points
-      const userDoc = await db.collection('users').doc(userId).get();
-      if (!userDoc.exists) {
-        throw new HttpsError(
-          'not-found',
-          'User not found'
-        );
-      }
-
-      const userData = userDoc.data();
-      const queuePoints = userData?.queuePoints || 0;
-
-      if (queuePoints < 0) {
-        throw new HttpsError(
-          'permission-denied',
-          `No puedes sacar turno con puntos negativos (${queuePoints}). Completa turnos para recuperar puntos.`
-        );
-      }
-
-      // Check queue capacity (max 2 tickets ahead)
-      const activeTicketsSnapshot = await db
-        .collection('queues')
-        .where('branchId', '==', branchId)
-        .where('status', 'in', ['waiting', 'notified', 'arrived', 'in_service'])
-        .orderBy('position', 'asc')
-        .get();
-
-      const MAX_ADVANCE_TICKETS = 2;
-      const activeCount = activeTicketsSnapshot.size;
-
-      // Find current serving number (lowest position in in_service or first in queue)
-      let currentNumber = 1;
-      if (!activeTicketsSnapshot.empty) {
-        const inServiceTickets = activeTicketsSnapshot.docs.filter(
-          doc => doc.data().status === 'in_service'
-        );
-        if (inServiceTickets.length > 0) {
-          currentNumber = inServiceTickets[0].data().position;
-        }
-      }
-
-      // Next number would be activeCount + 1
-      const nextNumber = activeCount + 1;
-
-      if (nextNumber - currentNumber > MAX_ADVANCE_TICKETS) {
-        throw new HttpsError(
-          'resource-exhausted',
-          `Cola llena. Máximo ${MAX_ADVANCE_TICKETS} turnos de anticipación permitidos.`
-        );
-      }
-
-      // Create new ticket
-      const ticketRef = db.collection('queues').doc();
-      const ticketData = {
-        queueId: ticketRef.id,
-        userId,
-        branchId,
-        serviceId: serviceId || null,
-        barberId: barberId || null,
-        status: 'waiting',
-        position: nextNumber, // Will be recalculated by onQueueCreate trigger
-        ticketNumber: null, // Will be generated by onQueueCreate trigger
-        timerExpiry: null, // Will be set by onQueueCreate trigger
-        estimatedWaitTime: 0, // Will be calculated by onQueueCreate trigger
-        createdAt: admin.firestore.FieldValue.serverTimestamp(),
-        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-      };
-
-      await ticketRef.set(ticketData);
-
-      logger.info('Ticket created successfully', {
-        queueId: ticketRef.id,
-        userId,
-        position: nextNumber,
-      });
-
-      // The onQueueCreate trigger will handle:
-      // - Calculating exact position
-      // - Generating ticket number
-      // - Starting 10-minute timer
-      // - Sending confirmation notification
-
-      return {
-        success: true,
-        queueId: ticketRef.id,
-        position: nextNumber,
-        message: 'Turno creado exitosamente',
-      };
-    } catch (error) {
-      logger.error('Error taking ticket:', error);
-
-      // Re-throw HttpsError to preserve status code
-      if (error instanceof HttpsError) {
-        throw error;
-      }
-
+    if (queuePoints < 0) {
       throw new HttpsError(
-        'internal',
-        'Failed to create ticket'
+        'permission-denied',
+        `No puedes sacar turno con puntos negativos (${queuePoints}). Completa turnos para recuperar puntos.`
       );
     }
-  });
+
+    // Check queue capacity (max 2 tickets ahead)
+    const activeTicketsSnapshot = await db
+      .collection('queues')
+      .where('branchId', '==', branchId)
+      .where('status', 'in', ['waiting', 'notified', 'arrived', 'in_service'])
+      .orderBy('position', 'asc')
+      .get();
+
+    const MAX_ADVANCE_TICKETS = 2;
+    const activeCount = activeTicketsSnapshot.size;
+
+    // Find current serving number (lowest position in in_service or first in queue)
+    let currentNumber = 1;
+    if (!activeTicketsSnapshot.empty) {
+      const inServiceTickets = activeTicketsSnapshot.docs.filter(
+        doc => doc.data().status === 'in_service'
+      );
+      if (inServiceTickets.length > 0) {
+        currentNumber = inServiceTickets[0].data().position;
+      }
+    }
+
+    // Next number would be activeCount + 1
+    const nextNumber = activeCount + 1;
+
+    if (nextNumber - currentNumber > MAX_ADVANCE_TICKETS) {
+      throw new HttpsError(
+        'resource-exhausted',
+        `Cola llena. Máximo ${MAX_ADVANCE_TICKETS} turnos de anticipación permitidos.`
+      );
+    }
+
+    // Create new ticket
+    const ticketRef = db.collection('queues').doc();
+    const ticketData = {
+      queueId: ticketRef.id,
+      userId,
+      branchId,
+      serviceId: serviceId || null,
+      barberId: barberId || null,
+      status: 'waiting',
+      position: nextNumber, // Will be recalculated by onQueueCreate trigger
+      ticketNumber: null, // Will be generated by onQueueCreate trigger
+      timerExpiry: null, // Will be set by onQueueCreate trigger
+      estimatedWaitTime: 0, // Will be calculated by onQueueCreate trigger
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    };
+
+    await ticketRef.set(ticketData);
+
+    logger.info('Ticket created successfully', {
+      queueId: ticketRef.id,
+      userId,
+      position: nextNumber,
+    });
+
+    // The onQueueCreate trigger will handle:
+    // - Calculating exact position
+    // - Generating ticket number
+    // - Starting 10-minute timer
+    // - Sending confirmation notification
+
+    return {
+      success: true,
+      queueId: ticketRef.id,
+      position: nextNumber,
+      message: 'Turno creado exitosamente',
+    };
+  } catch (error) {
+    logger.error('Error taking ticket:', error);
+
+    // Re-throw HttpsError to preserve status code
+    if (error instanceof HttpsError) {
+      throw error;
+    }
+
+    throw new HttpsError(
+      'internal',
+      'Failed to create ticket'
+    );
+  }
+});
 
 /**
  * Mark arrival - Client marks arrival at the branch
@@ -269,79 +269,79 @@ export const takeTicket = onCall({
 export const markArrival = onCall({
   region: config.region,
 }, async (request) => {
-    // Check authentication
-    if (!request.auth) {
+  // Check authentication
+  if (!request.auth) {
+    throw new HttpsError(
+      'unauthenticated',
+      'User must be authenticated'
+    );
+  }
+
+  const { queueId } = request.data;
+  const userId = request.auth.uid;
+
+  if (!queueId) {
+    throw new HttpsError(
+      'invalid-argument',
+      'queueId is required'
+    );
+  }
+
+  try {
+    const ticketDoc = await db.collection('queues').doc(queueId).get();
+
+    if (!ticketDoc.exists) {
       throw new HttpsError(
-        'unauthenticated',
-        'User must be authenticated'
+        'not-found',
+        'Ticket not found'
       );
     }
 
-    const { queueId } = request.data;
-    const userId = request.auth.uid;
+    const ticket = ticketDoc.data();
 
-    if (!queueId) {
+    // Verify ownership
+    if (ticket?.userId !== userId) {
       throw new HttpsError(
-        'invalid-argument',
-        'queueId is required'
+        'permission-denied',
+        'Not authorized to update this ticket'
       );
     }
 
-    try {
-      const ticketDoc = await db.collection('queues').doc(queueId).get();
-
-      if (!ticketDoc.exists) {
-        throw new HttpsError(
-          'not-found',
-          'Ticket not found'
-        );
-      }
-
-      const ticket = ticketDoc.data();
-
-      // Verify ownership
-      if (ticket?.userId !== userId) {
-        throw new HttpsError(
-          'permission-denied',
-          'Not authorized to update this ticket'
-        );
-      }
-
-      // Can only mark arrival if status is 'waiting'
-      if (ticket?.status !== 'waiting') {
-        throw new HttpsError(
-          'failed-precondition',
-          `Cannot mark arrival from status: ${ticket?.status}`
-        );
-      }
-
-      // Update to 'arrived' status
-      // The onQueueUpdate trigger will handle stopping the timer
-      await ticketDoc.ref.update({
-        status: 'arrived',
-        arrivedAt: admin.firestore.FieldValue.serverTimestamp(),
-        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-      });
-
-      logger.info('Arrival marked successfully', {
-        queueId,
-        userId,
-      });
-
-      return {
-        success: true,
-        message: 'Llegada confirmada',
-      };
-    } catch (error) {
-      logger.error('Error marking arrival:', error);
-
-      if (error instanceof HttpsError) {
-        throw error;
-      }
-
+    // Can only mark arrival if status is 'waiting'
+    if (ticket?.status !== 'waiting') {
       throw new HttpsError(
-        'internal',
-        'Failed to mark arrival'
+        'failed-precondition',
+        `Cannot mark arrival from status: ${ticket?.status}`
       );
     }
-  });
+
+    // Update to 'arrived' status
+    // The onQueueUpdate trigger will handle stopping the timer
+    await ticketDoc.ref.update({
+      status: 'arrived',
+      arrivedAt: admin.firestore.FieldValue.serverTimestamp(),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    logger.info('Arrival marked successfully', {
+      queueId,
+      userId,
+    });
+
+    return {
+      success: true,
+      message: 'Llegada confirmada',
+    };
+  } catch (error) {
+    logger.error('Error marking arrival:', error);
+
+    if (error instanceof HttpsError) {
+      throw error;
+    }
+
+    throw new HttpsError(
+      'internal',
+      'Failed to mark arrival'
+    );
+  }
+});

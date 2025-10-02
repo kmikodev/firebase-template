@@ -25,113 +25,113 @@ export const checkExpiredTimers = onSchedule({
   region: config.region,
   timeZone: 'America/Argentina/Buenos_Aires',
 }, async () => {
-    const now = admin.firestore.Timestamp.now();
+  const now = admin.firestore.Timestamp.now();
 
-    try {
-      logger.info('Checking for expired timers...', { timestamp: now.toMillis() });
+  try {
+    logger.info('Checking for expired timers...', { timestamp: now.toMillis() });
 
-      // Query tickets with expired timers
-      const expiredTicketsSnapshot = await db
-        .collection('queues')
-        .where('status', 'in', ['waiting', 'notified'])
-        .where('timerExpiry', '<=', now)
-        .get();
+    // Query tickets with expired timers
+    const expiredTicketsSnapshot = await db
+      .collection('queues')
+      .where('status', 'in', ['waiting', 'notified'])
+      .where('timerExpiry', '<=', now)
+      .get();
 
-      if (expiredTicketsSnapshot.empty) {
-        logger.info('No expired tickets found');
-        return;
-      }
+    if (expiredTicketsSnapshot.empty) {
+      logger.info('No expired tickets found');
+      return;
+    }
 
-      logger.info(`Found ${expiredTicketsSnapshot.size} expired tickets`);
+    logger.info(`Found ${expiredTicketsSnapshot.size} expired tickets`);
 
-      const batch = db.batch();
-      const pointsUpdates: Array<{userId: string; points: number; reason: string; queueId: string}> = [];
+    const batch = db.batch();
+    const pointsUpdates: Array<{userId: string; points: number; reason: string; queueId: string}> = [];
 
-      for (const doc of expiredTicketsSnapshot.docs) {
-        const ticket = doc.data();
-        const queueId = doc.id;
+    for (const doc of expiredTicketsSnapshot.docs) {
+      const ticket = doc.data();
+      const queueId = doc.id;
 
-        logger.info(`Processing expired ticket: ${queueId}`, {
-          status: ticket.status,
-          userId: ticket.userId,
-          ticketNumber: ticket.ticketNumber,
-        });
-
-        // Determine penalty based on status
-        let penalty = 0;
-        let reason = '';
-
-        if (ticket.status === 'waiting') {
-          // Client didn't arrive within 10 minutes
-          penalty = -10;
-          reason = 'no_arrival';
-          logger.warn(`Client ${ticket.userId} did not arrive - 10 points penalty`, { queueId });
-        } else if (ticket.status === 'notified') {
-          // Client didn't present within 5 minutes after being called
-          penalty = -15;
-          reason = 'no_show';
-          logger.warn(`Client ${ticket.userId} did not show up - 15 points penalty`, { queueId });
-        }
-
-        // Update ticket status to expired
-        batch.update(doc.ref, {
-          status: 'expired',
-          expiredAt: admin.firestore.FieldValue.serverTimestamp(),
-          timerExpiry: null,
-          penaltyApplied: penalty,
-          penaltyReason: reason,
-          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-        });
-
-        // Queue points update (will be processed after batch commit)
-        pointsUpdates.push({
-          userId: ticket.userId,
-          points: penalty,
-          reason,
-          queueId,
-        });
-
-        // TODO: Send expiration notification
-        // await sendExpirationNotification(ticket.userId, { ticketNumber: ticket.ticketNumber, penalty, reason });
-      }
-
-      // Commit batch updates
-      await batch.commit();
-      logger.info(`Batch updated ${expiredTicketsSnapshot.size} expired tickets`);
-
-      // Update user points (must be done outside batch due to transactions)
-      for (const update of pointsUpdates) {
-        try {
-          await updateUserPoints(update.userId, update.points, update.reason, update.queueId);
-        } catch (error) {
-          logger.error(`Failed to update points for user ${update.userId}`, error);
-        }
-      }
-
-      // Reorder queue positions for affected branches
-      const affectedBranches = new Set(
-        expiredTicketsSnapshot.docs.map(doc => doc.data().branchId)
-      );
-
-      for (const branchId of affectedBranches) {
-        try {
-          await reorderQueuePositions(branchId);
-        } catch (error) {
-          logger.error(`Failed to reorder queue for branch ${branchId}`, error);
-        }
-      }
-
-      logger.info('checkExpiredTimers completed successfully', {
-        expiredCount: expiredTicketsSnapshot.size,
-        affectedBranches: affectedBranches.size,
+      logger.info(`Processing expired ticket: ${queueId}`, {
+        status: ticket.status,
+        userId: ticket.userId,
+        ticketNumber: ticket.ticketNumber,
       });
 
-      return;
-    } catch (error) {
-      logger.error('Error in checkExpiredTimers:', error);
-      throw error;
+      // Determine penalty based on status
+      let penalty = 0;
+      let reason = '';
+
+      if (ticket.status === 'waiting') {
+        // Client didn't arrive within 10 minutes
+        penalty = -10;
+        reason = 'no_arrival';
+        logger.warn(`Client ${ticket.userId} did not arrive - 10 points penalty`, { queueId });
+      } else if (ticket.status === 'notified') {
+        // Client didn't present within 5 minutes after being called
+        penalty = -15;
+        reason = 'no_show';
+        logger.warn(`Client ${ticket.userId} did not show up - 15 points penalty`, { queueId });
+      }
+
+      // Update ticket status to expired
+      batch.update(doc.ref, {
+        status: 'expired',
+        expiredAt: admin.firestore.FieldValue.serverTimestamp(),
+        timerExpiry: null,
+        penaltyApplied: penalty,
+        penaltyReason: reason,
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+
+      // Queue points update (will be processed after batch commit)
+      pointsUpdates.push({
+        userId: ticket.userId,
+        points: penalty,
+        reason,
+        queueId,
+      });
+
+      // TODO: Send expiration notification
+      // await sendExpirationNotification(ticket.userId, { ticketNumber: ticket.ticketNumber, penalty, reason });
     }
-  });
+
+    // Commit batch updates
+    await batch.commit();
+    logger.info(`Batch updated ${expiredTicketsSnapshot.size} expired tickets`);
+
+    // Update user points (must be done outside batch due to transactions)
+    for (const update of pointsUpdates) {
+      try {
+        await updateUserPoints(update.userId, update.points, update.reason, update.queueId);
+      } catch (error) {
+        logger.error(`Failed to update points for user ${update.userId}`, error);
+      }
+    }
+
+    // Reorder queue positions for affected branches
+    const affectedBranches = new Set(
+      expiredTicketsSnapshot.docs.map(doc => doc.data().branchId)
+    );
+
+    for (const branchId of affectedBranches) {
+      try {
+        await reorderQueuePositions(branchId);
+      } catch (error) {
+        logger.error(`Failed to reorder queue for branch ${branchId}`, error);
+      }
+    }
+
+    logger.info('checkExpiredTimers completed successfully', {
+      expiredCount: expiredTicketsSnapshot.size,
+      affectedBranches: affectedBranches.size,
+    });
+
+    return;
+  } catch (error) {
+    logger.error('Error in checkExpiredTimers:', error);
+    throw error;
+  }
+});
 
 /**
  * Update user loyalty points (transaction)

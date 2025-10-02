@@ -262,9 +262,10 @@ TodoWrite:
 7. security-auditor → Audit (if sensitive)
 8. qa-specialist → Create test plan
 9. documentation-writer → Document
-10. /deploy-staging
-11. Manual testing
-12. /deploy-production
+10. git commit → Commit changes
+11. /deploy-staging
+12. Manual testing
+13. /deploy-production
 ```
 
 ### Payment Feature Workflow (CRITICAL)
@@ -281,11 +282,13 @@ TodoWrite:
 8. code-reviewer → Second review
 9. security-auditor → Second audit
 10. qa-specialist → Manual testing
-11. /deploy-staging
-12. [Test in staging 48h minimum]
-13. security-auditor → Third audit in staging
-14. /deploy-production
-15. [Monitor intensively 24h]
+11. documentation-writer → Document
+12. git commit → Commit changes
+13. /deploy-staging
+14. [Test in staging 48h minimum]
+15. security-auditor → Third audit in staging
+16. /deploy-production
+17. [Monitor intensively 24h]
 
 NEVER skip steps for payments.
 ```
@@ -299,10 +302,11 @@ TodoWrite:
 3. [Implement fix]
 4. test-writer → Regression test
 5. code-reviewer → Review fix
-6. /deploy-staging
-7. Verify fix
-8. /deploy-production
-9. Monitor
+6. git commit → Commit fix
+7. /deploy-staging
+8. Verify fix
+9. /deploy-production
+10. Monitor
 ```
 
 **See:** [.claude_guide/EXAMPLE_WORKFLOWS.md](.claude_guide/EXAMPLE_WORKFLOWS.md) for complete real-world examples
@@ -350,6 +354,7 @@ Enhance capabilities with MCP servers:
 ### Before Staging Deploy
 
 - [ ] Commit checklist ↑ completed
+- [ ] All changes committed to git
 - [ ] Security audit if auth/payments/sensitive data
 - [ ] Documentation updated
 - [ ] `/security-audit` passed

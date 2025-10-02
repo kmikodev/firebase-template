@@ -42,13 +42,14 @@ NUEVA FEATURE:                BUG FIX:
 3. tech-researcher (si hay    3. [implementar fix]
    decisiones técnicas)       4. test-writer (regression)
 4. [implementar]              5. code-reviewer
-5. test-writer                6. [deploy]
-6. code-reviewer
+5. test-writer                6. git commit
+6. code-reviewer              7. [deploy]
 7. security-auditor (si
    toca pagos/auth/data)
 8. qa-specialist
 9. documentation-writer
-10. [deploy]
+10. git commit
+11. [deploy]
 ```
 
 ### ¿Es una feature de PAGOS?
@@ -69,11 +70,13 @@ SI ES PAGOS:
 8. code-reviewer (segunda revisión)
 9. security-auditor (SEGUNDA auditoría)
 10. qa-specialist (test plan manual)
-11. /deploy-staging
-12. [testear en staging 48h mínimo]
-13. security-auditor (tercera auditoría en staging)
-14. /deploy-production
-15. [monitoring intensivo 24h]
+11. documentation-writer (documentar API)
+12. Commitear cambios con git
+13. /deploy-staging
+14. [testear en staging 48h mínimo]
+15. security-auditor (tercera auditoría en staging)
+16. /deploy-production
+17. [monitoring intensivo 24h]
 
 NO SE PUEDE SALTAR NINGÚN PASO.
 ```
@@ -91,12 +94,14 @@ NO SE PUEDE SALTAR NINGÚN PASO.
 - [ ] Linting pasando (npm run lint)
 - [ ] No console.log en código de producción
 - [ ] No secrets expuestos
+- [ ] Documentación actualizada si es necesario
 ```
 
 ### Antes de Deploy a Staging:
 
 ```markdown
 - [ ] Checklist de commits completado ↑
+- [ ] Cambios commiteados a git
 - [ ] Security audit si toca auth/pagos/data (security-auditor)
 - [ ] Documentación actualizada (documentation-writer)
 - [ ] Variables de entorno configuradas
