@@ -3,6 +3,7 @@
  */
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useFranchise } from '@/contexts/FranchiseContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { Franchise } from '@/types';
@@ -12,6 +13,7 @@ import { LoadingState } from '@/components/shared/LoadingState';
 export default function FranchiseFormPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { getFranchise, createFranchise, updateFranchise } = useFranchise();
   const [franchise, setFranchise] = useState<Franchise | null>(null);
@@ -59,7 +61,7 @@ export default function FranchiseFormPage() {
   };
 
   if (loading) {
-    return <LoadingState message="Loading franchise..." />;
+    return <LoadingState message={t('franchises.loading.franchise')} />;
   }
 
   return (

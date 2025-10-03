@@ -364,6 +364,78 @@
     "es": "Español",
     "en": "English"
   },
+  "franchises": {
+    "title": "Franquicias",
+    "subtitle": "Gestiona tu red de franquicias",
+    "add": "Nueva Franquicia",
+    "edit": "Editar Franquicia",
+    "delete": "Eliminar Franquicia",
+    "details": "Detalles de Franquicia",
+    "form": {
+      "logo": "Logo",
+      "name": "Nombre",
+      "namePlaceholder": "Nombre de la franquicia",
+      "description": "Descripción",
+      "descriptionPlaceholder": "Breve descripción de la franquicia",
+      "email": "Correo Electrónico",
+      "emailPlaceholder": "franquicia@ejemplo.com",
+      "phone": "Teléfono",
+      "phonePlaceholder": "+34 123 456 789",
+      "website": "Sitio Web",
+      "websitePlaceholder": "https://ejemplo.com",
+      "planTier": "Nivel de Plan",
+      "isActive": "Activo",
+      "createButton": "Crear Franquicia",
+      "updateButton": "Actualizar Franquicia"
+    },
+    "table": {
+      "logo": "Logo",
+      "name": "Nombre",
+      "contact": "Contacto",
+      "plan": "Plan",
+      "status": "Estado",
+      "actions": "Acciones"
+    },
+    "planTiers": {
+      "free": "Gratis",
+      "basic": "Básico",
+      "premium": "Premium",
+      "enterprise": "Empresarial"
+    },
+    "filters": {
+      "planTier": "Nivel de Plan",
+      "status": "Estado"
+    },
+    "sort": {
+      "name": "Nombre",
+      "email": "Correo Electrónico",
+      "planTier": "Nivel de Plan",
+      "createdAt": "Fecha de Creación"
+    },
+    "search": {
+      "placeholder": "Buscar franquicias por nombre o email..."
+    },
+    "empty": {
+      "title": "No se encontraron franquicias",
+      "noResults": "No hay franquicias que coincidan con tu búsqueda o filtros. Intenta ajustar tus criterios.",
+      "noFranchises": "Comienza creando tu primera franquicia.",
+      "action": "Crear Franquicia"
+    },
+    "count": {
+      "total": "{{count}} franquicia en total",
+      "total_plural": "{{count}} franquicias en total"
+    },
+    "confirmDelete": {
+      "title": "Eliminar Franquicia",
+      "message": "¿Está seguro de que desea eliminar esta franquicia? Esta acción no se puede deshacer y también eliminará todas las sucursales, barberos y servicios asociados.",
+      "confirm": "Eliminar"
+    },
+    "loading": {
+      "franchises": "Cargando franquicias...",
+      "franchise": "Cargando franquicia..."
+    },
+    "uploading": "Subiendo logo..."
+  },
   "home": {
     "hero": {
       "title": "BarberApp",

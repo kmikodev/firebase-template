@@ -1,31 +1,6 @@
 {
   "tasks": [
     {
-      "id": "I18N_001",
-      "description": "Translate Home page (/)",
-      "prompt": "Review and translate the Home page (/) to Spanish and English using i18next. Verify all text strings use the t() function. Test language switching works correctly. Verify dark/light mode displays correctly on both languages.",
-      "critical": true,
-      "retries": 2,
-      "timeout": 180000
-    },
-    {
-      "id": "I18N_002",
-      "description": "Translate Login page (/login)",
-      "prompt": "Review and translate the Login page (/login) to Spanish and English using i18next. Include form labels, placeholders, validation messages, and buttons. Test language switching and dark/light mode.",
-      "critical": true,
-      "retries": 2,
-      "timeout": 180000
-    },
-    {
-      "id": "I18N_003",
-      "description": "Translate Dashboard page (/dashboard)",
-      "prompt": "Complete i18next translation for Dashboard page (/dashboard). Translate QuickActions component buttons. Verify all sections (greeting, stats, barbers, branches, services, offers) display correctly in both languages. Test dark/light mode compatibility.",
-      "dependencies": ["I18N_001", "I18N_002"],
-      "critical": true,
-      "retries": 2,
-      "timeout": 180000
-    },
-    {
       "id": "I18N_004",
       "description": "Translate Franchises pages (/franchises, /franchises/new, /franchises/:id/edit)",
       "prompt": "Review and translate all Franchise-related pages to Spanish and English. Include list view, create form, and edit form. Translate table headers, form labels, buttons, validation messages, and empty states. Test language switching and dark/light mode.",

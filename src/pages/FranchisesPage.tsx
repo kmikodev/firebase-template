@@ -3,6 +3,7 @@
  */
 import { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useFranchise } from '@/contexts/FranchiseContext';
 import { FranchiseCard } from '@/components/franchises/FranchiseCard';
 import { FranchiseListView } from '@/components/franchises/FranchiseListView';
@@ -22,6 +23,7 @@ const ITEMS_PER_PAGE = 9;
 
 export default function FranchisesPage() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { franchises, loading, deleteFranchise, refreshFranchises } = useFranchise();
   const [searchQuery, setSearchQuery] = useState('');
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -38,29 +40,29 @@ export default function FranchisesPage() {
   const filterConfigs: FilterConfig[] = [
     {
       key: 'planTier',
-      label: 'Plan Tier',
+      label: t('franchises.filters.planTier'),
       options: [
-        { value: 'free', label: 'Free' },
-        { value: 'basic', label: 'Basic' },
-        { value: 'premium', label: 'Premium' },
-        { value: 'enterprise', label: 'Enterprise' },
+        { value: 'free', label: t('franchises.planTiers.free') },
+        { value: 'basic', label: t('franchises.planTiers.basic') },
+        { value: 'premium', label: t('franchises.planTiers.premium') },
+        { value: 'enterprise', label: t('franchises.planTiers.enterprise') },
       ],
     },
     {
       key: 'isActive',
-      label: 'Status',
+      label: t('franchises.filters.status'),
       options: [
-        { value: 'true', label: 'Active' },
-        { value: 'false', label: 'Inactive' },
+        { value: 'true', label: t('common.active') },
+        { value: 'false', label: t('common.inactive') },
       ],
     },
   ];
 
   const sortOptions: SortOption[] = [
-    { value: 'name', label: 'Name' },
-    { value: 'email', label: 'Email' },
-    { value: 'planTier', label: 'Plan Tier' },
-    { value: 'createdAt', label: 'Date Created' },
+    { value: 'name', label: t('franchises.sort.name') },
+    { value: 'email', label: t('franchises.sort.email') },
+    { value: 'planTier', label: t('franchises.sort.planTier') },
+    { value: 'createdAt', label: t('franchises.sort.createdAt') },
   ];
 
   const filteredFranchises = useMemo(() => {
@@ -132,27 +134,27 @@ export default function FranchisesPage() {
   };
 
   if (loading) {
-    return <LoadingState message="Loading franchises..." variant="skeleton" />;
+    return <LoadingState message={t('franchises.loading.franchises')} variant="skeleton" />;
   }
 
   return (
     <div className="container mx-auto p-6">
       {/* Breadcrumbs */}
-      <Breadcrumbs items={[{ label: 'Franchises' }]} />
+      <Breadcrumbs items={[{ label: t('franchises.title') }]} />
 
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Franchises</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{t('franchises.title')}</h1>
           <p className="text-gray-600 dark:text-gray-400 mt-1">
-            {filteredFranchises?.length || 0} total {filteredFranchises?.length === 1 ? 'franchise' : 'franchises'}
+            {t('franchises.count.total', { count: filteredFranchises?.length || 0 })}
           </p>
         </div>
         <div className="flex items-center gap-3">
           <ExportButton data={filteredFranchises || []} filename="franchises" />
           <ViewToggle view={viewMode} onChange={setViewMode} />
           <Button onClick={() => navigate('/franchises/new')}>
-            + New Franchise
+            + {t('franchises.add')}
           </Button>
         </div>
       </div>
@@ -162,7 +164,7 @@ export default function FranchisesPage() {
         <SearchBar
           value={searchQuery}
           onChange={handleSearchChange}
-          placeholder="Search franchises by name or email..."
+          placeholder={t('franchises.search.placeholder')}
         />
       </div>
 
@@ -186,11 +188,11 @@ export default function FranchisesPage() {
       {!paginatedFranchises || paginatedFranchises.length === 0 ? (
         <EmptyState
           icon="🏢"
-          title="No franchises found"
+          title={t('franchises.empty.title')}
           message={searchQuery || Object.keys(activeFilters).length > 0
-            ? "No franchises match your search or filters. Try adjusting your criteria."
-            : "Get started by creating your first franchise."}
-          actionLabel="Create Franchise"
+            ? t('franchises.empty.noResults')
+            : t('franchises.empty.noFranchises')}
+          actionLabel={t('franchises.empty.action')}
           onAction={() => navigate('/franchises/new')}
         />
       ) : (
@@ -230,10 +232,10 @@ export default function FranchisesPage() {
 
       <ConfirmDialog
         open={!!deleteId}
-        title="Delete Franchise"
-        message="Are you sure you want to delete this franchise? This action cannot be undone and will also delete all associated branches, barbers, and services."
+        title={t('franchises.confirmDelete.title')}
+        message={t('franchises.confirmDelete.message')}
         variant="danger"
-        confirmLabel="Delete"
+        confirmLabel={t('franchises.confirmDelete.confirm')}
         onConfirm={handleDelete}
         onClose={() => setDeleteId(null)}
       />

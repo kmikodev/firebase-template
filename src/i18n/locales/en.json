@@ -364,6 +364,78 @@
     "es": "Español",
     "en": "English"
   },
+  "franchises": {
+    "title": "Franchises",
+    "subtitle": "Manage your franchise network",
+    "add": "New Franchise",
+    "edit": "Edit Franchise",
+    "delete": "Delete Franchise",
+    "details": "Franchise Details",
+    "form": {
+      "logo": "Logo",
+      "name": "Name",
+      "namePlaceholder": "Franchise name",
+      "description": "Description",
+      "descriptionPlaceholder": "Brief description of the franchise",
+      "email": "Email",
+      "emailPlaceholder": "franchise@example.com",
+      "phone": "Phone",
+      "phonePlaceholder": "+34 123 456 789",
+      "website": "Website",
+      "websitePlaceholder": "https://example.com",
+      "planTier": "Plan Tier",
+      "isActive": "Active",
+      "createButton": "Create Franchise",
+      "updateButton": "Update Franchise"
+    },
+    "table": {
+      "logo": "Logo",
+      "name": "Name",
+      "contact": "Contact",
+      "plan": "Plan",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "planTiers": {
+      "free": "Free",
+      "basic": "Basic",
+      "premium": "Premium",
+      "enterprise": "Enterprise"
+    },
+    "filters": {
+      "planTier": "Plan Tier",
+      "status": "Status"
+    },
+    "sort": {
+      "name": "Name",
+      "email": "Email",
+      "planTier": "Plan Tier",
+      "createdAt": "Date Created"
+    },
+    "search": {
+      "placeholder": "Search franchises by name or email..."
+    },
+    "empty": {
+      "title": "No franchises found",
+      "noResults": "No franchises match your search or filters. Try adjusting your criteria.",
+      "noFranchises": "Get started by creating your first franchise.",
+      "action": "Create Franchise"
+    },
+    "count": {
+      "total": "{{count}} total franchise",
+      "total_plural": "{{count}} total franchises"
+    },
+    "confirmDelete": {
+      "title": "Delete Franchise",
+      "message": "Are you sure you want to delete this franchise? This action cannot be undone and will also delete all associated branches, barbers, and services.",
+      "confirm": "Delete"
+    },
+    "loading": {
+      "franchises": "Loading franchises...",
+      "franchise": "Loading franchise..."
+    },
+    "uploading": "Uploading logo..."
+  },
   "home": {
     "hero": {
       "title": "BarberApp",
