@@ -17,11 +17,13 @@ import { SortSelector, SortOption } from '@/components/shared/SortSelector';
 import { ViewToggle, ViewMode } from '@/components/shared/ViewToggle';
 import { ExportButton } from '@/components/shared/ExportButton';
 import { Button } from '@/components/ui/Button';
+import { useTranslation } from 'react-i18next';
 
 const ITEMS_PER_PAGE = 9;
 
 export default function BranchesPage() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { branches, loading, deleteBranch, refreshBranches } = useBranch();
   const [searchQuery, setSearchQuery] = useState('');
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -38,19 +40,19 @@ export default function BranchesPage() {
   const filterConfigs: FilterConfig[] = [
     {
       key: 'isActive',
-      label: 'Status',
+      label: t('branches.filters.status'),
       options: [
-        { value: 'true', label: 'Active' },
-        { value: 'false', label: 'Inactive' },
+        { value: 'true', label: t('common.active') },
+        { value: 'false', label: t('common.inactive') },
       ],
     },
   ];
 
   const sortOptions: SortOption[] = [
-    { value: 'name', label: 'Name' },
-    { value: 'city', label: 'City' },
-    { value: 'address', label: 'Address' },
-    { value: 'createdAt', label: 'Date Created' },
+    { value: 'name', label: t('branches.sort.name') },
+    { value: 'city', label: t('branches.sort.city') },
+    { value: 'address', label: t('branches.sort.address') },
+    { value: 'createdAt', label: t('branches.sort.createdAt') },
   ];
 
   const filteredBranches = useMemo(() => {
@@ -120,27 +122,30 @@ export default function BranchesPage() {
   };
 
   if (loading) {
-    return <LoadingState message="Loading branches..." variant="skeleton" />;
+    return <LoadingState message={t('branches.loading.branches')} variant="skeleton" />;
   }
 
   return (
     <div className="container mx-auto p-6">
       {/* Breadcrumbs */}
-      <Breadcrumbs items={[{ label: 'Branches' }]} />
+      <Breadcrumbs items={[{ label: t('branches.title') }]} />
 
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Branches</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{t('branches.title')}</h1>
           <p className="text-gray-600 dark:text-gray-400 mt-1">
-            {filteredBranches?.length || 0} total {filteredBranches?.length === 1 ? 'branch' : 'branches'}
+            {t('branches.count.total', {
+              count: filteredBranches?.length || 0,
+              defaultValue: `${filteredBranches?.length || 0} total ${filteredBranches?.length === 1 ? 'branch' : 'branches'}`
+            })}
           </p>
         </div>
         <div className="flex items-center gap-3">
           <ExportButton data={filteredBranches || []} filename="branches" />
           <ViewToggle view={viewMode} onChange={setViewMode} />
           <Button onClick={() => navigate('/branches/new?franchiseId=TEMP')}>
-            + New Branch
+            + {t('branches.new')}
           </Button>
         </div>
       </div>
@@ -150,7 +155,7 @@ export default function BranchesPage() {
         <SearchBar
           value={searchQuery}
           onChange={handleSearchChange}
-          placeholder="Search branches by name, city, or address..."
+          placeholder={t('branches.search.placeholder')}
         />
       </div>
 
@@ -174,11 +179,11 @@ export default function BranchesPage() {
       {!paginatedBranches || paginatedBranches.length === 0 ? (
         <EmptyState
           icon="📍"
-          title="No branches found"
+          title={t('branches.empty.title')}
           message={searchQuery || Object.keys(activeFilters).length > 0
-            ? "No branches match your search or filters. Try adjusting your criteria."
-            : "Get started by creating your first branch."}
-          actionLabel="Create Branch"
+            ? t('branches.empty.noResults')
+            : t('branches.empty.noFranchises')}
+          actionLabel={t('branches.empty.action')}
           onAction={() => navigate('/branches/new?franchiseId=TEMP')}
         />
       ) : (
@@ -218,10 +223,10 @@ export default function BranchesPage() {
 
       <ConfirmDialog
         open={!!deleteId}
-        title="Delete Branch"
-        message="Are you sure you want to delete this branch? This action cannot be undone and will also delete all associated barbers."
+        title={t('branches.confirmDelete.title')}
+        message={t('branches.confirmDelete.message')}
         variant="danger"
-        confirmLabel="Delete"
+        confirmLabel={t('branches.confirmDelete.confirm')}
         onConfirm={handleDelete}
         onClose={() => setDeleteId(null)}
       />

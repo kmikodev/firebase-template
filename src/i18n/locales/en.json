@@ -119,27 +119,110 @@
     "edit": "Edit Branch",
     "delete": "Delete Branch",
     "details": "Branch Details",
+    "new": "New Branch",
     "form": {
+      "photo": "Photo",
       "name": "Name",
+      "namePlaceholder": "Downtown Branch",
+      "nameRequired": "Branch Name *",
       "address": "Address",
+      "addressPlaceholder": "123 Main St",
+      "addressRequired": "Address *",
+      "city": "City",
+      "cityPlaceholder": "Madrid",
+      "cityRequired": "City *",
+      "province": "Province",
+      "provincePlaceholder": "Madrid",
+      "provinceRequired": "Province *",
+      "postalCode": "Postal Code",
+      "postalCodePlaceholder": "28001",
+      "postalCodeRequired": "Postal Code *",
+      "country": "Country",
+      "countryPlaceholder": "Spain",
+      "countryRequired": "Country *",
       "phone": "Phone",
+      "phonePlaceholder": "+34 123 456 789",
+      "phoneRequired": "Phone *",
       "email": "Email",
+      "emailPlaceholder": "branch@example.com",
       "manager": "Manager",
+      "schedule": "Schedule",
+      "scheduleDay": {
+        "monday": "Monday",
+        "tuesday": "Tuesday",
+        "wednesday": "Wednesday",
+        "thursday": "Thursday",
+        "friday": "Friday",
+        "saturday": "Saturday",
+        "sunday": "Sunday"
+      },
+      "open": "Open",
+      "close": "Close",
       "openingHours": "Opening Hours",
       "closingHours": "Closing Hours",
       "status": "Status",
-      "franchise": "Franchise"
+      "isActive": "Active",
+      "franchise": "Franchise",
+      "createButton": "Create Branch",
+      "updateButton": "Update Branch"
     },
     "table": {
       "name": "Name",
+      "location": "Location",
       "address": "Address",
+      "contact": "Contact",
       "phone": "Phone",
       "barbers": "Barbers",
       "status": "Status",
       "actions": "Actions"
     },
-    "empty": "No branches registered",
-    "confirmDelete": "Are you sure you want to delete this branch?"
+    "card": {
+      "open": "● Open",
+      "closed": "Closed"
+    },
+    "filters": {
+      "status": "Status"
+    },
+    "sort": {
+      "name": "Name",
+      "city": "City",
+      "address": "Address",
+      "createdAt": "Date Created"
+    },
+    "search": {
+      "placeholder": "Search branches by name, city, or address..."
+    },
+    "empty": {
+      "title": "No branches found",
+      "noResults": "No branches match your search or filters. Try adjusting your criteria.",
+      "noFranchises": "Get started by creating your first branch.",
+      "action": "Create Branch"
+    },
+    "count": {
+      "total": "{{count}} total branch",
+      "total_plural": "{{count}} total branches",
+      "branch": "branch",
+      "branches": "branches"
+    },
+    "confirmDelete": {
+      "title": "Delete Branch",
+      "message": "Are you sure you want to delete this branch? This action cannot be undone and will also delete all associated barbers.",
+      "confirm": "Delete"
+    },
+    "loading": {
+      "branches": "Loading branches...",
+      "branch": "Loading branch..."
+    },
+    "uploading": "Uploading photo...",
+    "error": {
+      "franchiseRequired": "Franchise ID is required to create a branch.",
+      "backToBranches": "Back to Branches"
+    },
+    "export": "Export",
+    "viewToggle": {
+      "grid": "Grid View",
+      "list": "List View"
+    }
   },
   "barbers": {
     "title": "Barbers",

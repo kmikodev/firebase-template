@@ -119,27 +119,110 @@
     "edit": "Editar Sucursal",
     "delete": "Eliminar Sucursal",
     "details": "Detalles de Sucursal",
+    "new": "Nueva Sucursal",
     "form": {
+      "photo": "Foto",
       "name": "Nombre",
+      "namePlaceholder": "Sucursal Centro",
+      "nameRequired": "Nombre de Sucursal *",
       "address": "Dirección",
+      "addressPlaceholder": "Calle Principal 123",
+      "addressRequired": "Dirección *",
+      "city": "Ciudad",
+      "cityPlaceholder": "Madrid",
+      "cityRequired": "Ciudad *",
+      "province": "Provincia",
+      "provincePlaceholder": "Madrid",
+      "provinceRequired": "Provincia *",
+      "postalCode": "Código Postal",
+      "postalCodePlaceholder": "28001",
+      "postalCodeRequired": "Código Postal *",
+      "country": "País",
+      "countryPlaceholder": "España",
+      "countryRequired": "País *",
       "phone": "Teléfono",
+      "phonePlaceholder": "+34 123 456 789",
+      "phoneRequired": "Teléfono *",
       "email": "Email",
+      "emailPlaceholder": "sucursal@ejemplo.com",
       "manager": "Encargado",
+      "schedule": "Horario",
+      "scheduleDay": {
+        "monday": "Lunes",
+        "tuesday": "Martes",
+        "wednesday": "Miércoles",
+        "thursday": "Jueves",
+        "friday": "Viernes",
+        "saturday": "Sábado",
+        "sunday": "Domingo"
+      },
+      "open": "Apertura",
+      "close": "Cierre",
       "openingHours": "Horario de Apertura",
       "closingHours": "Horario de Cierre",
       "status": "Estado",
-      "franchise": "Franquicia"
+      "isActive": "Activo",
+      "franchise": "Franquicia",
+      "createButton": "Crear Sucursal",
+      "updateButton": "Actualizar Sucursal"
     },
     "table": {
       "name": "Nombre",
+      "location": "Ubicación",
       "address": "Dirección",
+      "contact": "Contacto",
       "phone": "Teléfono",
       "barbers": "Barberos",
       "status": "Estado",
       "actions": "Acciones"
     },
-    "empty": "No hay sucursales registradas",
-    "confirmDelete": "¿Está seguro de eliminar esta sucursal?"
+    "card": {
+      "open": "● Abierto",
+      "closed": "Cerrado"
+    },
+    "filters": {
+      "status": "Estado"
+    },
+    "sort": {
+      "name": "Nombre",
+      "city": "Ciudad",
+      "address": "Dirección",
+      "createdAt": "Fecha de Creación"
+    },
+    "search": {
+      "placeholder": "Buscar sucursales por nombre, ciudad o dirección..."
+    },
+    "empty": {
+      "title": "No se encontraron sucursales",
+      "noResults": "No hay sucursales que coincidan con tu búsqueda o filtros. Intenta ajustar tus criterios.",
+      "noFranchises": "Comienza creando tu primera sucursal.",
+      "action": "Crear Sucursal"
+    },
+    "count": {
+      "total": "{{count}} sucursal en total",
+      "total_plural": "{{count}} sucursales en total",
+      "branch": "sucursal",
+      "branches": "sucursales"
+    },
+    "confirmDelete": {
+      "title": "Eliminar Sucursal",
+      "message": "¿Está seguro de que desea eliminar esta sucursal? Esta acción no se puede deshacer y también eliminará todos los barberos asociados.",
+      "confirm": "Eliminar"
+    },
+    "loading": {
+      "branches": "Cargando sucursales...",
+      "branch": "Cargando sucursal..."
+    },
+    "uploading": "Subiendo foto...",
+    "error": {
+      "franchiseRequired": "Se requiere ID de franquicia para crear una sucursal.",
+      "backToBranches": "Volver a Sucursales"
+    },
+    "export": "Exportar",
+    "viewToggle": {
+      "grid": "Vista en Cuadrícula",
+      "list": "Vista en Lista"
+    }
   },
   "barbers": {
     "title": "Barberos",
