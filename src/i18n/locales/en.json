@@ -24,7 +24,9 @@
     "yes": "Yes",
     "no": "No",
     "active": "Active",
-    "inactive": "Inactive"
+    "inactive": "Inactive",
+    "lightMode": "Light Mode",
+    "darkMode": "Dark Mode"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -348,5 +350,56 @@
   "languages": {
     "es": "Español",
     "en": "English"
+  },
+  "home": {
+    "hero": {
+      "title": "BarberApp",
+      "subtitle": "Complete barbershop management system with franchise support, scheduling, and role-based access control",
+      "getStarted": "Get Started",
+      "viewDashboard": "View Dashboard"
+    },
+    "features": {
+      "title": "Everything you need to manage your barbershop business",
+      "franchiseManagement": {
+        "title": "Franchise Management",
+        "description": "Manage multiple franchise locations with ease"
+      },
+      "branchControl": {
+        "title": "Branch Control",
+        "description": "Organize branches and track performance"
+      },
+      "barberScheduling": {
+        "title": "Barber Scheduling",
+        "description": "Schedule barbers and manage availability"
+      },
+      "serviceCatalog": {
+        "title": "Service Catalog",
+        "description": "Create and manage service offerings"
+      },
+      "roleBasedAccess": {
+        "title": "Role-Based Access",
+        "description": "Secure permissions for different user roles"
+      },
+      "analyticsDashboard": {
+        "title": "Analytics Dashboard",
+        "description": "Real-time insights and statistics"
+      }
+    },
+    "techStack": {
+      "title": "Built with modern technologies",
+      "react": "React 18",
+      "firebase": "Firebase",
+      "capacitor": "Capacitor",
+      "tailwind": "Tailwind CSS",
+      "typescript": "TypeScript"
+    },
+    "cta": {
+      "title": "Ready to get started?",
+      "subtitle": "Join thousands of barbershops managing their business with BarberApp",
+      "button": "Start Free Trial"
+    },
+    "footer": {
+      "copyright": "© 2025 BarberApp. Built with ❤️ and Firebase."
+    }
   }
 }

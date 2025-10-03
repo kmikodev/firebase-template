@@ -24,7 +24,9 @@
     "yes": "Sí",
     "no": "No",
     "active": "Activo",
-    "inactive": "Inactivo"
+    "inactive": "Inactivo",
+    "lightMode": "Modo Claro",
+    "darkMode": "Modo Oscuro"
   },
   "nav": {
     "dashboard": "Inicio",
@@ -348,5 +350,56 @@
   "languages": {
     "es": "Español",
     "en": "English"
+  },
+  "home": {
+    "hero": {
+      "title": "BarberApp",
+      "subtitle": "Sistema completo de gestión de barberías con soporte de franquicias, programación y control de acceso basado en roles",
+      "getStarted": "Comenzar",
+      "viewDashboard": "Ver Dashboard"
+    },
+    "features": {
+      "title": "Todo lo que necesitas para gestionar tu negocio de barbería",
+      "franchiseManagement": {
+        "title": "Gestión de Franquicias",
+        "description": "Administra múltiples ubicaciones de franquicias con facilidad"
+      },
+      "branchControl": {
+        "title": "Control de Sucursales",
+        "description": "Organiza sucursales y realiza seguimiento del rendimiento"
+      },
+      "barberScheduling": {
+        "title": "Programación de Barberos",
+        "description": "Programa barberos y gestiona la disponibilidad"
+      },
+      "serviceCatalog": {
+        "title": "Catálogo de Servicios",
+        "description": "Crea y gestiona la oferta de servicios"
+      },
+      "roleBasedAccess": {
+        "title": "Acceso Basado en Roles",
+        "description": "Permisos seguros para diferentes roles de usuario"
+      },
+      "analyticsDashboard": {
+        "title": "Panel de Analíticas",
+        "description": "Información y estadísticas en tiempo real"
+      }
+    },
+    "techStack": {
+      "title": "Desarrollado con tecnologías modernas",
+      "react": "React 18",
+      "firebase": "Firebase",
+      "capacitor": "Capacitor",
+      "tailwind": "Tailwind CSS",
+      "typescript": "TypeScript"
+    },
+    "cta": {
+      "title": "¿Listo para comenzar?",
+      "subtitle": "Únete a miles de barberías que gestionan su negocio con BarberApp",
+      "button": "Iniciar Prueba Gratuita"
+    },
+    "footer": {
+      "copyright": "© 2025 BarberApp. Hecho con ❤️ y Firebase."
+    }
   }
 }
