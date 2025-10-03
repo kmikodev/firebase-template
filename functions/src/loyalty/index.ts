@@ -91,80 +91,80 @@ export const onQueueCompleted = onDocumentUpdated({
   document: 'queues/{queueId}',
   region: config.region,
 }, async (event) => {
-    const before = event.data?.before.data() as QueueTicket;
-    const after = event.data?.after.data() as QueueTicket;
+  const before = event.data?.before.data() as QueueTicket;
+  const after = event.data?.after.data() as QueueTicket;
 
-    if (!before || !after) {
-      logger.error('No data in event');
-      return;
-    }
+  if (!before || !after) {
+    logger.error('No data in event');
+    return;
+  }
 
-    const queueId = event.params.queueId;
+  const queueId = event.params.queueId;
 
-    // Solo procesar si cambió de otro estado a 'completed'
-    if (before.status === 'completed' || after.status !== 'completed') {
-      return;
-    }
+  // Solo procesar si cambió de otro estado a 'completed'
+  if (before.status === 'completed' || after.status !== 'completed') {
+    return;
+  }
 
-    const ticket = after;
+  const ticket = after;
 
-    // Validar que tiene todos los datos necesarios
-    if (!ticket.serviceId || !ticket.barberId) {
-      logger.info(`Queue ${queueId} completed but missing serviceId or barberId`);
-      return;
-    }
+  // Validar que tiene todos los datos necesarios
+  if (!ticket.serviceId || !ticket.barberId) {
+    logger.info(`Queue ${queueId} completed but missing serviceId or barberId`);
+    return;
+  }
 
-    // Obtener configuración de loyalty
-    const config = await getLoyaltyConfig(ticket.franchiseId);
-    if (!config || !config.enabled) {
-      logger.info(`Loyalty not enabled for franchise ${ticket.franchiseId}`);
-      return;
-    }
+  // Obtener configuración de loyalty
+  const config = await getLoyaltyConfig(ticket.franchiseId);
+  if (!config || !config.enabled) {
+    logger.info(`Loyalty not enabled for franchise ${ticket.franchiseId}`);
+    return;
+  }
 
-    // Verificar si el servicio es elegible
-    if (!isServiceEligible(config, ticket.serviceId)) {
-      logger.info(`Service ${ticket.serviceId} not eligible for stamps`);
-      return;
-    }
+  // Verificar si el servicio es elegible
+  if (!isServiceEligible(config, ticket.serviceId)) {
+    logger.info(`Service ${ticket.serviceId} not eligible for stamps`);
+    return;
+  }
 
-    // Verificar si ya existe un sello para este ticket (idempotencia)
-    const existingStamps = await db
-      .collection('loyalty_stamps')
-      .where('queueId', '==', queueId)
-      .limit(1)
-      .get();
+  // Verificar si ya existe un sello para este ticket (idempotencia)
+  const existingStamps = await db
+    .collection('loyalty_stamps')
+    .where('queueId', '==', queueId)
+    .limit(1)
+    .get();
 
-    if (!existingStamps.empty) {
-      logger.info(`Stamp already exists for queue ${queueId}`);
-      return;
-    }
+  if (!existingStamps.empty) {
+    logger.info(`Stamp already exists for queue ${queueId}`);
+    return;
+  }
 
-    // Crear sello
-    const stampId = db.collection('loyalty_stamps').doc().id;
-    const stamp: LoyaltyStamp = {
-      stampId,
-      userId: ticket.userId,
-      franchiseId: ticket.franchiseId,
-      branchId: ticket.branchId,
-      earnedAt: Timestamp.now(),
-      expiresAt: calculateStampExpiration(config),
-      status: 'active' as StampStatus,
-      queueId,
-      serviceId: ticket.serviceId,
-      barberId: ticket.barberId,
-      createdBy: 'system',
-      createdMethod: 'automatic',
-      createdAt: Timestamp.now(),
-      updatedAt: Timestamp.now(),
-    };
+  // Crear sello
+  const stampId = db.collection('loyalty_stamps').doc().id;
+  const stamp: LoyaltyStamp = {
+    stampId,
+    userId: ticket.userId,
+    franchiseId: ticket.franchiseId,
+    branchId: ticket.branchId,
+    earnedAt: Timestamp.now(),
+    expiresAt: calculateStampExpiration(config),
+    status: 'active' as StampStatus,
+    queueId,
+    serviceId: ticket.serviceId,
+    barberId: ticket.barberId,
+    createdBy: 'system',
+    createdMethod: 'automatic',
+    createdAt: Timestamp.now(),
+    updatedAt: Timestamp.now(),
+  };
 
-    await db.collection('loyalty_stamps').doc(stampId).set(stamp);
+  await db.collection('loyalty_stamps').doc(stampId).set(stamp);
 
-    logger.info(`Created stamp ${stampId} for user ${ticket.userId}`);
+  logger.info(`Created stamp ${stampId} for user ${ticket.userId}`);
 
-    // Verificar si debe generar premio
-    await checkAndGenerateReward(ticket.userId, ticket.franchiseId, config);
-  });
+  // Verificar si debe generar premio
+  await checkAndGenerateReward(ticket.userId, ticket.franchiseId, config);
+});
 
 // ========================================
 // Función: Verificar y generar premio
@@ -394,148 +394,148 @@ async function updateCustomerSummary(userId: string, franchiseId: string): Promi
 // ========================================
 
 export const redeemReward = onCall({ region: config.region }, async (request) => {
-    // Autenticación requerida
-    if (!request.auth) {
-      throw new HttpsError('unauthenticated', 'User must be authenticated');
-    }
+  // Autenticación requerida
+  if (!request.auth) {
+    throw new HttpsError('unauthenticated', 'User must be authenticated');
+  }
 
-    const { rewardCode } = request.data;
+  const { rewardCode } = request.data;
 
-    // Validar input
-    if (!rewardCode) {
-      throw new HttpsError('invalid-argument', 'rewardCode is required');
-    }
+  // Validar input
+  if (!rewardCode) {
+    throw new HttpsError('invalid-argument', 'rewardCode is required');
+  }
 
-    // Buscar premio por código
-    const rewardQuery = await db
-      .collection('loyalty_rewards')
-      .where('code', '==', rewardCode.toUpperCase())
-      .limit(1)
-      .get();
+  // Buscar premio por código
+  const rewardQuery = await db
+    .collection('loyalty_rewards')
+    .where('code', '==', rewardCode.toUpperCase())
+    .limit(1)
+    .get();
 
-    if (rewardQuery.empty) {
-      throw new HttpsError('not-found', 'Reward not found');
-    }
+  if (rewardQuery.empty) {
+    throw new HttpsError('not-found', 'Reward not found');
+  }
 
-    const rewardDoc = rewardQuery.docs[0];
-    const reward = rewardDoc.data() as LoyaltyReward;
+  const rewardDoc = rewardQuery.docs[0];
+  const reward = rewardDoc.data() as LoyaltyReward;
 
-    // Validar estado
-    if (reward.status !== 'generated' && reward.status !== 'active') {
-      throw new HttpsError('failed-precondition', `Reward already ${reward.status}`);
-    }
+  // Validar estado
+  if (reward.status !== 'generated' && reward.status !== 'active') {
+    throw new HttpsError('failed-precondition', `Reward already ${reward.status}`);
+  }
 
-    // Validar expiración
-    if (reward.expiresAt && reward.expiresAt.toMillis() < Date.now()) {
-      await rewardDoc.ref.update({
-        status: 'expired',
-        expiredAt: FieldValue.serverTimestamp(),
-        updatedAt: FieldValue.serverTimestamp(),
-      });
-      throw new HttpsError('failed-precondition', 'Reward has expired');
-    }
-
-    // Marcar premio como "en uso" (prevenir doble redención)
+  // Validar expiración
+  if (reward.expiresAt && reward.expiresAt.toMillis() < Date.now()) {
     await rewardDoc.ref.update({
-      status: 'in_use',
+      status: 'expired',
+      expiredAt: FieldValue.serverTimestamp(),
       updatedAt: FieldValue.serverTimestamp(),
     });
+    throw new HttpsError('failed-precondition', 'Reward has expired');
+  }
 
-    // Retornar información del premio
-    return {
-      success: true,
-      reward: {
-        rewardId: reward.rewardId,
-        code: reward.code,
-        userId: reward.userId,
-        franchiseId: reward.franchiseId,
-        serviceId: reward.serviceId,
-        value: reward.value,
-        expiresAt: reward.expiresAt?.toMillis() || null,
-      },
-    };
+  // Marcar premio como "en uso" (prevenir doble redención)
+  await rewardDoc.ref.update({
+    status: 'in_use',
+    updatedAt: FieldValue.serverTimestamp(),
   });
+
+  // Retornar información del premio
+  return {
+    success: true,
+    reward: {
+      rewardId: reward.rewardId,
+      code: reward.code,
+      userId: reward.userId,
+      franchiseId: reward.franchiseId,
+      serviceId: reward.serviceId,
+      value: reward.value,
+      expiresAt: reward.expiresAt?.toMillis() || null,
+    },
+  };
+});
 
 // ========================================
 // Callable: Aplicar premio a turno
 // ========================================
 
 export const applyRewardToQueue = onCall({ region: config.region }, async (request) => {
-    // Autenticación requerida
-    if (!request.auth) {
-      throw new HttpsError('unauthenticated', 'User must be authenticated');
-    }
+  // Autenticación requerida
+  if (!request.auth) {
+    throw new HttpsError('unauthenticated', 'User must be authenticated');
+  }
 
-    const { rewardId, queueId, branchId } = request.data;
-    const barberId = request.auth.uid;
+  const { rewardId, queueId, branchId } = request.data;
+  const barberId = request.auth.uid;
 
-    // Validar input
-    if (!rewardId || !queueId || !branchId) {
-      throw new HttpsError('invalid-argument', 'rewardId, queueId, and branchId are required');
-    }
+  // Validar input
+  if (!rewardId || !queueId || !branchId) {
+    throw new HttpsError('invalid-argument', 'rewardId, queueId, and branchId are required');
+  }
 
-    // Obtener premio
-    const rewardDoc = await db.collection('loyalty_rewards').doc(rewardId).get();
-    if (!rewardDoc.exists) {
-      throw new HttpsError('not-found', 'Reward not found');
-    }
+  // Obtener premio
+  const rewardDoc = await db.collection('loyalty_rewards').doc(rewardId).get();
+  if (!rewardDoc.exists) {
+    throw new HttpsError('not-found', 'Reward not found');
+  }
 
-    const reward = rewardDoc.data() as LoyaltyReward;
+  const reward = rewardDoc.data() as LoyaltyReward;
 
-    // Validar estado
-    if (reward.status !== 'in_use') {
-      throw new HttpsError('failed-precondition', 'Reward must be in_use to apply');
-    }
+  // Validar estado
+  if (reward.status !== 'in_use') {
+    throw new HttpsError('failed-precondition', 'Reward must be in_use to apply');
+  }
 
-    // Obtener ticket
-    const queueDoc = await db.collection('queues').doc(queueId).get();
-    if (!queueDoc.exists) {
-      throw new HttpsError('not-found', 'Queue ticket not found');
-    }
+  // Obtener ticket
+  const queueDoc = await db.collection('queues').doc(queueId).get();
+  if (!queueDoc.exists) {
+    throw new HttpsError('not-found', 'Queue ticket not found');
+  }
 
-    const ticket = queueDoc.data() as QueueTicket;
+  const ticket = queueDoc.data() as QueueTicket;
 
-    // Validar que el usuario del premio coincide con el del ticket
-    if (reward.userId !== ticket.userId) {
-      throw new HttpsError('permission-denied', 'Reward does not belong to this user');
-    }
+  // Validar que el usuario del premio coincide con el del ticket
+  if (reward.userId !== ticket.userId) {
+    throw new HttpsError('permission-denied', 'Reward does not belong to this user');
+  }
 
-    // Marcar premio como redimido y actualizar ticket
-    const batch = db.batch();
+  // Marcar premio como redimido y actualizar ticket
+  const batch = db.batch();
 
-    batch.update(rewardDoc.ref, {
-      status: 'redeemed',
-      redeemedAt: FieldValue.serverTimestamp(),
-      redeemedBy: barberId,
-      redeemedAtBranch: branchId,
-      queueId,
-      updatedAt: FieldValue.serverTimestamp(),
-    });
-
-    // Actualizar ticket con información del premio
-    batch.update(queueDoc.ref, {
-      loyaltyReward: {
-        rewardId: reward.rewardId,
-        code: reward.code,
-        appliedAt: FieldValue.serverTimestamp(),
-        appliedBy: barberId,
-        discountAmount: reward.value,
-        originalPrice: reward.value,
-        finalPrice: 0,
-      },
-      updatedAt: FieldValue.serverTimestamp(),
-    });
-
-    await batch.commit();
-
-    // Actualizar summary
-    await updateCustomerSummary(reward.userId, reward.franchiseId);
-
-    return {
-      success: true,
-      message: 'Reward applied successfully',
-    };
+  batch.update(rewardDoc.ref, {
+    status: 'redeemed',
+    redeemedAt: FieldValue.serverTimestamp(),
+    redeemedBy: barberId,
+    redeemedAtBranch: branchId,
+    queueId,
+    updatedAt: FieldValue.serverTimestamp(),
   });
+
+  // Actualizar ticket con información del premio
+  batch.update(queueDoc.ref, {
+    loyaltyReward: {
+      rewardId: reward.rewardId,
+      code: reward.code,
+      appliedAt: FieldValue.serverTimestamp(),
+      appliedBy: barberId,
+      discountAmount: reward.value,
+      originalPrice: reward.value,
+      finalPrice: 0,
+    },
+    updatedAt: FieldValue.serverTimestamp(),
+  });
+
+  await batch.commit();
+
+  // Actualizar summary
+  await updateCustomerSummary(reward.userId, reward.franchiseId);
+
+  return {
+    success: true,
+    message: 'Reward applied successfully',
+  };
+});
 
 // ========================================
 // Scheduled: Expirar sellos vencidos
@@ -546,62 +546,62 @@ export const expireStampsDaily = onSchedule({
   timeZone: 'Europe/Madrid',
   region: config.region,
 }, async () => {
-    const now = Timestamp.now();
+  const now = Timestamp.now();
 
-    // Buscar sellos expirados
-    const expiredStamps = await db
-      .collection('loyalty_stamps')
-      .where('status', '==', 'active')
-      .where('expiresAt', '<=', now)
-      .get();
+  // Buscar sellos expirados
+  const expiredStamps = await db
+    .collection('loyalty_stamps')
+    .where('status', '==', 'active')
+    .where('expiresAt', '<=', now)
+    .get();
 
-    if (expiredStamps.empty) {
-      logger.info('No stamps to expire');
-      return;
-    }
+  if (expiredStamps.empty) {
+    logger.info('No stamps to expire');
+    return;
+  }
 
-    logger.info(`Found ${expiredStamps.size} stamps to expire`);
+  logger.info(`Found ${expiredStamps.size} stamps to expire`);
 
-    // Procesar en batches
-    const batchSize = 500;
-    const batches: admin.firestore.WriteBatch[] = [];
-    let currentBatch = db.batch();
-    let operationsInBatch = 0;
+  // Procesar en batches
+  const batchSize = 500;
+  const batches: admin.firestore.WriteBatch[] = [];
+  let currentBatch = db.batch();
+  let operationsInBatch = 0;
 
-    for (const doc of expiredStamps.docs) {
-      currentBatch.update(doc.ref, {
-        status: 'expired',
-        updatedAt: FieldValue.serverTimestamp(),
-      });
+  for (const doc of expiredStamps.docs) {
+    currentBatch.update(doc.ref, {
+      status: 'expired',
+      updatedAt: FieldValue.serverTimestamp(),
+    });
 
-      operationsInBatch++;
+    operationsInBatch++;
 
-      if (operationsInBatch >= batchSize) {
-        batches.push(currentBatch);
-        currentBatch = db.batch();
-        operationsInBatch = 0;
-      }
-    }
-
-    if (operationsInBatch > 0) {
+    if (operationsInBatch >= batchSize) {
       batches.push(currentBatch);
+      currentBatch = db.batch();
+      operationsInBatch = 0;
     }
+  }
 
-    // Commit all batches
-    await Promise.all(batches.map(batch => batch.commit()));
+  if (operationsInBatch > 0) {
+    batches.push(currentBatch);
+  }
 
-    logger.info(`Expired ${expiredStamps.size} stamps`);
+  // Commit all batches
+  await Promise.all(batches.map(batch => batch.commit()));
 
-    // Actualizar summaries afectados (agrupar por usuario)
-    const affectedUsers = new Set(expiredStamps.docs.map(doc => (doc.data() as LoyaltyStamp).userId));
-    const affectedFranchises = new Set(expiredStamps.docs.map(doc => (doc.data() as LoyaltyStamp).franchiseId));
+  logger.info(`Expired ${expiredStamps.size} stamps`);
 
-    for (const userId of affectedUsers) {
-      for (const franchiseId of affectedFranchises) {
-        await updateCustomerSummary(userId, franchiseId);
-      }
+  // Actualizar summaries afectados (agrupar por usuario)
+  const affectedUsers = new Set(expiredStamps.docs.map(doc => (doc.data() as LoyaltyStamp).userId));
+  const affectedFranchises = new Set(expiredStamps.docs.map(doc => (doc.data() as LoyaltyStamp).franchiseId));
+
+  for (const userId of affectedUsers) {
+    for (const franchiseId of affectedFranchises) {
+      await updateCustomerSummary(userId, franchiseId);
     }
-  });
+  }
+});
 
 // ========================================
 // Scheduled: Expirar premios vencidos
@@ -612,47 +612,47 @@ export const expireRewardsDaily = onSchedule({
   timeZone: 'Europe/Madrid',
   region: config.region,
 }, async () => {
-    const now = Timestamp.now();
+  const now = Timestamp.now();
 
-    // Buscar premios expirados
-    const expiredRewards = await db
-      .collection('loyalty_rewards')
-      .where('status', 'in', ['generated', 'active'])
-      .where('expiresAt', '<=', now)
-      .get();
+  // Buscar premios expirados
+  const expiredRewards = await db
+    .collection('loyalty_rewards')
+    .where('status', 'in', ['generated', 'active'])
+    .where('expiresAt', '<=', now)
+    .get();
 
-    if (expiredRewards.empty) {
-      logger.info('No rewards to expire');
-      return;
-    }
+  if (expiredRewards.empty) {
+    logger.info('No rewards to expire');
+    return;
+  }
 
-    logger.info(`Found ${expiredRewards.size} rewards to expire`);
+  logger.info(`Found ${expiredRewards.size} rewards to expire`);
 
-    // Procesar en batch
-    const batch = db.batch();
+  // Procesar en batch
+  const batch = db.batch();
 
-    expiredRewards.forEach(doc => {
-      batch.update(doc.ref, {
-        status: 'expired',
-        expiredAt: FieldValue.serverTimestamp(),
-        updatedAt: FieldValue.serverTimestamp(),
-      });
+  expiredRewards.forEach(doc => {
+    batch.update(doc.ref, {
+      status: 'expired',
+      expiredAt: FieldValue.serverTimestamp(),
+      updatedAt: FieldValue.serverTimestamp(),
     });
-
-    await batch.commit();
-
-    logger.info(`Expired ${expiredRewards.size} rewards`);
-
-    // Actualizar summaries
-    const affectedUsers = new Set(expiredRewards.docs.map(doc => (doc.data() as LoyaltyReward).userId));
-    const affectedFranchises = new Set(expiredRewards.docs.map(doc => (doc.data() as LoyaltyReward).franchiseId));
-
-    for (const userId of affectedUsers) {
-      for (const franchiseId of affectedFranchises) {
-        await updateCustomerSummary(userId, franchiseId);
-      }
-    }
   });
+
+  await batch.commit();
+
+  logger.info(`Expired ${expiredRewards.size} rewards`);
+
+  // Actualizar summaries
+  const affectedUsers = new Set(expiredRewards.docs.map(doc => (doc.data() as LoyaltyReward).userId));
+  const affectedFranchises = new Set(expiredRewards.docs.map(doc => (doc.data() as LoyaltyReward).franchiseId));
+
+  for (const userId of affectedUsers) {
+    for (const franchiseId of affectedFranchises) {
+      await updateCustomerSummary(userId, franchiseId);
+    }
+  }
+});
 
 // ========================================
 // Helper: Enviar notificaciones
