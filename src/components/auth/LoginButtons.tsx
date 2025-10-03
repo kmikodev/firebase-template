@@ -1,9 +1,11 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui';
 import toast from 'react-hot-toast';
 
 export function LoginButtons() {
+  const { t } = useTranslation();
   const { signInWithGoogle, signInAsGuest } = useAuth();
   const [loading, setLoading] = useState(false);
 
@@ -11,10 +13,10 @@ export function LoginButtons() {
     setLoading(true);
     try {
       await signInWithGoogle();
-      toast.success('Sesión iniciada correctamente');
+      toast.success(t('auth.messages.loginSuccess'));
     } catch (error: any) {
       console.error('Error en login con Google:', error);
-      toast.error(error.message || 'Error al iniciar sesión con Google');
+      toast.error(error.message || t('auth.messages.loginError'));
     } finally {
       setLoading(false);
     }
@@ -24,10 +26,10 @@ export function LoginButtons() {
     setLoading(true);
     try {
       await signInAsGuest();
-      toast.success('Entraste como invitado');
+      toast.success(t('auth.messages.guestSuccess'));
     } catch (error: any) {
       console.error('Error en login como invitado:', error);
-      toast.error(error.message || 'Error al entrar como invitado');
+      toast.error(error.message || t('auth.messages.guestError'));
     } finally {
       setLoading(false);
     }
@@ -59,15 +61,15 @@ export function LoginButtons() {
             d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
           />
         </svg>
-        Continuar con Google
+        {t('auth.loginPage.continueWithGoogle')}
       </Button>
 
       <div className="relative">
         <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-gray-300"></div>
+          <div className="w-full border-t border-gray-300 dark:border-gray-600"></div>
         </div>
         <div className="relative flex justify-center text-sm">
-          <span className="px-2 bg-white text-gray-500">o</span>
+          <span className="px-2 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400">{t('auth.or')}</span>
         </div>
       </div>
 
@@ -77,7 +79,7 @@ export function LoginButtons() {
         variant="secondary"
         className="w-full"
       >
-        Continuar como invitado
+        {t('auth.loginPage.continueAsGuest')}
       </Button>
     </div>
   );

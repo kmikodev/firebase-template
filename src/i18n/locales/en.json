@@ -292,7 +292,20 @@
     "hasAccount": "Already have an account?",
     "signInWithGoogle": "Sign in with Google",
     "signInWithFacebook": "Sign in with Facebook",
-    "or": "or"
+    "or": "or",
+    "loginPage": {
+      "title": "Welcome to Barbershops",
+      "subtitle": "Manage your appointments intelligently",
+      "continueWithGoogle": "Continue with Google",
+      "continueAsGuest": "Continue as guest",
+      "termsAndPrivacy": "By continuing, you accept our terms of service and privacy policy"
+    },
+    "messages": {
+      "loginSuccess": "Successfully logged in",
+      "loginError": "Error logging in with Google",
+      "guestSuccess": "Logged in as guest",
+      "guestError": "Error logging in as guest"
+    }
   },
   "validation": {
     "required": "This field is required",

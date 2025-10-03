@@ -292,7 +292,20 @@
     "hasAccount": "¿Ya tiene una cuenta?",
     "signInWithGoogle": "Iniciar sesión con Google",
     "signInWithFacebook": "Iniciar sesión con Facebook",
-    "or": "o"
+    "or": "o",
+    "loginPage": {
+      "title": "Bienvenido a Peluquerías",
+      "subtitle": "Gestiona tu turno de forma inteligente",
+      "continueWithGoogle": "Continuar con Google",
+      "continueAsGuest": "Continuar como invitado",
+      "termsAndPrivacy": "Al continuar, aceptas nuestros términos de servicio y política de privacidad"
+    },
+    "messages": {
+      "loginSuccess": "Sesión iniciada correctamente",
+      "loginError": "Error al iniciar sesión con Google",
+      "guestSuccess": "Entraste como invitado",
+      "guestError": "Error al entrar como invitado"
+    }
   },
   "validation": {
     "required": "Este campo es obligatorio",
