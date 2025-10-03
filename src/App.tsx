@@ -30,6 +30,7 @@ import TakeTicketPage from './pages/TakeTicketPage';
 import ClientQueue from './pages/ClientQueue';
 import BarberQueue from './pages/BarberQueue';
 import ProfilePage from './pages/ProfilePage';
+import LoyaltyPage from './pages/LoyaltyPage';
 import OffersPage from './pages/OffersPage';
 import NotFound from './pages/NotFound';
 
@@ -247,6 +248,18 @@ function App() {
                         <ProtectedRoute>
                           <Layout>
                             <ProfilePage />
+                          </Layout>
+                        </ProtectedRoute>
+                      }
+                    />
+
+                    {/* Loyalty */}
+                    <Route
+                      path="/loyalty"
+                      element={
+                        <ProtectedRoute>
+                          <Layout>
+                            <LoyaltyPage />
                           </Layout>
                         </ProtectedRoute>
                       }

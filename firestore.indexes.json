@@ -245,10 +245,19 @@
       ]
     },
     {
+      "collectionGroup": "loyalty_stamps",
+      "queryScope": "COLLECTION_GROUP",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "expiresAt", "order": "ASCENDING" }
+      ]
+    },
+    {
       "collectionGroup": "loyalty_rewards",
       "queryScope": "COLLECTION_GROUP",
       "fields": [
-        { "fieldPath": "code", "order": "ASCENDING" }
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "expiresAt", "order": "ASCENDING" }
       ]
     }
   ],

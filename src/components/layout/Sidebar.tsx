@@ -38,6 +38,7 @@ export function Sidebar() {
     { path: '/queue', label: t('nav.queue'), icon: '🎫', roles: ['super_admin', 'franchise_owner', 'admin', 'barber'] },
     { path: '/barber-queue', label: t('nav.myQueue'), icon: '💈', roles: ['barber'] },
     { path: '/client-queue', label: t('nav.myTickets'), icon: '🎟️', roles: ['client', 'guest'] },
+    { path: '/loyalty', label: t('nav.loyalty'), icon: '🎁' },
     { path: '/profile', label: t('nav.profile'), icon: '👤' },
   ];
 

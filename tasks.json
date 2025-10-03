@@ -1,0 +1,299 @@
+{
+  "tasks": [
+    {
+      "id": "I18N_001",
+      "description": "Translate Home page (/)",
+      "prompt": "Review and translate the Home page (/) to Spanish and English using i18next. Verify all text strings use the t() function. Test language switching works correctly. Verify dark/light mode displays correctly on both languages.",
+      "critical": true,
+      "retries": 2,
+      "timeout": 180000
+    },
+    {
+      "id": "I18N_002",
+      "description": "Translate Login page (/login)",
+      "prompt": "Review and translate the Login page (/login) to Spanish and English using i18next. Include form labels, placeholders, validation messages, and buttons. Test language switching and dark/light mode.",
+      "critical": true,
+      "retries": 2,
+      "timeout": 180000
+    },
+    {
+      "id": "I18N_003",
+      "description": "Translate Dashboard page (/dashboard)",
+      "prompt": "Complete i18next translation for Dashboard page (/dashboard). Translate QuickActions component buttons. Verify all sections (greeting, stats, barbers, branches, services, offers) display correctly in both languages. Test dark/light mode compatibility.",
+      "dependencies": ["I18N_001", "I18N_002"],
+      "critical": true,
+      "retries": 2,
+      "timeout": 180000
+    },
+    {
+      "id": "I18N_004",
+      "description": "Translate Franchises pages (/franchises, /franchises/new, /franchises/:id/edit)",
+      "prompt": "Review and translate all Franchise-related pages to Spanish and English. Include list view, create form, and edit form. Translate table headers, form labels, buttons, validation messages, and empty states. Test language switching and dark/light mode.",
+      "dependencies": ["I18N_003"],
+      "critical": true,
+      "retries": 2,
+      "timeout": 180000
+    },
+    {
+      "id": "I18N_005",
+      "description": "Translate Branches pages (/branches, /branches/new, /branches/:id/edit)",
+      "prompt": "Review and translate all Branch-related pages to Spanish and English. Include list view, create form, and edit form. Translate table headers, form labels, buttons, validation messages, filters, and empty states. Test language switching and dark/light mode.",
+      "dependencies": ["I18N_004"],
+      "critical": true,
+      "retries": 2,
+      "timeout": 180000
+    },
+    {
+      "id": "I18N_006",
+      "description": "Translate Barbers pages (/barbers, /barbers/new, /barbers/:id/edit, /admin/barbers)",
+      "prompt": "Review and translate all Barber-related pages to Spanish and English. Include list view, create form, edit form, and admin management page. Translate status labels (available, busy, offline, break), form fields, buttons, and validation messages. Test language switching and dark/light mode.",
+      "dependencies": ["I18N_005"],
+      "critical": true,
+      "retries": 2,
+      "timeout": 180000
+    },
+    {
+      "id": "I18N_007",
+      "description": "Translate Services pages (/services, /services/new, /services/:id/edit)",
+      "prompt": "Review and translate all Service-related pages to Spanish and English. Include list view, create form, and edit form. Translate category labels (haircut, beard, shave, styling, treatment), form fields, buttons, and validation messages. Test language switching and dark/light mode.",
+      "dependencies": ["I18N_006"],
+      "critical": true,
+      "retries": 2,
+      "timeout": 180000
+    },
+    {
+      "id": "I18N_008",
+      "description": "Translate Queue pages (/queue, /barber-queue, /client-queue, /take-ticket)",
+      "prompt": "Review and translate all Queue-related pages to Spanish and English. Include main queue, barber queue, client queue, and take ticket pages. Translate status labels (waiting, in progress, completed, cancelled), action buttons, filters, and empty states. Test language switching and dark/light mode.",
+      "dependencies": ["I18N_007"],
+      "critical": true,
+      "retries": 2,
+      "timeout": 180000
+    },
+    {
+      "id": "I18N_009",
+      "description": "Translate Profile page (/profile)",
+      "prompt": "Review and translate Profile page (/profile) to Spanish and English. Include personal info, account settings, security, and notifications sections. Translate all form labels, buttons, and settings options. Test language switching and dark/light mode.",
+      "dependencies": ["I18N_008"],
+      "critical": true,
+      "retries": 2,
+      "timeout": 180000
+    },
+    {
+      "id": "OFFERS_001",
+      "description": "Complete Offers list page (/offers)",
+      "prompt": "Review and complete the Offers list page (/offers). Implement filtering by status (active, inactive, expired, scheduled), sorting, and search functionality. Translate all text to Spanish and English using i18next. Ensure OfferCard component displays correctly with dark/light mode. Add empty state when no offers exist.",
+      "dependencies": ["I18N_009"],
+      "critical": true,
+      "retries": 2,
+      "timeout": 300000
+    },
+    {
+      "id": "OFFERS_002",
+      "description": "Create Offer form page (/offers/new)",
+      "prompt": "Create a complete form page for creating new offers at /offers/new route. Include fields: title, description, discount percentage, start date, end date, promotional code, applicable services (multi-select), applicable branches (multi-select), status, and image upload. Implement form validation with proper error messages. Translate all text using i18next. Test dark/light mode compatibility.",
+      "dependencies": ["OFFERS_001"],
+      "critical": true,
+      "retries": 2,
+      "timeout": 300000
+    },
+    {
+      "id": "OFFERS_003",
+      "description": "Create Edit Offer page (/offers/:id/edit)",
+      "prompt": "Create edit page for existing offers at /offers/:id/edit route. Pre-populate form with existing offer data. Allow updating all offer fields. Implement proper validation and error handling. Add confirmation dialog before saving changes. Translate all text using i18next. Test dark/light mode.",
+      "dependencies": ["OFFERS_002"],
+      "critical": true,
+      "retries": 2,
+      "timeout": 300000
+    },
+    {
+      "id": "OFFERS_004",
+      "description": "Implement Offer deletion and status management",
+      "prompt": "Add functionality to delete offers with confirmation dialog. Implement status toggle (activate/deactivate offers). Add validation to prevent deleting active offers. Show proper success/error messages using toast notifications. Translate all messages to both languages. Test in dark/light mode.",
+      "dependencies": ["OFFERS_003"],
+      "critical": true,
+      "retries": 2,
+      "timeout": 180000
+    },
+    {
+      "id": "LOYALTY_001",
+      "description": "Create Loyalty page structure (/loyalty)",
+      "prompt": "Create the base Loyalty page (/loyalty) with navigation link in Sidebar and MobileFloatingNav. Set up basic page structure with header, stats section, and tabs for different loyalty features (points, rewards, history). Translate navigation label and page title to both languages. Test dark/light mode.",
+      "dependencies": ["OFFERS_004"],
+      "critical": true,
+      "retries": 2,
+      "timeout": 180000
+    },
+    {
+      "id": "LOYALTY_002",
+      "description": "Implement Points System in Loyalty page",
+      "prompt": "Implement points tracking system in Loyalty page. Show user's current points, points history, and points earned per service. Create a points calculation system (e.g., €1 = 10 points). Display points balance prominently with gradient card. Translate all labels and descriptions. Test dark/light mode.",
+      "dependencies": ["LOYALTY_001"],
+      "critical": true,
+      "retries": 2,
+      "timeout": 300000
+    },
+    {
+      "id": "LOYALTY_003",
+      "description": "Implement Rewards catalog in Loyalty page",
+      "prompt": "Create rewards catalog showing available rewards users can redeem with points. Include reward cards with: name, description, points cost, image, availability status. Implement filtering by category and sorting by points. Add 'Redeem' button that checks if user has enough points. Translate all text. Test dark/light mode.",
+      "dependencies": ["LOYALTY_002"],
+      "critical": true,
+      "retries": 2,
+      "timeout": 300000
+    },
+    {
+      "id": "LOYALTY_004",
+      "description": "Implement Reward redemption flow",
+      "prompt": "Create reward redemption flow: confirmation dialog showing reward details and points to deduct, backend Cloud Function to process redemption, update user points, create redemption record in Firestore, show success notification with redemption code/QR. Handle errors (insufficient points, reward unavailable). Translate all messages. Test dark/light mode.",
+      "dependencies": ["LOYALTY_003"],
+      "critical": true,
+      "retries": 3,
+      "timeout": 300000
+    },
+    {
+      "id": "LOYALTY_005",
+      "description": "Create Loyalty history and transactions view",
+      "prompt": "Create history tab showing all loyalty transactions (points earned, points spent, rewards redeemed). Display in table/list format with: date, type (earned/spent), amount, service/reward name, remaining balance. Implement filtering by date range and transaction type. Add pagination for large datasets. Translate all text. Test dark/light mode.",
+      "dependencies": ["LOYALTY_004"],
+      "critical": false,
+      "retries": 2,
+      "timeout": 300000
+    },
+    {
+      "id": "LOYALTY_006",
+      "description": "Add Loyalty admin management features",
+      "prompt": "Create admin section for managing loyalty program (visible only to super_admin, franchise_owner). Allow admins to: configure points earning rules, create/edit/delete rewards, view loyalty statistics, manually adjust user points (with reason). Translate admin interface. Test dark/light mode.",
+      "dependencies": ["LOYALTY_005"],
+      "critical": false,
+      "retries": 2,
+      "timeout": 300000
+    },
+    {
+      "id": "DARKMODE_001",
+      "description": "Audit and fix dark mode in all form components",
+      "prompt": "Review all form components (inputs, selects, checkboxes, radios, textareas, file uploads) across the application. Ensure proper dark mode colors for: backgrounds, borders, text, placeholders, focus states, disabled states, error states. Test in all forms: franchise, branch, barber, service, offer, profile forms. Fix any contrast or visibility issues.",
+      "dependencies": ["LOYALTY_006"],
+      "critical": true,
+      "retries": 2,
+      "timeout": 180000
+    },
+    {
+      "id": "DARKMODE_002",
+      "description": "Audit and fix dark mode in all table/list components",
+      "prompt": "Review all table and list components (franchises, branches, barbers, services, queue, offers, loyalty). Ensure proper dark mode colors for: table headers, rows, hover states, borders, empty states, loading states, pagination. Fix any contrast or readability issues.",
+      "dependencies": ["DARKMODE_001"],
+      "critical": true,
+      "retries": 2,
+      "timeout": 180000
+    },
+    {
+      "id": "DARKMODE_003",
+      "description": "Audit and fix dark mode in all modal/dialog components",
+      "prompt": "Review all modal and dialog components (confirmations, forms in modals, image viewers). Ensure proper dark mode colors for: backdrop, modal background, borders, buttons, close icon. Test modal overlays don't have transparency issues in dark mode.",
+      "dependencies": ["DARKMODE_002"],
+      "critical": true,
+      "retries": 2,
+      "timeout": 180000
+    },
+    {
+      "id": "DARKMODE_004",
+      "description": "Audit and fix dark mode in notification components",
+      "prompt": "Review all notification/toast components (success, error, warning, info). Ensure proper dark mode colors for each notification type. Test NotificationPermissionBanner in dark mode. Verify all toast messages are readable in dark mode.",
+      "dependencies": ["DARKMODE_003"],
+      "critical": true,
+      "retries": 2,
+      "timeout": 180000
+    },
+    {
+      "id": "I18N_VALIDATION_001",
+      "description": "Add i18next translations for all form validations",
+      "prompt": "Review all form validation messages across the application. Replace hardcoded validation messages with i18next keys using validation.* namespace. Include: required fields, email format, phone format, min/max length, password match, invalid date/number. Ensure validation messages display in current language.",
+      "dependencies": ["DARKMODE_004"],
+      "critical": true,
+      "retries": 2,
+      "timeout": 180000
+    },
+    {
+      "id": "I18N_TOAST_001",
+      "description": "Add i18next translations for all toast notifications",
+      "prompt": "Review all toast notifications (success, error, warning) across the application. Replace hardcoded messages with i18next keys using messages.success.*, messages.error.* namespaces. Include: CRUD operations, authentication, network errors, validation errors. Test in both languages.",
+      "dependencies": ["I18N_VALIDATION_001"],
+      "critical": true,
+      "retries": 2,
+      "timeout": 180000
+    },
+    {
+      "id": "I18N_LOADING_001",
+      "description": "Add i18next translations for all loading states",
+      "prompt": "Review all loading state messages across the application (LoadingState component, skeleton loaders, button loading states). Replace hardcoded 'Loading...' messages with i18next keys. Ensure loading messages are contextual (e.g., 'Loading barbers...', 'Loading services...'). Test in both languages.",
+      "dependencies": ["I18N_TOAST_001"],
+      "critical": false,
+      "retries": 1,
+      "timeout": 180000
+    },
+    {
+      "id": "I18N_EMPTY_001",
+      "description": "Add i18next translations for all empty states",
+      "prompt": "Review all empty state messages (no data available, no results found, no items to display). Replace hardcoded messages with i18next keys. Make empty states contextual and actionable (e.g., 'No barbers yet. Click + to add your first barber'). Test in both languages and dark mode.",
+      "dependencies": ["I18N_LOADING_001"],
+      "critical": false,
+      "retries": 1,
+      "timeout": 180000
+    },
+    {
+      "id": "MOBILE_001",
+      "description": "Test mobile responsiveness of all pages",
+      "prompt": "Test all pages in mobile viewport (390x844). Verify: mobile bottom nav is always visible and fixed, headers stack properly (title on line 1, controls on line 2), no horizontal scroll, buttons are touch-friendly (min 44px), forms are usable, tables scroll horizontally or collapse to cards. Fix any mobile layout issues.",
+      "dependencies": ["I18N_EMPTY_001"],
+      "critical": true,
+      "retries": 2,
+      "timeout": 300000
+    },
+    {
+      "id": "MOBILE_002",
+      "description": "Test language switcher on mobile",
+      "prompt": "Test LanguageSwitcher component on mobile devices. Verify it's accessible (currently only in desktop sidebar). Consider adding language switcher to mobile header or settings. Ensure language switching works correctly on mobile and preference persists.",
+      "dependencies": ["MOBILE_001"],
+      "critical": true,
+      "retries": 2,
+      "timeout": 180000
+    },
+    {
+      "id": "ACCESSIBILITY_001",
+      "description": "Add ARIA labels and improve accessibility",
+      "prompt": "Add proper ARIA labels to all interactive elements (buttons, links, inputs, selects). Ensure keyboard navigation works throughout the app. Add focus indicators for keyboard users. Test with screen reader. Add alt text to all images. Ensure color contrast meets WCAG AA standards in both light and dark mode.",
+      "dependencies": ["MOBILE_002"],
+      "critical": false,
+      "retries": 2,
+      "timeout": 180000
+    },
+    {
+      "id": "PERFORMANCE_001",
+      "description": "Optimize bundle size and code splitting",
+      "prompt": "Analyze current bundle size (1.2MB is large). Implement code splitting for routes using React.lazy() and Suspense. Split i18next translation files to load per-route. Lazy load heavy components (modals, charts). Optimize images. Aim to reduce initial bundle to under 500KB. Test that lazy loading works correctly.",
+      "dependencies": ["ACCESSIBILITY_001"],
+      "critical": false,
+      "retries": 2,
+      "timeout": 300000
+    },
+    {
+      "id": "TESTING_001",
+      "description": "Create end-to-end tests for critical flows",
+      "prompt": "Create Playwright tests for critical user flows: user login, create barber, create service, create offer, take ticket, redeem loyalty reward. Test in both Spanish and English. Test in light and dark mode. Ensure tests pass consistently.",
+      "dependencies": ["PERFORMANCE_001"],
+      "critical": false,
+      "retries": 2,
+      "timeout": 300000
+    },
+    {
+      "id": "DEPLOY_001",
+      "description": "Final build, test, and deploy to production",
+      "prompt": "Run final build with npm run build. Test production build locally. Verify all features work: i18next language switching, dark/light mode, all CRUD operations, offers, loyalty. Run lighthouse audit (aim for >90 performance, >95 accessibility). Deploy to Firebase Hosting. Verify deployed app works correctly.",
+      "dependencies": ["TESTING_001"],
+      "critical": true,
+      "retries": 3,
+      "timeout": 300000
+    }
+  ]
+}
